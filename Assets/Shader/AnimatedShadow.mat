@@ -43,7 +43,7 @@ Material:
     m_Floats:
     - _AnimAmount: 2
     - _AnimSpeed: 1.5
-    - _ColorMask: 15
+    - _ColorMask: 255
     - _EnableExternalAlpha: 0
     - _ShadowOffsetX: 10
     - _ShadowOffsetY: -10
@@ -57,6 +57,6 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadowColor: {r: 0.2776279, g: 0.2776279, b: 0.2776279, a: 0.2784314}
+    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.70980394}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
