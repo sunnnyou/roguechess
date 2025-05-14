@@ -3,7 +3,7 @@ using UnityEngine;
 // Represents a single chess tile on the board
 public class ChessTile : MonoBehaviour
 {
-    public string coordinate; // e.g. "a1", "e5", "i5"
+    public string coordinate;
     public Color originalColor = new Color(1f, 1f, 1f, 1f);
     public bool isWhite;
     public ChessPiece currentPiece;
@@ -37,7 +37,6 @@ public class ChessTile : MonoBehaviour
 
         // Explicitly set the sorting order
         spriteRenderer.sortingOrder = 2;
-        spriteRenderer.sortingLayerName = "Default";
     }
 
     public void Highlight(bool highlight)

@@ -27,7 +27,6 @@ public class ChessPiece : MonoBehaviour
         }
 
         // Explicitly set the sorting order to be higher than tiles
-        spriteRenderer.sortingLayerName = "Default";
         spriteRenderer.sortingOrder = 10;
 
         spriteRenderer.sprite = sprite;

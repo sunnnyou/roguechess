@@ -1,13 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
-// Add these namespaces at the top of your file
 using UnityEngine.InputSystem;
 
 public class ChessBoard : MonoBehaviour
 {
     public int width = 8;
     public int height = 8;
+
+    [Tooltip("If auto-scale is enabled, this value will be ignored")]
     public float tileSize = 1.0f;
+    public bool autoScale = true;
+
+    [Tooltip("Padding percentage (0-1) when auto-scaling")]
+    [Range(0, 0.5f)]
+    public float scalePadding = 0.05f;
+
     public Sprite whiteTileSprite;
     public Sprite blackTileSprite;
 
@@ -28,12 +35,90 @@ public class ChessBoard : MonoBehaviour
     private Dictionary<string, ChessTile> tiles = new Dictionary<string, ChessTile>();
     private ChessPiece selectedPiece;
     private List<ChessTile> highlightedTiles = new List<ChessTile>();
+    private RectTransform parentRectTransform;
+    private float calculatedTileSize;
 
     // Start is called before the first frame update
     void Start()
     {
+        CalculateScaling();
         GenerateBoard();
         SetupTraditionalPieces();
+    }
+
+    // Calculates appropriate scaling based on parent container
+    private void CalculateScaling()
+    {
+        if (!autoScale)
+        {
+            calculatedTileSize = tileSize;
+            return;
+        }
+
+        // Get parent RectTransform if we're in a Canvas
+        parentRectTransform = GetComponentInParent<RectTransform>();
+
+        if (parentRectTransform != null)
+        {
+            // We're in UI Canvas context
+            float availableWidth = parentRectTransform.rect.width * (1 - scalePadding * 2);
+            float availableHeight = parentRectTransform.rect.height * (1 - scalePadding * 2);
+
+            // Calculate tile size based on available space and board dimensions
+            float widthBasedSize = availableWidth / width;
+            float heightBasedSize = availableHeight / height;
+            calculatedTileSize = Mathf.Min(widthBasedSize, heightBasedSize);
+
+            Debug.Log($"Auto-scaling in UI context. Tile size: {calculatedTileSize}");
+        }
+        else
+        {
+            // We're in world space context
+            // Try to get any Renderer to determine parent bounds
+            Renderer parentRenderer = GetComponentInParent<Renderer>();
+            if (parentRenderer != null)
+            {
+                // Use parent bounds to calculate available space
+                Bounds bounds = parentRenderer.bounds;
+                float availableWidth = bounds.size.x * (1 - scalePadding * 2);
+                float availableHeight = bounds.size.y * (1 - scalePadding * 2);
+
+                // Calculate tile size
+                float widthBasedSize = availableWidth / width;
+                float heightBasedSize = availableHeight / height;
+                calculatedTileSize = Mathf.Min(widthBasedSize, heightBasedSize);
+
+                Debug.Log(
+                    $"Auto-scaling based on parent Renderer. Tile size: {calculatedTileSize}"
+                );
+            }
+            else
+            {
+                // No parent to base size on, use Transform size if it's not zero
+                Vector3 localScale = transform.localScale;
+                if (localScale.x > 0 && localScale.y > 0)
+                {
+                    float availableWidth = localScale.x * (1 - scalePadding * 2);
+                    float availableHeight = localScale.y * (1 - scalePadding * 2);
+
+                    float widthBasedSize = availableWidth / width;
+                    float heightBasedSize = availableHeight / height;
+                    calculatedTileSize = Mathf.Min(widthBasedSize, heightBasedSize);
+
+                    Debug.Log(
+                        $"Auto-scaling based on transform scale. Tile size: {calculatedTileSize}"
+                    );
+                }
+                else
+                {
+                    // No suitable parent size found, use default tile size
+                    calculatedTileSize = tileSize;
+                    Debug.LogWarning(
+                        "Could not determine parent size for auto-scaling. Using default tile size."
+                    );
+                }
+            }
+        }
     }
 
     // Update is called once per frame
@@ -100,6 +185,15 @@ public class ChessBoard : MonoBehaviour
         }
         tiles.Clear();
 
+        // Calculate board center offset for alignment
+        float boardWidth = width * calculatedTileSize;
+        float boardHeight = height * calculatedTileSize;
+        Vector2 boardCenter = new Vector2(boardWidth / 2, boardHeight / 2);
+        Vector2 startPos = new Vector2(
+            -boardCenter.x + (calculatedTileSize / 2),
+            -boardCenter.y + (calculatedTileSize / 2)
+        );
+
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
@@ -107,8 +201,12 @@ public class ChessBoard : MonoBehaviour
                 // Create chess tile game object
                 GameObject tileObject = new GameObject($"Tile_{GetCoordinateFromPosition(x, y)}");
                 tileObject.transform.parent = transform;
-                // Position with a z-value of 1 (further back)
-                tileObject.transform.position = new Vector3(x * tileSize, y * tileSize, -1);
+
+                // Calculate centered position
+                float posX = startPos.x + (x * calculatedTileSize);
+                float posY = startPos.y + (y * calculatedTileSize);
+                tileObject.transform.localPosition = new Vector3(posX, posY, -1);
+
                 // Setup collider for mouse interaction
                 BoxCollider2D collider = tileObject.AddComponent<BoxCollider2D>();
                 collider.size = new Vector2(tileSize, tileSize);
@@ -117,8 +215,8 @@ public class ChessBoard : MonoBehaviour
                 ChessTile tile = tileObject.AddComponent<ChessTile>();
 
                 // // Ensure the SpriteRenderer is added before Initialize is called
-                SpriteRenderer renderer = tileObject.AddComponent<SpriteRenderer>();
-                tile.spriteRenderer = renderer;
+                // SpriteRenderer renderer = tileObject.AddComponent<SpriteRenderer>();
+                // tile.spriteRenderer = renderer;
 
                 bool isWhite = (x + y) % 2 == 0;
                 tile.Initialize(GetCoordinateFromPosition(x, y), isWhite);
@@ -126,13 +224,15 @@ public class ChessBoard : MonoBehaviour
                 // Set sprite
                 tile.spriteRenderer.sprite = isWhite ? whiteTileSprite : blackTileSprite;
 
-                // IMPORTANT: Set a negative sorting order to ensure tiles are behind pieces
-                tile.spriteRenderer.sortingLayerName = "Default";
+                // IMPORTANT: Has to be lower than chess piece sorting order, or it will overlap it
                 tile.spriteRenderer.sortingOrder = 2;
 
                 // Set proper size for the tile
-                tile.transform.localScale = new Vector3(tileSize, tileSize, -1);
-
+                tileObject.transform.localScale = new Vector3(
+                    calculatedTileSize,
+                    calculatedTileSize,
+                    -1
+                );
                 // Add to dictionary for easy lookup
                 tiles.Add(tile.coordinate, tile);
             }
@@ -243,7 +343,6 @@ public class ChessBoard : MonoBehaviour
 
         // Setup sprite renderer
         // SpriteRenderer renderer = pieceObject.GetComponent<SpriteRenderer>();
-
         // // IMPORTANT: Set a positive sorting order to ensure pieces are on top of tiles
         // renderer.sortingOrder = 10;
 
@@ -258,12 +357,13 @@ public class ChessBoard : MonoBehaviour
         float spriteWidth = 54f;
         float spriteHeight = 107f;
 
-        // // Scale to fit within the tile, centered
-        float scaleX = tileSize * 0.8f / spriteWidth; // Use 80% of tile width
-        float scaleY = tileSize * 0.8f / spriteHeight; // Use 80% of tile height
+        // Scale to fit within the tile, centered
+        float scaleX = calculatedTileSize * 0.8f; // Use 80% of tile width
+        float scaleY = calculatedTileSize * 0.8f; // Use 80% of tile height
         float scale = Mathf.Min(scaleX, scaleY); // Use the smaller scale to maintain aspect ratio
 
-        pieceObject.transform.position = new Vector3(scale, scale, -2);
+        pieceObject.transform.localScale = new Vector3(scale, scale, -2);
+
         // Place the piece on the tile
         tile.PlacePiece(piece);
 
@@ -390,5 +490,33 @@ public class ChessBoard : MonoBehaviour
             piece.CustomizeMoveRules(moveRules);
         }
         return piece;
+    }
+
+    // handle board resizing
+    public void Resize(int newWidth, int newHeight, bool regenerate = true)
+    {
+        width = newWidth;
+        height = newHeight;
+
+        if (autoScale)
+        {
+            CalculateScaling();
+        }
+
+        if (regenerate)
+        {
+            GenerateBoard();
+        }
+    }
+
+    // Handler for scaling from UI
+    void OnRectTransformDimensionsChange()
+    {
+        if (autoScale && gameObject.activeInHierarchy)
+        {
+            CalculateScaling();
+            GenerateBoard();
+            SetupTraditionalPieces();
+        }
     }
 }
