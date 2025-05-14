@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ChessPiece : MonoBehaviour
@@ -8,11 +9,18 @@ public class ChessPiece : MonoBehaviour
     public Sprite sprite;
     public ChessTile currentTile;
     public List<MoveRule> moveRules = new List<MoveRule>();
+    public Material pieceMaterial;
 
     private SpriteRenderer spriteRenderer;
     private ChessBoard board;
 
-    public void Initialize(ChessPieceType type, bool white, Sprite sprite, ChessBoard chessBoard)
+    public void Initialize(
+        ChessPieceType type,
+        bool white,
+        Sprite sprite,
+        ChessBoard chessBoard,
+        Material material = null
+    )
     {
         pieceType = type;
         isWhite = white;
@@ -24,6 +32,13 @@ public class ChessPiece : MonoBehaviour
         if (spriteRenderer == null)
         {
             spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+        }
+
+        // Apply material if provided
+        if (material != null)
+        {
+            pieceMaterial = material;
+            spriteRenderer.materials = spriteRenderer.materials.Append(material).ToArray();
         }
 
         // Explicitly set the sorting order to be higher than tiles

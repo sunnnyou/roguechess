@@ -32,6 +32,9 @@ public class ChessBoard : MonoBehaviour
     public Sprite blackQueenSprite;
     public Sprite blackKingSprite;
 
+    [Header("Materials")]
+    public Material pieceMaterial;
+
     private Dictionary<string, ChessTile> tiles = new Dictionary<string, ChessTile>();
     private ChessPiece selectedPiece;
     private List<ChessTile> highlightedTiles = new List<ChessTile>();
@@ -229,8 +232,8 @@ public class ChessBoard : MonoBehaviour
 
                 // Set proper size for the tile
                 tileObject.transform.localScale = new Vector3(
-                    calculatedTileSize,
-                    calculatedTileSize,
+                    1 / calculatedTileSize,
+                    1 / calculatedTileSize,
                     -1
                 );
                 // Add to dictionary for easy lookup
@@ -350,12 +353,12 @@ public class ChessBoard : MonoBehaviour
         Sprite sprite = GetPieceSprite(type, isWhite);
 
         // Initialize the piece
-        piece.Initialize(type, isWhite, sprite, this);
+        piece.Initialize(type, isWhite, sprite, this, pieceMaterial);
 
         // // Scale the piece properly to fit the tile
         // // Assuming the sprite has a pixel size of 54x107
-        float spriteWidth = 54f;
-        float spriteHeight = 107f;
+        // float spriteWidth = 54f;
+        // float spriteHeight = 107f;
 
         // Scale to fit within the tile, centered
         float scaleX = calculatedTileSize * 0.8f; // Use 80% of tile width
@@ -487,6 +490,11 @@ public class ChessBoard : MonoBehaviour
         {
             piece.sprite = sprite;
             piece.GetComponent<SpriteRenderer>().sprite = sprite;
+            // Apply custom material if available
+            if (pieceMaterial != null)
+            {
+                piece.GetComponent<SpriteRenderer>().material = pieceMaterial;
+            }
             piece.CustomizeMoveRules(moveRules);
         }
         return piece;

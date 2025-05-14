@@ -27,6 +27,9 @@ public class ChessBoardEditor : Editor
     SerializedProperty blackQueenSpriteProperty;
     SerializedProperty blackKingSpriteProperty;
 
+    // Piece material properties
+    SerializedProperty pieceMaterialProperty;
+
     private void OnEnable()
     {
         widthProperty = serializedObject.FindProperty("width");
@@ -48,6 +51,9 @@ public class ChessBoardEditor : Editor
         blackBishopSpriteProperty = serializedObject.FindProperty("blackBishopSprite");
         blackQueenSpriteProperty = serializedObject.FindProperty("blackQueenSprite");
         blackKingSpriteProperty = serializedObject.FindProperty("blackKingSprite");
+
+        // Piece material properties
+        pieceMaterialProperty = serializedObject.FindProperty("pieceMaterial");
     }
 
     public override void OnInspectorGUI()
@@ -81,6 +87,10 @@ public class ChessBoardEditor : Editor
         EditorGUILayout.PropertyField(blackBishopSpriteProperty);
         EditorGUILayout.PropertyField(blackQueenSpriteProperty);
         EditorGUILayout.PropertyField(blackKingSpriteProperty);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Piece Material", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(pieceMaterialProperty);
 
         serializedObject.ApplyModifiedProperties();
 

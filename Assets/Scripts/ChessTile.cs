@@ -4,12 +4,12 @@ using UnityEngine;
 public class ChessTile : MonoBehaviour
 {
     public string coordinate;
-    public Color originalColor = new Color(1f, 1f, 1f, 1f);
+    public Color originalColor;
     public bool isWhite;
     public ChessPiece currentPiece;
     public SpriteRenderer spriteRenderer;
 
-    private Color highlightColor = new Color(0.5f, 0.8f, 0.5f, 0.5f);
+    private Color highlightColor = new Color(0.0f, 0.5f, 0.0f);
 
     void Awake()
     {
@@ -24,6 +24,7 @@ public class ChessTile : MonoBehaviour
     {
         coordinate = coord;
         isWhite = isWhiteTile;
+        originalColor = spriteRenderer.color;
 
         // Make sure we have a SpriteRenderer at this point
         if (spriteRenderer == null)
@@ -41,7 +42,7 @@ public class ChessTile : MonoBehaviour
 
     public void Highlight(bool highlight)
     {
-        spriteRenderer.color = highlight ? highlightColor : originalColor;
+        spriteRenderer.color = highlight ? originalColor + highlightColor : originalColor;
     }
 
     public void PlacePiece(ChessPiece piece)

@@ -580,6 +580,7 @@ MonoBehaviour:
   blackBishopSprite: {fileID: -1984474028379983292, guid: 657c3a86f926fc4478e533e531c04210, type: 3}
   blackQueenSprite: {fileID: 3719666882540055524, guid: a972034451271314386eb02fa86aefaf, type: 3}
   blackKingSprite: {fileID: 578592838016128351, guid: 7ac4dbac9d990c348aca20b7c9901ccf, type: 3}
+  pieceMaterial: {fileID: 2100000, guid: 2894155b5494d254dac34254dac7ebe7, type: 2}
 --- !u!1 &1747156706
 GameObject:
   m_ObjectHideFlags: 0
