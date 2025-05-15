@@ -224,7 +224,7 @@ public class ChessBoard : MonoBehaviour
                 collider.size = new Vector2(tileSize, tileSize);
 
                 // Setup tile component
-                ChessTile tile = tileObject.AddComponent<ChessTile>();er;
+                ChessTile tile = tileObject.AddComponent<ChessTile>();
 
                 bool isWhite = (x + y) % 2 == 0;
                 tile.Initialize(GetCoordinateFromPosition(x, y), isWhite);
