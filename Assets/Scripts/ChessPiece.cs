@@ -34,17 +34,14 @@ public class ChessPiece : MonoBehaviour
             spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
         }
 
-        // Apply material if provided
         if (material != null)
         {
-            pieceMaterial = new Material(material);
-            pieceMaterial.renderQueue = 2999;
+            pieceMaterial = new Material(material); // Get copy of material so that material texture is that of this sprite
+            pieceMaterial.renderQueue = 2999; // lower value so that its rendered behind sprite
             spriteRenderer.materials = spriteRenderer.materials.Append(pieceMaterial).ToArray();
         }
 
-        // Explicitly set the sorting order to be higher than tiles
-        spriteRenderer.sortingOrder = 10;
-
+        spriteRenderer.sortingOrder = 10; // render above tiles
         spriteRenderer.sprite = sprite;
 
         // Set default move rules based on piece type
