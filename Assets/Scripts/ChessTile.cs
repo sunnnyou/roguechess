@@ -9,7 +9,7 @@ public class ChessTile : MonoBehaviour
     public ChessPiece currentPiece;
     public SpriteRenderer spriteRenderer;
 
-    private Color highlightColor = new Color(0.0f, 0.5f, 0.0f);
+    private Color highlightColor = new Color(0.0f, 0.4f, 0.0f);
 
     void Awake()
     {
@@ -42,7 +42,7 @@ public class ChessTile : MonoBehaviour
 
     public void Highlight(bool highlight)
     {
-        spriteRenderer.color = highlight ? originalColor + highlightColor : originalColor;
+        spriteRenderer.color = highlight ? highlightColor : originalColor;
     }
 
     public void PlacePiece(ChessPiece piece)
