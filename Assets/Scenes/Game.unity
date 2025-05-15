@@ -565,7 +565,7 @@ MonoBehaviour:
   height: 8
   tileSize: 1
   autoScale: 1
-  scalePadding: 0.05
+  scalePadding: 0.06
   whiteTileSprite: {fileID: -9163426285224168042, guid: 246c28b0d81d26f43bb3fed30d0a13f1, type: 3}
   blackTileSprite: {fileID: 8149051649407981845, guid: 44a133846dc76274493b43b6124ce2b5, type: 3}
   whitePawnSprite: {fileID: 2533179969505074583, guid: 3c58e929b6e078a4db85e153a0ddb531, type: 3}

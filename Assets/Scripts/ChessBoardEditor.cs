@@ -10,6 +10,8 @@ public class ChessBoardEditor : Editor
     SerializedProperty widthProperty;
     SerializedProperty heightProperty;
     SerializedProperty tileSizeProperty;
+    SerializedProperty autoScaleProperty;
+    SerializedProperty scalePaddingProperty;
     SerializedProperty whiteTileSpriteProperty;
     SerializedProperty blackTileSpriteProperty;
 
@@ -35,6 +37,8 @@ public class ChessBoardEditor : Editor
         widthProperty = serializedObject.FindProperty("width");
         heightProperty = serializedObject.FindProperty("height");
         tileSizeProperty = serializedObject.FindProperty("tileSize");
+        autoScaleProperty = serializedObject.FindProperty("autoScale");
+        scalePaddingProperty = serializedObject.FindProperty("scalePadding");
         whiteTileSpriteProperty = serializedObject.FindProperty("whiteTileSprite");
         blackTileSpriteProperty = serializedObject.FindProperty("blackTileSprite");
 
@@ -64,6 +68,8 @@ public class ChessBoardEditor : Editor
         EditorGUILayout.PropertyField(widthProperty);
         EditorGUILayout.PropertyField(heightProperty);
         EditorGUILayout.PropertyField(tileSizeProperty);
+        EditorGUILayout.PropertyField(autoScaleProperty);
+        EditorGUILayout.PropertyField(scalePaddingProperty);
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Tile Sprites", EditorStyles.boldLabel);
