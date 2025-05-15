@@ -184,7 +184,16 @@ public class ChessBoard : MonoBehaviour
         foreach (var tile in tiles.Values)
         {
             if (tile != null)
-                DestroyImmediate(tile.gameObject);
+            {
+                if (Application.isEditor)
+                {
+                    DestroyImmediate(tile.gameObject);
+                }
+                else
+                {
+                    Destroy(tile.gameObject);
+                }
+            }
         }
         tiles.Clear();
 
@@ -215,11 +224,7 @@ public class ChessBoard : MonoBehaviour
                 collider.size = new Vector2(tileSize, tileSize);
 
                 // Setup tile component
-                ChessTile tile = tileObject.AddComponent<ChessTile>();
-
-                // // Ensure the SpriteRenderer is added before Initialize is called
-                // SpriteRenderer renderer = tileObject.AddComponent<SpriteRenderer>();
-                // tile.spriteRenderer = renderer;
+                ChessTile tile = tileObject.AddComponent<ChessTile>();er;
 
                 bool isWhite = (x + y) % 2 == 0;
                 tile.Initialize(GetCoordinateFromPosition(x, y), isWhite);
@@ -227,14 +232,14 @@ public class ChessBoard : MonoBehaviour
                 // Set sprite
                 tile.spriteRenderer.sprite = isWhite ? whiteTileSprite : blackTileSprite;
 
-                // IMPORTANT: Has to be lower than chess piece sorting order, or it will overlap it
+                // Set sorting order to be behind chess pieces
                 tile.spriteRenderer.sortingOrder = 2;
 
                 // Set proper size for the tile
                 tileObject.transform.localScale = new Vector3(
                     1 / calculatedTileSize,
                     1 / calculatedTileSize,
-                    -1
+                    -1 // be in front of background but behind chess pieces
                 );
                 // Add to dictionary for easy lookup
                 tiles.Add(tile.coordinate, tile);
@@ -344,28 +349,18 @@ public class ChessBoard : MonoBehaviour
 
         ChessPiece piece = pieceObject.AddComponent<ChessPiece>();
 
-        // Setup sprite renderer
-        // SpriteRenderer renderer = pieceObject.GetComponent<SpriteRenderer>();
-        // // IMPORTANT: Set a positive sorting order to ensure pieces are on top of tiles
-        // renderer.sortingOrder = 10;
-
         // Get the appropriate sprite based on piece type and color
         Sprite sprite = GetPieceSprite(type, isWhite);
 
         // Initialize the piece
         piece.Initialize(type, isWhite, sprite, this, pieceMaterial);
 
-        // // Scale the piece properly to fit the tile
-        // // Assuming the sprite has a pixel size of 54x107
-        // float spriteWidth = 54f;
-        // float spriteHeight = 107f;
-
         // Scale to fit within the tile, centered
         float scaleX = calculatedTileSize * 0.8f; // Use 80% of tile width
         float scaleY = calculatedTileSize * 0.8f; // Use 80% of tile height
         float scale = Mathf.Min(scaleX, scaleY); // Use the smaller scale to maintain aspect ratio
 
-        pieceObject.transform.localScale = new Vector3(scale, scale, -2);
+        pieceObject.transform.localScale = new Vector3(scale, scale, -2); // -2 to render in front of tiles
 
         // Place the piece on the tile
         tile.PlacePiece(piece);
@@ -449,7 +444,14 @@ public class ChessBoard : MonoBehaviour
         // If there's a piece on the target tile (capture)
         if (targetTile.currentPiece != null)
         {
-            Destroy(targetTile.currentPiece.gameObject);
+            if (Application.isEditor)
+            {
+                DestroyImmediate(targetTile.currentPiece.gameObject);
+            }
+            else
+            {
+                Destroy(targetTile.currentPiece.gameObject);
+            }
         }
 
         // Remove piece from current tile
@@ -465,8 +467,8 @@ public class ChessBoard : MonoBehaviour
         piece.transform.position = new Vector3(
             targetTile.transform.position.x,
             targetTile.transform.position.y,
-            -2
-        ); // Z = 0 for pieces
+            -2 // render in front of tiles
+        );
     }
 
     // Resize the board to a custom size
@@ -477,7 +479,7 @@ public class ChessBoard : MonoBehaviour
         GenerateBoard();
     }
 
-    // Method to create a custom piece with custom movement rules
+    // Create a custom piece with custom movement rules
     public ChessPiece CreateCustomPiece(
         string coordinate,
         bool isWhite,
@@ -488,13 +490,17 @@ public class ChessBoard : MonoBehaviour
         ChessPiece piece = SpawnPiece(ChessPieceType.Custom, isWhite, coordinate);
         if (piece != null)
         {
+            // TODO: special sprite for example mix of white/black piece maybe?
             piece.sprite = sprite;
             piece.GetComponent<SpriteRenderer>().sprite = sprite;
-            // Apply custom material if available
-            if (pieceMaterial != null)
-            {
-                piece.GetComponent<SpriteRenderer>().material = pieceMaterial;
-            }
+
+            // // Apply custom material if available
+            // TODO: shining material for special pieces for example
+            // if (pieceMaterial != null)
+            // {
+            //     piece.GetComponent<SpriteRenderer>().material = pieceMaterial;
+            // }
+
             piece.CustomizeMoveRules(moveRules);
         }
         return piece;

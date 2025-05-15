@@ -9,7 +9,7 @@ public class ChessTile : MonoBehaviour
     public ChessPiece currentPiece;
     public SpriteRenderer spriteRenderer;
 
-    private Color highlightColor = new Color(0.0f, 0.4f, 0.0f);
+    private Color highlightColor = new Color(0.0f, 0.4f, 0.0f); // green
 
     void Awake()
     {
@@ -24,7 +24,6 @@ public class ChessTile : MonoBehaviour
     {
         coordinate = coord;
         isWhite = isWhiteTile;
-        originalColor = spriteRenderer.color;
 
         // Make sure we have a SpriteRenderer at this point
         if (spriteRenderer == null)
@@ -35,8 +34,9 @@ public class ChessTile : MonoBehaviour
                 spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             }
         }
+        originalColor = spriteRenderer.color;
 
-        // Explicitly set the sorting order
+        // Render tile behind chess pieces
         spriteRenderer.sortingOrder = 2;
     }
 
