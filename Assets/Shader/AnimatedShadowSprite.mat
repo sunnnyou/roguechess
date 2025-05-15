@@ -41,12 +41,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AnimAmount: 1
-    - _AnimSpeed: 1.5
+    - _AnimAmount: 0.02
+    - _AnimSpeed: 2
     - _EnableExternalAlpha: 0
-    - _ShadowOffsetX: 1
-    - _ShadowOffsetY: -1
-    - _ShadowSize: 0.5
+    - _ShadowOffsetX: 0.05
+    - _ShadowOffsetY: -0.05
+    - _ShadowSize: 0
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

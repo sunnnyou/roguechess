@@ -37,8 +37,9 @@ public class ChessPiece : MonoBehaviour
         // Apply material if provided
         if (material != null)
         {
-            pieceMaterial = material;
-            spriteRenderer.materials = spriteRenderer.materials.Append(material).ToArray();
+            pieceMaterial = new Material(material);
+            pieceMaterial.renderQueue = 2999;
+            spriteRenderer.materials = spriteRenderer.materials.Append(pieceMaterial).ToArray();
         }
 
         // Explicitly set the sorting order to be higher than tiles
