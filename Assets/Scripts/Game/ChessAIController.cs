@@ -3,64 +3,67 @@ using UnityEngine;
 
 public class ChessAIController : MonoBehaviour
 {
-    public ChessBoard chessBoard;
-    public bool isWhiteAI = false;
-    public int searchDepth = 3;
-    public float moveDelay = 1f;
+    public ChessBoard ChessBoard;
+    public bool IsWhiteAI;
+    public int SearchDepth = 3;
+    public float MoveDelay = 1f;
 
     private ChessAI ai;
-    private float moveTimer = 0f;
-    private bool isProcessingMove = false;
+    private float moveTimer;
+    private bool isProcessingMove;
 
-    void Start()
+    public void Start()
     {
-        if (chessBoard == null)
+        if (this.ChessBoard == null)
         {
-            chessBoard = FindFirstObjectByType<ChessBoard>();
+            this.ChessBoard = FindFirstObjectByType<ChessBoard>();
         }
-        ai = new ChessAI(chessBoard, isWhiteAI, searchDepth);
+
+        this.ai = new ChessAI(this.ChessBoard, this.IsWhiteAI, this.SearchDepth);
     }
 
-    void Update()
+    public void Update()
     {
-        if (chessBoard == null || chessBoard.IsGameOver() || isProcessingMove)
-            return;
-
-        if (chessBoard.IsWhiteTurn() == isWhiteAI)
+        if (this.ChessBoard == null || this.ChessBoard.IsGameOver() || this.isProcessingMove)
         {
-            moveTimer += Time.deltaTime;
-            if (moveTimer >= moveDelay)
+            return;
+        }
+
+        if (this.ChessBoard.IsWhiteTurn() == this.IsWhiteAI)
+        {
+            this.moveTimer += Time.deltaTime;
+            if (this.moveTimer >= this.MoveDelay)
             {
-                StartCoroutine(ProcessAIMove());
+                this.StartCoroutine(this.ProcessAIMove());
             }
         }
         else
         {
-            moveTimer = 0f;
+            this.moveTimer = 0f;
         }
     }
 
     private IEnumerator ProcessAIMove()
     {
-        isProcessingMove = true;
-        chessBoard.SetAITurn(true);
+        this.isProcessingMove = true;
+        this.ChessBoard.SetAITurn(true);
 
         yield return new WaitForSeconds(0.5f); // Add slight delay for visual feedback
 
-        ai.MakeMove();
-        moveTimer = 0f;
+        this.ai.MakeMove();
+        this.moveTimer = 0f;
 
         yield return new WaitForSeconds(0.5f); // Add slight delay after move
 
-        chessBoard.SetAITurn(false);
-        isProcessingMove = false;
+        this.ChessBoard.SetAITurn(false);
+        this.isProcessingMove = false;
     }
 
-    void OnValidate()
+    public void OnValidate()
     {
-        if (ai != null)
+        if (this.ai != null)
         {
-            ai = new ChessAI(chessBoard, isWhiteAI, searchDepth);
+            this.ai = new ChessAI(this.ChessBoard, this.IsWhiteAI, this.SearchDepth);
         }
     }
 }

@@ -8,113 +8,113 @@ using UnityEngine;
 public class ChessBoardEditor : Editor
 {
     // Size and scale properties
-    SerializedProperty widthProperty;
-    SerializedProperty heightProperty;
-    SerializedProperty tileSizeProperty;
-    SerializedProperty autoScaleProperty;
-    SerializedProperty scalePaddingProperty;
+    public SerializedProperty WidthProperty;
+    public SerializedProperty HeightProperty;
+    public SerializedProperty TileSizeProperty;
+    public SerializedProperty AutoScaleProperty;
+    public SerializedProperty ScalePaddingProperty;
 
     // Tile sprite properties
-    SerializedProperty whiteTileSpriteProperty;
-    SerializedProperty blackTileSpriteProperty;
+    public SerializedProperty WhiteTileSpriteProperty;
+    public SerializedProperty BlackTileSpriteProperty;
 
     // Piece sprite properties
-    SerializedProperty whitePawnSpriteProperty;
-    SerializedProperty whiteRookSpriteProperty;
-    SerializedProperty whiteKnightSpriteProperty;
-    SerializedProperty whiteBishopSpriteProperty;
-    SerializedProperty whiteQueenSpriteProperty;
-    SerializedProperty whiteKingSpriteProperty;
-    SerializedProperty blackPawnSpriteProperty;
-    SerializedProperty blackRookSpriteProperty;
-    SerializedProperty blackKnightSpriteProperty;
-    SerializedProperty blackBishopSpriteProperty;
-    SerializedProperty blackQueenSpriteProperty;
-    SerializedProperty blackKingSpriteProperty;
+    public SerializedProperty WhitePawnSpriteProperty;
+    public SerializedProperty WhiteRookSpriteProperty;
+    public SerializedProperty WhiteKnightSpriteProperty;
+    public SerializedProperty WhiteBishopSpriteProperty;
+    public SerializedProperty WhiteQueenSpriteProperty;
+    public SerializedProperty WhiteKingSpriteProperty;
+    public SerializedProperty BlackPawnSpriteProperty;
+    public SerializedProperty BlackRookSpriteProperty;
+    public SerializedProperty BlackKnightSpriteProperty;
+    public SerializedProperty BlackBishopSpriteProperty;
+    public SerializedProperty BlackQueenSpriteProperty;
+    public SerializedProperty BlackKingSpriteProperty;
 
     // Material properties
-    SerializedProperty pieceMaterialProperty;
+    public SerializedProperty PieceMaterialProperty;
 
     // Misc sprite properties
-    SerializedProperty spriteHolderProperty;
+    public SerializedProperty SpriteHolderProperty;
 
     private void OnEnable()
     {
-        widthProperty = serializedObject.FindProperty("width");
-        heightProperty = serializedObject.FindProperty("height");
-        tileSizeProperty = serializedObject.FindProperty("tileSize");
-        autoScaleProperty = serializedObject.FindProperty("autoScale");
-        scalePaddingProperty = serializedObject.FindProperty("scalePadding");
-        whiteTileSpriteProperty = serializedObject.FindProperty("whiteTileSprite");
-        blackTileSpriteProperty = serializedObject.FindProperty("blackTileSprite");
+        this.WidthProperty = this.serializedObject.FindProperty("Width");
+        this.HeightProperty = this.serializedObject.FindProperty("Height");
+        this.TileSizeProperty = this.serializedObject.FindProperty("TileSize");
+        this.AutoScaleProperty = this.serializedObject.FindProperty("AutoScale");
+        this.ScalePaddingProperty = this.serializedObject.FindProperty("ScalePadding");
+        this.WhiteTileSpriteProperty = this.serializedObject.FindProperty("WhiteTileSprite");
+        this.BlackTileSpriteProperty = this.serializedObject.FindProperty("BlackTileSprite");
 
         // Piece sprite properties
-        whitePawnSpriteProperty = serializedObject.FindProperty("whitePawnSprite");
-        whiteRookSpriteProperty = serializedObject.FindProperty("whiteRookSprite");
-        whiteKnightSpriteProperty = serializedObject.FindProperty("whiteKnightSprite");
-        whiteBishopSpriteProperty = serializedObject.FindProperty("whiteBishopSprite");
-        whiteQueenSpriteProperty = serializedObject.FindProperty("whiteQueenSprite");
-        whiteKingSpriteProperty = serializedObject.FindProperty("whiteKingSprite");
-        blackPawnSpriteProperty = serializedObject.FindProperty("blackPawnSprite");
-        blackRookSpriteProperty = serializedObject.FindProperty("blackRookSprite");
-        blackKnightSpriteProperty = serializedObject.FindProperty("blackKnightSprite");
-        blackBishopSpriteProperty = serializedObject.FindProperty("blackBishopSprite");
-        blackQueenSpriteProperty = serializedObject.FindProperty("blackQueenSprite");
-        blackKingSpriteProperty = serializedObject.FindProperty("blackKingSprite");
+        this.WhitePawnSpriteProperty = this.serializedObject.FindProperty("WhitePawnSprite");
+        this.WhiteRookSpriteProperty = this.serializedObject.FindProperty("WhiteRookSprite");
+        this.WhiteKnightSpriteProperty = this.serializedObject.FindProperty("WhiteKnightSprite");
+        this.WhiteBishopSpriteProperty = this.serializedObject.FindProperty("WhiteBishopSprite");
+        this.WhiteQueenSpriteProperty = this.serializedObject.FindProperty("WhiteQueenSprite");
+        this.WhiteKingSpriteProperty = this.serializedObject.FindProperty("WhiteKingSprite");
+        this.BlackPawnSpriteProperty = this.serializedObject.FindProperty("BlackPawnSprite");
+        this.BlackRookSpriteProperty = this.serializedObject.FindProperty("BlackRookSprite");
+        this.BlackKnightSpriteProperty = this.serializedObject.FindProperty("BlackKnightSprite");
+        this.BlackBishopSpriteProperty = this.serializedObject.FindProperty("BlackBishopSprite");
+        this.BlackQueenSpriteProperty = this.serializedObject.FindProperty("BlackQueenSprite");
+        this.BlackKingSpriteProperty = this.serializedObject.FindProperty("BlackKingSprite");
 
         // Piece material properties
-        pieceMaterialProperty = serializedObject.FindProperty("pieceMaterial");
+        this.PieceMaterialProperty = this.serializedObject.FindProperty("PieceMaterial");
 
         // Sprite holder property
-        spriteHolderProperty = serializedObject.FindProperty("spriteHolder");
+        this.SpriteHolderProperty = this.serializedObject.FindProperty("SpriteHolder");
     }
 
     public override void OnInspectorGUI()
     {
-        serializedObject.Update();
+        this.serializedObject.Update();
 
         EditorGUILayout.LabelField("Board Settings", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(widthProperty);
-        EditorGUILayout.PropertyField(heightProperty);
-        EditorGUILayout.PropertyField(tileSizeProperty);
-        EditorGUILayout.PropertyField(autoScaleProperty);
-        EditorGUILayout.PropertyField(scalePaddingProperty);
+        EditorGUILayout.PropertyField(this.WidthProperty);
+        EditorGUILayout.PropertyField(this.HeightProperty);
+        EditorGUILayout.PropertyField(this.TileSizeProperty);
+        EditorGUILayout.PropertyField(this.AutoScaleProperty);
+        EditorGUILayout.PropertyField(this.ScalePaddingProperty);
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Tile Sprites", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(whiteTileSpriteProperty);
-        EditorGUILayout.PropertyField(blackTileSpriteProperty);
+        EditorGUILayout.PropertyField(this.WhiteTileSpriteProperty);
+        EditorGUILayout.PropertyField(this.BlackTileSpriteProperty);
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("White Piece Sprites", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(whitePawnSpriteProperty);
-        EditorGUILayout.PropertyField(whiteRookSpriteProperty);
-        EditorGUILayout.PropertyField(whiteKnightSpriteProperty);
-        EditorGUILayout.PropertyField(whiteBishopSpriteProperty);
-        EditorGUILayout.PropertyField(whiteQueenSpriteProperty);
-        EditorGUILayout.PropertyField(whiteKingSpriteProperty);
+        EditorGUILayout.PropertyField(this.WhitePawnSpriteProperty);
+        EditorGUILayout.PropertyField(this.WhiteRookSpriteProperty);
+        EditorGUILayout.PropertyField(this.WhiteKnightSpriteProperty);
+        EditorGUILayout.PropertyField(this.WhiteBishopSpriteProperty);
+        EditorGUILayout.PropertyField(this.WhiteQueenSpriteProperty);
+        EditorGUILayout.PropertyField(this.WhiteKingSpriteProperty);
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Black Piece Sprites", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(blackPawnSpriteProperty);
-        EditorGUILayout.PropertyField(blackRookSpriteProperty);
-        EditorGUILayout.PropertyField(blackKnightSpriteProperty);
-        EditorGUILayout.PropertyField(blackBishopSpriteProperty);
-        EditorGUILayout.PropertyField(blackQueenSpriteProperty);
-        EditorGUILayout.PropertyField(blackKingSpriteProperty);
+        EditorGUILayout.PropertyField(this.BlackPawnSpriteProperty);
+        EditorGUILayout.PropertyField(this.BlackRookSpriteProperty);
+        EditorGUILayout.PropertyField(this.BlackKnightSpriteProperty);
+        EditorGUILayout.PropertyField(this.BlackBishopSpriteProperty);
+        EditorGUILayout.PropertyField(this.BlackQueenSpriteProperty);
+        EditorGUILayout.PropertyField(this.BlackKingSpriteProperty);
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Piece Material", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(pieceMaterialProperty);
+        EditorGUILayout.PropertyField(this.PieceMaterialProperty);
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Sprite Holder", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(spriteHolderProperty);
+        EditorGUILayout.PropertyField(this.SpriteHolderProperty);
 
-        serializedObject.ApplyModifiedProperties();
+        this.serializedObject.ApplyModifiedProperties();
 
         EditorGUILayout.Space();
-        ChessBoard board = (ChessBoard)target;
+        ChessBoard board = (ChessBoard)this.target;
 
         if (GUILayout.Button("Generate Board"))
         {

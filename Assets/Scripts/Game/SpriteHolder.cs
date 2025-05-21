@@ -6,22 +6,22 @@ using UnityEngine.UI;
 public class SpriteHolder : MonoBehaviour
 {
     [Header("UI References")]
-    public Image mainImage;
-    public Image loadingIcon;
-    public Image playerMoveIcon;
-    public Image idleIcon;
+    public Image MainImage;
+    public Image LoadingIcon;
+    public Image PlayerMoveIcon;
+    public Image IdleIcon;
 
     [Header("Animation Settings")]
-    public float fadeTime = 1f;
-    public float growthDuration = 0.1f;
-    public float growthScale = 1.15f;
-    public float idleDisplayDelay = 5f;
+    public float FadeTime = 1f;
+    public float GrowthDuration = 0.1f;
+    public float GrowthScale = 1.15f;
+    public float IdleDisplayDelay = 5f;
 
     [Header("Materials")]
-    public Material mainImageMaterial;
-    public Material playerMoveIconMaterial;
-    public Material idleIconMaterial;
-    public Material loadingIconMaterial;
+    public Material MainImageMaterial;
+    public Material PlayerMoveIconMaterial;
+    public Material IdleIconMaterial;
+    public Material LoadingIconMaterial;
 
     private float lastMoveTime;
     private Coroutine idleCheckCoroutine;
@@ -29,34 +29,34 @@ public class SpriteHolder : MonoBehaviour
 
     private void Awake()
     {
-        if (loadingIcon != null)
+        if (this.LoadingIcon != null)
         {
-            loadingIcon.gameObject.SetActive(false);
+            this.LoadingIcon.gameObject.SetActive(false);
         }
 
-        if (playerMoveIcon != null)
+        if (this.PlayerMoveIcon != null)
         {
-            playerMoveIcon.gameObject.SetActive(false);
-            originalPlayerMoveScale = playerMoveIcon.transform.localScale;
-            playerMoveIcon.rectTransform.pivot = new Vector2(0.5f, 0);
+            this.PlayerMoveIcon.gameObject.SetActive(false);
+            this.originalPlayerMoveScale = this.PlayerMoveIcon.transform.localScale;
+            this.PlayerMoveIcon.rectTransform.pivot = new Vector2(0.5f, 0);
         }
 
-        if (idleIcon != null)
+        if (this.IdleIcon != null)
         {
-            idleIcon.gameObject.SetActive(false);
+            this.IdleIcon.gameObject.SetActive(false);
         }
 
         // Apply materials if assigned
-        ApplyMaterial(mainImage, mainImageMaterial);
-        ApplyMaterial(playerMoveIcon, playerMoveIconMaterial);
-        ApplyMaterial(idleIcon, idleIconMaterial);
-        ApplyMaterial(loadingIcon, loadingIconMaterial);
+        ApplyMaterial(this.MainImage, this.MainImageMaterial);
+        ApplyMaterial(this.PlayerMoveIcon, this.PlayerMoveIconMaterial);
+        ApplyMaterial(this.IdleIcon, this.IdleIconMaterial);
+        ApplyMaterial(this.LoadingIcon, this.LoadingIconMaterial);
 
-        lastMoveTime = Time.time;
-        StartIdleCheck();
+        this.lastMoveTime = Time.time;
+        this.StartIdleCheck();
     }
 
-    private void ApplyMaterial(Image image, Material material)
+    private static void ApplyMaterial(Image image, Material material)
     {
         if (image != null && material != null)
         {
@@ -66,63 +66,67 @@ public class SpriteHolder : MonoBehaviour
 
     public void SetSprite(Sprite sprite)
     {
-        if (mainImage != null)
+        if (this.MainImage != null)
         {
-            mainImage.sprite = sprite;
+            this.MainImage.sprite = sprite;
         }
     }
 
     public void ShowLoading(bool show)
     {
-        if (loadingIcon != null)
+        if (this.LoadingIcon != null)
         {
-            loadingIcon.gameObject.SetActive(show);
+            this.LoadingIcon.gameObject.SetActive(show);
         }
     }
 
     public void OnPlayerMove()
     {
-        lastMoveTime = Time.time;
-        StartIdleCheck();
-        ShowPlayerMoveIcon();
+        this.lastMoveTime = Time.time;
+        this.StartIdleCheck();
+        this.ShowPlayerMoveIcon();
     }
 
     private void ShowPlayerMoveIcon()
     {
-        if (playerMoveIcon == null)
+        if (this.PlayerMoveIcon == null)
+        {
             return;
+        }
 
         // Reset state
-        playerMoveIcon.gameObject.SetActive(true);
-        playerMoveIcon.transform.localScale = originalPlayerMoveScale;
-        playerMoveIcon.color = new Color(1, 1, 1, 1);
+        this.PlayerMoveIcon.gameObject.SetActive(true);
+        this.PlayerMoveIcon.transform.localScale = this.originalPlayerMoveScale;
+        this.PlayerMoveIcon.color = new Color(1, 1, 1, 1);
 
         // Create animation sequence
         Sequence sequence = DOTween.Sequence();
 
         // Growth animation over 1 second
         sequence.Append(
-            playerMoveIcon
-                .transform.DOScale(originalPlayerMoveScale * growthScale, 1f)
+            this.PlayerMoveIcon.transform.DOScale(
+                    this.originalPlayerMoveScale * this.GrowthScale,
+                    1f
+                )
                 .SetEase(Ease.OutQuad)
         );
 
         // Fade out
         sequence.Append(
-            playerMoveIcon
-                .DOFade(0, fadeTime)
+            this.PlayerMoveIcon.DOFade(0, this.FadeTime)
                 .SetDelay(0.5f) // Add delay before fade starts
-                .OnComplete(() => playerMoveIcon.gameObject.SetActive(false))
+                .OnComplete(() => this.PlayerMoveIcon.gameObject.SetActive(false))
         );
     }
 
     private void StartIdleCheck()
     {
-        if (idleCheckCoroutine != null)
+        if (this.idleCheckCoroutine != null)
         {
-            StopCoroutine(idleCheckCoroutine);
+            this.StopCoroutine(this.idleCheckCoroutine);
         }
-        idleCheckCoroutine = StartCoroutine(CheckIdleTime());
+
+        this.idleCheckCoroutine = this.StartCoroutine(this.CheckIdleTime());
     }
 
     // Coroutine to check idle time so that idle icon is shown every x seconds when its the players turn and no moves are made
@@ -130,12 +134,13 @@ public class SpriteHolder : MonoBehaviour
     {
         while (true)
         {
-            float timeSinceLastMove = Time.time - lastMoveTime;
-            if (timeSinceLastMove >= idleDisplayDelay)
+            float timeSinceLastMove = Time.time - this.lastMoveTime;
+            if (timeSinceLastMove >= this.IdleDisplayDelay)
             {
-                ShowIdleIcon();
+                this.ShowIdleIcon();
+
                 // Wait for fade animation to complete before showing again
-                yield return new WaitForSeconds(fadeTime + idleDisplayDelay);
+                yield return new WaitForSeconds(this.FadeTime + this.IdleDisplayDelay);
             }
             else
             {
@@ -146,52 +151,53 @@ public class SpriteHolder : MonoBehaviour
 
     private void ShowIdleIcon()
     {
-        if (idleIcon == null)
+        if (this.IdleIcon == null)
+        {
             return;
+        }
 
-        idleIcon.gameObject.SetActive(true);
-        idleIcon.color = new Color(1, 1, 1, 1);
+        this.IdleIcon.gameObject.SetActive(true);
+        this.IdleIcon.color = new Color(1, 1, 1, 1);
 
         // Show for specified duration before starting fade
         Sequence sequence = DOTween.Sequence();
 
         sequence.AppendInterval(2f); // Show for 2 seconds
         sequence.Append(
-            idleIcon
-                .DOFade(0, fadeTime)
+            this.IdleIcon.DOFade(0, this.FadeTime)
                 .OnComplete(() =>
                 {
-                    idleIcon.gameObject.SetActive(false);
-                    idleIcon.color = new Color(1, 1, 1, 1);
+                    this.IdleIcon.gameObject.SetActive(false);
+                    this.IdleIcon.color = new Color(1, 1, 1, 1);
                 })
         );
     }
 
     public void SetMainImageMaterial(Material material)
     {
-        ApplyMaterial(mainImage, material);
+        ApplyMaterial(this.MainImage, material);
     }
 
     public void SetPlayerMoveIconMaterial(Material material)
     {
-        ApplyMaterial(playerMoveIcon, material);
+        ApplyMaterial(this.PlayerMoveIcon, material);
     }
 
     public void SetIdleIconMaterial(Material material)
     {
-        ApplyMaterial(idleIcon, material);
+        ApplyMaterial(this.IdleIcon, material);
     }
 
     public void SetLoadingIconMaterial(Material material)
     {
-        ApplyMaterial(loadingIcon, material);
+        ApplyMaterial(this.LoadingIcon, material);
     }
 
     private void OnDestroy()
     {
         // Clean up DOTween animations
-        DOTween.Kill(playerMoveIcon.transform);
-        DOTween.Kill(playerMoveIcon);
-        DOTween.Kill(idleIcon);
+        DOTween.Kill(this.PlayerMoveIcon.transform);
+        DOTween.Kill(this.PlayerMoveIcon);
+        DOTween.Kill(this.IdleIcon);
     }
 }

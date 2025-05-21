@@ -1,0 +1,14 @@
+[Assets/Scripts/*/*.cs]
+dotnet_diagnostic.SA1009.severity = none # Closing square brackets should not be followed by space
+dotnet_diagnostic.SA1111.severity = none # Closing brace should not be preceded by blank line
+dotnet_diagnostic.SA1202.severity = none # Public members should appear before Private members
+dotnet_diagnostic.SA1203.severity = none # Constant fields should appear before non-constant fields
+dotnet_diagnostic.SA1204.severity = none # Static elements should appear before instance elements
+dotnet_diagnostic.SA1310.severity = none # Field names should not use underscore
+dotnet_diagnostic.SA1401.severity = none # Fields should be private
+dotnet_diagnostic.SA1512.severity = none # curly-brace must not be followed by a space
+dotnet_diagnostic.SA1600.severity = none # Elements should be documented
+dotnet_diagnostic.SA1602.severity = none # Enumeration items should be documented
+dotnet_diagnostic.SA1633.severity = none # File header copyright text should match
+dotnet_diagnostic.CA1051.severity = none # Do not declare visible instance fields
+dotnet_diagnostic.CA2119.severity = none # Seal methods that satisfy private interfaces

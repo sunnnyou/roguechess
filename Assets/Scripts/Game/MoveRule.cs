@@ -4,8 +4,8 @@ using System;
 [Serializable]
 public class MoveRule
 {
-    public int xDirection;
-    public int yDirection;
-    public int maxDistance = 1; // 1 for moves like King, unlimited for Queen/Bishop etc.
-    public bool canJumpOverPieces = false; // Knight is the only piece that can jump
+    public int XDirection;
+    public int YDirection;
+    public int MaxDistance = 1; // 1 for moves like King, unlimited for Queen/Bishop etc.
+    public bool CanJumpOverPieces; // Knight is the only piece that can jump
 }

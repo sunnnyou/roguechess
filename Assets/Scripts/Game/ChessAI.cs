@@ -23,40 +23,40 @@ public class ChessAI
 
     public void MakeMove()
     {
-        var bestMove = FindBestMove();
+        var bestMove = this.FindBestMove();
         if (bestMove.piece != null && bestMove.move != null)
         {
-            board.MovePieceAI(bestMove.piece, bestMove.move);
+            this.board.MovePieceAI(bestMove.piece, bestMove.move);
         }
     }
 
     public (ChessPiece piece, ChessMove move) FindBestMove()
     {
-        var pieces = board.GetAllPieces(isWhiteAI);
+        var pieces = this.board.GetAllPieces(this.isWhiteAI);
         ChessPiece bestPiece = null;
         ChessMove bestMove = null;
         int bestValue = int.MinValue;
 
         foreach (var piece in pieces)
         {
-            foreach (var move in board.GetValidMoves(piece))
+            foreach (var move in ChessBoard.GetValidMoves(piece))
             {
                 // Simulate move
-                var originalTile = piece.currentTile;
-                var targetCoord = board.GetCoordinateFromPosition(
-                    move.targetPosition.x,
-                    move.targetPosition.y
+                var originalTile = piece.CurrentTile;
+                var targetCoord = ChessBoard.GetCoordinateFromPosition(
+                    move.TargetPosition.x,
+                    move.TargetPosition.y
                 );
-                var targetTile = board.GetTile(targetCoord);
-                var capturedPiece = targetTile.currentPiece;
+                var targetTile = this.board.GetTile(targetCoord);
+                var capturedPiece = targetTile.CurrentPiece;
 
-                board.MovePieceAI(piece, move);
+                this.board.MovePieceAI(piece, move);
 
                 // Evaluate position
-                int value = -EvaluatePosition();
+                int value = -this.EvaluatePosition();
 
                 // Undo move
-                board.MovePiece(piece, originalTile);
+                this.board.MovePiece(piece, originalTile);
                 if (capturedPiece != null)
                 {
                     targetTile.PlacePiece(capturedPiece);
@@ -79,21 +79,22 @@ public class ChessAI
         int score = 0;
 
         // Material value
-        foreach (var piece in board.GetAllPieces(true))
+        foreach (var piece in this.board.GetAllPieces(true))
         {
             score += GetPieceValue(piece);
         }
-        foreach (var piece in board.GetAllPieces(false))
+
+        foreach (var piece in this.board.GetAllPieces(false))
         {
             score -= GetPieceValue(piece);
         }
 
-        return isWhiteAI ? score : -score;
+        return this.isWhiteAI ? score : -score;
     }
 
-    private int GetPieceValue(ChessPiece piece)
+    private static int GetPieceValue(ChessPiece piece)
     {
-        switch (piece.pieceType)
+        switch (piece.PieceType)
         {
             case ChessPieceType.Pawn:
                 return PAWN_VALUE;
