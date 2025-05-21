@@ -7,11 +7,14 @@ using UnityEngine;
 [CustomEditor(typeof(ChessBoard))]
 public class ChessBoardEditor : Editor
 {
+    // Size and scale properties
     SerializedProperty widthProperty;
     SerializedProperty heightProperty;
     SerializedProperty tileSizeProperty;
     SerializedProperty autoScaleProperty;
     SerializedProperty scalePaddingProperty;
+
+    // Tile sprite properties
     SerializedProperty whiteTileSpriteProperty;
     SerializedProperty blackTileSpriteProperty;
 
@@ -29,8 +32,11 @@ public class ChessBoardEditor : Editor
     SerializedProperty blackQueenSpriteProperty;
     SerializedProperty blackKingSpriteProperty;
 
-    // Piece material properties
+    // Material properties
     SerializedProperty pieceMaterialProperty;
+
+    // Misc sprite properties
+    SerializedProperty spriteHolderProperty;
 
     private void OnEnable()
     {
@@ -58,6 +64,9 @@ public class ChessBoardEditor : Editor
 
         // Piece material properties
         pieceMaterialProperty = serializedObject.FindProperty("pieceMaterial");
+
+        // Sprite holder property
+        spriteHolderProperty = serializedObject.FindProperty("spriteHolder");
     }
 
     public override void OnInspectorGUI()
@@ -97,6 +106,10 @@ public class ChessBoardEditor : Editor
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Piece Material", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(pieceMaterialProperty);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Sprite Holder", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(spriteHolderProperty);
 
         serializedObject.ApplyModifiedProperties();
 

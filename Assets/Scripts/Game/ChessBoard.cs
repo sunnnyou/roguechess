@@ -4,6 +4,15 @@ using UnityEngine.InputSystem;
 
 public class ChessBoard : MonoBehaviour
 {
+    // TODO: fix bug with destroying own pieces
+    // TODO: fix bug with ai moving multiple times
+    // TODO: fix bug with overlapping ai icons
+    // TODO: fix bug with ai destroying pieces that werent in reach
+    // TODO: add check for checkmate/stalemate
+    // TODO: add custom piece with custom movement rules
+    // TODO: buffs (undo action(zaa wardoo), multiple tile destroy, more reach, player second chance, multi-life chess pieces, freeze opponent piece, "invisible" pieces, clone pieces, more gold, more time)
+    // TODO: consumables (one-time use buffs, one-time use pieces, chess pieces management (destroy pieces, clone))
+    // TODO: add shop (buffs, custom pieces, consumables)
     public int width = 8;
     public int height = 8;
 
@@ -14,6 +23,11 @@ public class ChessBoard : MonoBehaviour
     [Tooltip("Padding percentage (0-1) when auto-scaling")]
     [Range(0, 0.5f)]
     public float scalePadding = 0.05f;
+
+    // Add these new fields at the top with other public fields
+    [Header("UI References")]
+    public SpriteHolder spriteHolder;
+    private bool isAITurn = false;
 
     public Sprite whiteTileSprite;
     public Sprite blackTileSprite;
@@ -40,6 +54,14 @@ public class ChessBoard : MonoBehaviour
     private List<ChessTile> highlightedTiles = new List<ChessTile>();
     private RectTransform parentRectTransform;
     private float calculatedTileSize;
+
+    // Game variables
+    private bool isWhiteTurn = true;
+    private bool gameOver = false;
+
+    public bool IsWhiteTurn() => isWhiteTurn;
+
+    public bool IsGameOver() => gameOver;
 
     // Start is called before the first frame update
     void Start()
@@ -127,10 +149,14 @@ public class ChessBoard : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Block input during AI turn
+        if (isAITurn || gameOver)
+            return;
+
         HandleInput();
     }
 
-    // Then replace the HandleInput method with this:
+    // Handle player input for selecting and moving pieces
     void HandleInput()
     {
         // Check for left mouse button click
@@ -140,40 +166,50 @@ public class ChessBoard : MonoBehaviour
             Vector2 worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(worldPosition, Vector2.zero);
 
-            if (hit.collider != null)
+            if (hit.collider == null)
             {
-                // Check if we hit a tile
-                ChessTile clickedTile = hit.collider.GetComponent<ChessTile>();
-                if (clickedTile != null)
-                {
-                    // If we have a piece selected and clicked on a valid move tile
-                    if (selectedPiece != null && highlightedTiles.Contains(clickedTile))
-                    {
-                        // Move the piece
-                        MovePiece(selectedPiece, clickedTile);
-                        ClearHighlights();
-                        selectedPiece = null;
-                    }
-                    // If we clicked on a piece
-                    else if (clickedTile.currentPiece != null)
-                    {
-                        // Deselect current piece
-                        if (selectedPiece != null)
-                        {
-                            ClearHighlights();
-                        }
+                return;
+            }
+            // Check if we hit a tile
+            ChessTile clickedTile = hit.collider.GetComponent<ChessTile>();
+            if (clickedTile == null)
+            {
+                return;
+            }
 
-                        // Select new piece
-                        selectedPiece = clickedTile.currentPiece;
-                        HighlightValidMoves(selectedPiece);
-                    }
-                    // If we clicked on an empty tile
-                    else
-                    {
-                        ClearHighlights();
-                        selectedPiece = null;
-                    }
+            // If we have a piece selected and clicked on a valid move tile
+            if (selectedPiece != null && highlightedTiles.Contains(clickedTile))
+            {
+                // Move the piece
+                MovePiece(selectedPiece, clickedTile);
+                ClearHighlights();
+                selectedPiece = null;
+                isWhiteTurn = !isWhiteTurn; // Switch turns after move
+            }
+            // If we clicked on a piece
+            else if (clickedTile.currentPiece != null)
+            {
+                bool isPlayersPiece = clickedTile.currentPiece.isWhite == isWhiteTurn;
+                if (!isPlayersPiece)
+                {
+                    return; // Can't select opponent's pieces
                 }
+
+                // Deselect current piece
+                if (selectedPiece != null)
+                {
+                    ClearHighlights();
+                }
+
+                // Select new piece
+                selectedPiece = clickedTile.currentPiece;
+                HighlightValidMoves(selectedPiece);
+            }
+            // If we clicked on an empty tile
+            else
+            {
+                ClearHighlights();
+                selectedPiece = null;
             }
         }
     }
@@ -183,16 +219,17 @@ public class ChessBoard : MonoBehaviour
         // Clear existing tiles if board is regenerated
         foreach (var tile in tiles.Values)
         {
-            if (tile != null)
+            if (tile == null)
             {
-                if (Application.isEditor)
-                {
-                    DestroyImmediate(tile.gameObject);
-                }
-                else
-                {
-                    Destroy(tile.gameObject);
-                }
+                continue;
+            }
+            if (Application.isEditor)
+            {
+                DestroyImmediate(tile.gameObject);
+            }
+            else
+            {
+                Destroy(tile.gameObject);
             }
         }
         tiles.Clear();
@@ -469,6 +506,12 @@ public class ChessBoard : MonoBehaviour
             targetTile.transform.position.y,
             -2 // render in front of tiles
         );
+
+        // Update AI icons
+        if (spriteHolder != null)
+        {
+            spriteHolder.OnPlayerMove();
+        }
     }
 
     // Resize the board to a custom size
@@ -488,21 +531,22 @@ public class ChessBoard : MonoBehaviour
     )
     {
         ChessPiece piece = SpawnPiece(ChessPieceType.Custom, isWhite, coordinate);
-        if (piece != null)
+        if (piece == null)
         {
-            // TODO: special sprite for example mix of white/black piece maybe?
-            piece.sprite = sprite;
-            piece.GetComponent<SpriteRenderer>().sprite = sprite;
-
-            // // Apply custom material if available
-            // TODO: shining material for special pieces for example
-            // if (pieceMaterial != null)
-            // {
-            //     piece.GetComponent<SpriteRenderer>().material = pieceMaterial;
-            // }
-
-            piece.CustomizeMoveRules(moveRules);
+            return piece;
         }
+        // TODO: special sprite for example mix of white/black piece maybe?
+        piece.sprite = sprite;
+        piece.GetComponent<SpriteRenderer>().sprite = sprite;
+
+        // // Apply custom material if available
+        // TODO: shining material for special pieces for example
+        // if (pieceMaterial != null)
+        // {
+        //     piece.GetComponent<SpriteRenderer>().material = pieceMaterial;
+        // }
+
+        piece.CustomizeMoveRules(moveRules);
         return piece;
     }
 
@@ -526,11 +570,79 @@ public class ChessBoard : MonoBehaviour
     // Handler for scaling from UI
     void OnRectTransformDimensionsChange()
     {
-        if (autoScale && gameObject.activeInHierarchy)
+        if (!autoScale || !gameObject.activeInHierarchy)
         {
-            CalculateScaling();
-            GenerateBoard();
-            SetupTraditionalPieces();
+            return;
         }
+        CalculateScaling();
+        GenerateBoard();
+        SetupTraditionalPieces();
+    }
+
+    // Get all pieces from player
+    public List<ChessPiece> GetAllPieces(bool isWhite)
+    {
+        List<ChessPiece> pieces = new List<ChessPiece>();
+        foreach (var tile in tiles.Values)
+        {
+            if (tile.currentPiece != null && tile.currentPiece.isWhite == isWhite)
+            {
+                pieces.Add(tile.currentPiece);
+            }
+        }
+        return pieces;
+    }
+
+    public List<ChessMove> GetValidMoves(ChessPiece piece)
+    {
+        List<ChessMove> moves = new List<ChessMove>();
+        List<ChessTile> validTiles = piece.GetValidMoves();
+
+        foreach (var tile in validTiles)
+        {
+            moves.Add(
+                new ChessMove(
+                    GetPositionFromCoordinate(piece.currentTile.coordinate),
+                    GetPositionFromCoordinate(tile.coordinate),
+                    tile.currentPiece != null
+                )
+            );
+        }
+
+        return moves;
+    }
+
+    private Vector2Int GetPositionFromCoordinate(string coordinate)
+    {
+        ParseCoordinate(coordinate, out int x, out int y);
+        return new Vector2Int(x, y);
+    }
+
+    public void SetAITurn(bool aiTurn)
+    {
+        isAITurn = aiTurn;
+        if (spriteHolder != null)
+        {
+            spriteHolder.ShowLoading(aiTurn);
+        }
+    }
+
+    public void MovePieceAI(ChessPiece piece, ChessMove move)
+    {
+        SetAITurn(true);
+
+        string targetCoord = GetCoordinateFromPosition(
+            move.targetPosition.x,
+            move.targetPosition.y
+        );
+        ChessTile targetTile = GetTile(targetCoord);
+
+        if (targetTile != null)
+        {
+            MovePiece(piece, targetTile);
+            isWhiteTurn = !isWhiteTurn;
+        }
+
+        SetAITurn(false);
     }
 }
