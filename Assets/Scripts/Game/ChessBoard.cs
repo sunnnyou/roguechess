@@ -24,7 +24,6 @@ public class ChessBoard : MonoBehaviour
     [Range(0, 0.5f)]
     public float ScalePadding = 0.05f;
 
-    // Add these new fields at the top with other public fields
     [Header("UI References")]
     public SpriteHolder SpriteHolder;
     private bool isAITurn;

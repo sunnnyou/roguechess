@@ -196,8 +196,14 @@ public class SpriteHolder : MonoBehaviour
     private void OnDestroy()
     {
         // Clean up DOTween animations
-        DOTween.Kill(this.PlayerMoveIcon.transform);
-        DOTween.Kill(this.PlayerMoveIcon);
-        DOTween.Kill(this.IdleIcon);
+        if (this.PlayerMoveIcon != null)
+        {
+            DOTween.Kill(this.PlayerMoveIcon.transform);
+            DOTween.Kill(this.PlayerMoveIcon);
+        }
+        if (this.IdleIcon != null)
+        {
+            DOTween.Kill(this.IdleIcon);
+        }
     }
 }

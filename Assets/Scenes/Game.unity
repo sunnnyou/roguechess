@@ -741,10 +741,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8c6866ef39b50949bebbb0cb7a6c229, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chessBoard: {fileID: 1715971529}
-  isWhiteAI: 0
-  searchDepth: 3
-  moveDelay: 1
+  ChessBoard: {fileID: 0}
+  IsWhiteAI: 0
+  SearchDepth: 3
+  MoveDelay: 1
 --- !u!4 &956457633
 Transform:
   m_ObjectHideFlags: 0
@@ -852,18 +852,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 654af8bf4668c8944b686ccb0a3b54e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainImage: {fileID: 610908069}
-  loadingIcon: {fileID: 853766370}
-  playerMoveIcon: {fileID: 2004949568}
-  idleIcon: {fileID: 758930408}
-  fadeTime: 2
-  growthDuration: 0.1
-  growthScale: 1.15
-  idleDisplayDelay: 5
-  mainImageMaterial: {fileID: 0}
-  playerMoveIconMaterial: {fileID: 0}
-  idleIconMaterial: {fileID: 0}
-  loadingIconMaterial: {fileID: 0}
+  MainImage: {fileID: 610908069}
+  LoadingIcon: {fileID: 853766370}
+  PlayerMoveIcon: {fileID: 2004949568}
+  IdleIcon: {fileID: 758930408}
+  FadeTime: 1
+  GrowthDuration: 0.1
+  GrowthScale: 1.15
+  IdleDisplayDelay: 5
+  MainImageMaterial: {fileID: 0}
+  PlayerMoveIconMaterial: {fileID: 0}
+  IdleIconMaterial: {fileID: 0}
+  LoadingIconMaterial: {fileID: 0}
 --- !u!1 &1646810621
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,27 +1033,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f99d36c6212ddd46a9a0827078f146e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 8
-  height: 8
-  tileSize: 1
-  autoScale: 1
-  scalePadding: 0.06
-  spriteHolder: {fileID: 1497474800}
-  whiteTileSprite: {fileID: -9163426285224168042, guid: 246c28b0d81d26f43bb3fed30d0a13f1, type: 3}
-  blackTileSprite: {fileID: 8149051649407981845, guid: 44a133846dc76274493b43b6124ce2b5, type: 3}
-  whitePawnSprite: {fileID: 2533179969505074583, guid: 3c58e929b6e078a4db85e153a0ddb531, type: 3}
-  whiteRookSprite: {fileID: 6402892968040458680, guid: 2f07434ff0f161e47a99866b315bcd53, type: 3}
-  whiteKnightSprite: {fileID: -5711848221618334454, guid: 88717443773bd34478db033093229786, type: 3}
-  whiteBishopSprite: {fileID: 1379780806020190625, guid: 319457352a5e89f44a42e6ffe016ea6e, type: 3}
-  whiteQueenSprite: {fileID: 7519753400087680208, guid: 038dab76b634a7847b4040c3667ef860, type: 3}
-  whiteKingSprite: {fileID: -4821530343430527414, guid: 03beb0a103f842d46b6698de983930d9, type: 3}
-  blackPawnSprite: {fileID: 5993696066448623703, guid: c154050c80e79234c935c67167fbf8c9, type: 3}
-  blackRookSprite: {fileID: 5464593998813958563, guid: 86d6996cf5d0fd84f9fcb4b16ff64f5d, type: 3}
-  blackKnightSprite: {fileID: 1714466297915238613, guid: ee11e7cddb617294a85bb3e288f4dde7, type: 3}
-  blackBishopSprite: {fileID: -1984474028379983292, guid: 657c3a86f926fc4478e533e531c04210, type: 3}
-  blackQueenSprite: {fileID: 3719666882540055524, guid: a972034451271314386eb02fa86aefaf, type: 3}
-  blackKingSprite: {fileID: 578592838016128351, guid: 7ac4dbac9d990c348aca20b7c9901ccf, type: 3}
-  pieceMaterial: {fileID: 2100000, guid: 2894155b5494d254dac34254dac7ebe7, type: 2}
+  Width: 8
+  Height: 8
+  TileSize: 1
+  AutoScale: 1
+  ScalePadding: 0.05
+  SpriteHolder: {fileID: 1497474800}
+  WhiteTileSprite: {fileID: -9163426285224168042, guid: 246c28b0d81d26f43bb3fed30d0a13f1, type: 3}
+  BlackTileSprite: {fileID: 8149051649407981845, guid: 44a133846dc76274493b43b6124ce2b5, type: 3}
+  WhitePawnSprite: {fileID: 2533179969505074583, guid: 3c58e929b6e078a4db85e153a0ddb531, type: 3}
+  WhiteRookSprite: {fileID: 6402892968040458680, guid: 2f07434ff0f161e47a99866b315bcd53, type: 3}
+  WhiteKnightSprite: {fileID: -5711848221618334454, guid: 88717443773bd34478db033093229786, type: 3}
+  WhiteBishopSprite: {fileID: 1379780806020190625, guid: 319457352a5e89f44a42e6ffe016ea6e, type: 3}
+  WhiteQueenSprite: {fileID: 7519753400087680208, guid: 038dab76b634a7847b4040c3667ef860, type: 3}
+  WhiteKingSprite: {fileID: -4821530343430527414, guid: 03beb0a103f842d46b6698de983930d9, type: 3}
+  BlackPawnSprite: {fileID: 5993696066448623703, guid: c154050c80e79234c935c67167fbf8c9, type: 3}
+  BlackRookSprite: {fileID: 5464593998813958563, guid: 86d6996cf5d0fd84f9fcb4b16ff64f5d, type: 3}
+  BlackKnightSprite: {fileID: 1714466297915238613, guid: ee11e7cddb617294a85bb3e288f4dde7, type: 3}
+  BlackBishopSprite: {fileID: -1984474028379983292, guid: 657c3a86f926fc4478e533e531c04210, type: 3}
+  BlackQueenSprite: {fileID: 3719666882540055524, guid: a972034451271314386eb02fa86aefaf, type: 3}
+  BlackKingSprite: {fileID: 578592838016128351, guid: 7ac4dbac9d990c348aca20b7c9901ccf, type: 3}
+  PieceMaterial: {fileID: 2100000, guid: 2894155b5494d254dac34254dac7ebe7, type: 2}
 --- !u!1 &1747156706
 GameObject:
   m_ObjectHideFlags: 0
