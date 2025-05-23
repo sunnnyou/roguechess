@@ -15,3 +15,9 @@ dotnet_diagnostic.CA2119.severity = none # Seal methods that satisfy private int
 
 # SA1201: Elements should appear in the correct order
 dotnet_diagnostic.SA1201.severity = none
+
+# SA1214: Readonly fields should appear before non-readonly fields
+dotnet_diagnostic.SA1214.severity = none
+
+# SA1214: Readonly fields should appear before non-readonly fields
+dotnet_diagnostic.SA1214.severity = none

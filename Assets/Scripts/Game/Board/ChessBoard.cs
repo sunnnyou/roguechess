@@ -30,7 +30,7 @@ namespace Assets.Scripts.Game.Board
 
         [Header("UI References")]
         public SpriteHolder SpriteHolder;
-        public bool isAITurn;
+        public bool IsAITurn;
 
         public Sprite WhiteTileSprite;
         public Sprite BlackTileSprite;
@@ -52,7 +52,7 @@ namespace Assets.Scripts.Game.Board
         [Header("Materials")]
         public Material PieceMaterial;
 
-        private Dictionary<string, ChessTile> tiles = new Dictionary<string, ChessTile>();
+        public Dictionary<string, ChessTile> Tiles = new Dictionary<string, ChessTile>();
         private ChessPiece selectedPiece;
         private List<ChessTile> highlightedTiles = new List<ChessTile>();
         private RectTransform parentRectTransform;
@@ -155,7 +155,7 @@ namespace Assets.Scripts.Game.Board
         public void Update()
         {
             // Block input during AI turn
-            if (this.isAITurn || this.gameOver)
+            if (this.IsAITurn || this.gameOver)
             {
                 return;
             }
@@ -225,7 +225,7 @@ namespace Assets.Scripts.Game.Board
         public void GenerateBoard()
         {
             // Clear existing tiles if board is regenerated
-            foreach (var tile in this.tiles.Values)
+            foreach (var tile in this.Tiles.Values)
             {
                 if (tile == null)
                 {
@@ -242,7 +242,7 @@ namespace Assets.Scripts.Game.Board
                 }
             }
 
-            this.tiles.Clear();
+            this.Tiles.Clear();
 
             // Calculate board center offset for alignment
             float boardWidth = this.Width * this.calculatedTileSize;
@@ -294,7 +294,7 @@ namespace Assets.Scripts.Game.Board
                     );
 
                     // Add to dictionary for easy lookup
-                    this.tiles.Add(tile.Coordinate, tile);
+                    this.Tiles.Add(tile.Coordinate, tile);
                 }
             }
         }
@@ -334,7 +334,7 @@ namespace Assets.Scripts.Game.Board
         // Get a tile by its coordinate
         public ChessTile GetTile(string coordinate)
         {
-            if (this.tiles.TryGetValue(coordinate, out ChessTile tile))
+            if (this.Tiles.TryGetValue(coordinate, out ChessTile tile))
             {
                 return tile;
             }
@@ -578,7 +578,7 @@ namespace Assets.Scripts.Game.Board
         public List<ChessPiece> GetAllPieces(bool isWhite)
         {
             List<ChessPiece> pieces = new List<ChessPiece>();
-            foreach (var tile in this.tiles.Values)
+            foreach (var tile in this.Tiles.Values)
             {
                 if (tile.CurrentPiece != null && tile.CurrentPiece.IsWhite == isWhite)
                 {
@@ -597,7 +597,7 @@ namespace Assets.Scripts.Game.Board
 
         public void SetAITurn(bool aiTurn)
         {
-            this.isAITurn = aiTurn;
+            this.IsAITurn = aiTurn;
             if (this.SpriteHolder != null)
             {
                 this.SpriteHolder.ShowLoading(aiTurn);
@@ -634,7 +634,7 @@ namespace Assets.Scripts.Game.Board
         // Check if a coordinate is valid on the board
         public bool IsValidCoordinate(string coordinate)
         {
-            return this.tiles.ContainsKey(coordinate);
+            return this.Tiles.ContainsKey(coordinate);
         }
 
         // Check if a position is valid on the board
@@ -650,7 +650,7 @@ namespace Assets.Scripts.Game.Board
         public List<ChessPiece> GetPiecesOfType(ChessPieceType type, bool isWhite)
         {
             List<ChessPiece> pieces = new List<ChessPiece>();
-            foreach (var tile in this.tiles.Values)
+            foreach (var tile in this.Tiles.Values)
             {
                 ChessPiece piece = tile.CurrentPiece;
                 if (piece != null && piece.PieceType == type && piece.IsWhite == isWhite)

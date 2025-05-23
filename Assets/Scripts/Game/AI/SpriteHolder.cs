@@ -203,6 +203,7 @@ namespace Assets.Scripts.Game.AI
                 DOTween.Kill(this.PlayerMoveIcon.transform);
                 DOTween.Kill(this.PlayerMoveIcon);
             }
+
             if (this.IdleIcon != null)
             {
                 DOTween.Kill(this.IdleIcon);
