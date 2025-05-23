@@ -1,22 +1,25 @@
-using UnityEngine;
-
-public enum BuffType
+namespace Assets.Scripts.Game
 {
-    Passive,
-    Temporary,
-}
+    using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewBuff", menuName = "ChessRoguelike/Buff")]
-public class Buff : ScriptableObject
-{
-    public string BuffName;
-    public BuffType BuffType;
-    public string Description;
-    public Sprite Icon;
+    public enum BuffType
+    {
+        Passive,
+        Temporary,
+    }
 
-    public bool IsOneTimeUse;
-    public int Cost;
+    [CreateAssetMenu(fileName = "NewBuff", menuName = "ChessRoguelike/Buff")]
+    public class Buff : ScriptableObject
+    {
+        public string BuffName;
+        public BuffType BuffType;
+        public string Description;
+        public Sprite Icon;
 
-    // You can later add methods like:
-    // public virtual void Apply(Player player) { }
+        public bool IsOneTimeUse;
+        public int Cost;
+
+        // You can later add methods like:
+        // public virtual void Apply(Player player) { }
+    }
 }
