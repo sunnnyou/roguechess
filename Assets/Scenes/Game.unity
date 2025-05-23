@@ -712,54 +712,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 853766368}
   m_CullTransparentMesh: 1
---- !u!1 &1081222728
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1081222730}
-  - component: {fileID: 1081222729}
-  m_Layer: 0
-  m_Name: ChessAI
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1081222729
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1081222728}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8c6866ef39b50949bebbb0cb7a6c229, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ChessBoard: {fileID: 1715971529}
-  IsWhiteAI: 0
-  SearchDepth: 3
-  MoveDelay: 1
---- !u!4 &1081222730
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1081222728}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2931.72, y: 972.1761, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1497474796
 GameObject:
   m_ObjectHideFlags: 0
@@ -1040,7 +992,7 @@ MonoBehaviour:
   AutoScale: 1
   ScalePadding: 0.05
   SpriteHolder: {fileID: 1497474800}
-  isAITurn: 0
+  IsAITurn: 0
   WhiteTileSprite: {fileID: -9163426285224168042, guid: 246c28b0d81d26f43bb3fed30d0a13f1, type: 3}
   BlackTileSprite: {fileID: 8149051649407981845, guid: 44a133846dc76274493b43b6124ce2b5, type: 3}
   WhitePawnSprite: {fileID: 2533179969505074583, guid: 3c58e929b6e078a4db85e153a0ddb531, type: 3}
@@ -1056,12 +1008,6 @@ MonoBehaviour:
   BlackQueenSprite: {fileID: 3719666882540055524, guid: a972034451271314386eb02fa86aefaf, type: 3}
   BlackKingSprite: {fileID: 578592838016128351, guid: 7ac4dbac9d990c348aca20b7c9901ccf, type: 3}
   PieceMaterial: {fileID: 2100000, guid: 2894155b5494d254dac34254dac7ebe7, type: 2}
-  selectedPiece: {fileID: 0}
-  highlightedTiles: []
-  parentRectTransform: {fileID: 0}
-  calculatedTileSize: 0
-  isWhiteTurn: 1
-  gameOver: 0
 --- !u!114 &1715971530
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1071,13 +1017,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1715971527}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8742a727ca4cd784fb291737b48a46f3, type: 3}
+  m_Script: {fileID: 11500000, guid: 01cdd3e5cd61ebf4da0bdb8f90154c91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SearchDepth: 3
-  MoveDelay: 1
-  IsAIEnabled: 1
-  chessBoard: {fileID: 0}
+  ThinkingTime: 1
+  IsBlackAI: 1
+  ShowDebugLogs: 1
 --- !u!1 &1747156706
 GameObject:
   m_ObjectHideFlags: 0
@@ -1502,4 +1448,3 @@ SceneRoots:
   - {fileID: 701530873}
   - {fileID: 1751812941}
   - {fileID: 2134266298}
-  - {fileID: 1081222730}

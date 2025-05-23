@@ -1,15 +1,14 @@
 namespace Assets.Scripts.Game.Board
 {
-    using System;
-
-    // Represents the move logic and properties of a chess piece
-
-    [Serializable]
+    // Defines how pieces can move
+    [System.Serializable]
     public class MoveRule
     {
         public int XDirection;
         public int YDirection;
-        public int MaxDistance = 1; // 1 for moves like King, unlimited for Queen/Bishop etc.
-        public bool CanJumpOverPieces; // Knight is the only piece that can jump
+        public int MaxDistance = 1;
+        public bool CanJumpOverPieces;
+        public bool MustCapture; // For pieces that can only move when capturing
+        public bool CannotCapture; // For pieces that cannot capture (like pawn forward movement)
     }
 }

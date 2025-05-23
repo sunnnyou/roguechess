@@ -7,5 +7,6 @@ namespace Assets.Scripts.Game.Board
         WhiteWins,
         BlackWins,
         Stalemate,
+        Draw,
     }
 }
