@@ -460,7 +460,8 @@ namespace Assets.Scripts.Game.Board
             }
 
             // Record the move history before making the move
-            string fromCoord = piece.CurrentTile.Coordinate;
+            ChessTile currentTile = piece.CurrentTile;
+            string fromCoord = currentTile.Coordinate;
             ChessPiece capturedPiece = targetTile.CurrentPiece;
             this.moveHistory.Add(
                 new ChessMoveHistory(
@@ -474,6 +475,7 @@ namespace Assets.Scripts.Game.Board
 
             // Update tiles current piece (destroy/disable old piece if any)
             targetTile.UpdatePiece(piece);
+            currentTile.CurrentPiece = null;
 
             // Update AI icons
             if (this.SpriteHolder != null)
