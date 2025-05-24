@@ -11,7 +11,6 @@ namespace Assets.Scripts.Game.Board
         public Sprite Sprite;
         public ChessTile CurrentTile;
         public List<MoveRule> MoveRules = new List<MoveRule>();
-        public Material PieceMaterial;
         public int Lives = 1; // Number of hits before piece is destroyed
 
         private SpriteRenderer spriteRenderer;
@@ -22,7 +21,8 @@ namespace Assets.Scripts.Game.Board
             bool white,
             Sprite sprite,
             ChessBoard chessBoard,
-            Material material = null
+            List<Material> materials,
+            List<MoveRule> customRules = null
         )
         {
             this.PieceType = type;
@@ -37,263 +37,66 @@ namespace Assets.Scripts.Game.Board
                 this.spriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
             }
 
-            if (material != null)
+            if (materials != null)
             {
-                this.PieceMaterial = new Material(material); // Get copy of material so that material texture is that of this sprite
-                this.PieceMaterial.renderQueue = 2999; // lower value so that its rendered behind sprite
-                this.spriteRenderer.materials = this
-                    .spriteRenderer.materials.Append(this.PieceMaterial)
-                    .ToArray();
+                int baseRenderQueue = 3000; // default render queue value for sprites
+                for (int i = 0; i < materials.Count; i++)
+                {
+                    var pieceMaterial = new Material(materials[i])
+                    {
+                        renderQueue = --baseRenderQueue, // lower value so that its rendered behind sprite
+                    };
+                    this.spriteRenderer.materials = this
+                        .spriteRenderer.materials.Append(pieceMaterial)
+                        .ToArray();
+                }
             }
 
             this.spriteRenderer.sortingOrder = 10; // render above tiles
             this.spriteRenderer.sprite = sprite;
 
             // Set default move rules based on piece type
-            this.SetDefaultMoveRules();
+            this.SetDefaultMoveRules(customRules);
         }
 
-        public void SetDefaultMoveRules()
+        public void SetDefaultMoveRules(List<MoveRule> customRules = null)
         {
-            // TODO: make this a dictionary or special class for each piece type
             this.MoveRules.Clear();
 
             switch (this.PieceType)
             {
                 case ChessPieceType.Pawn:
                     // Forward movement (will need special handling for first move and capture)
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 0,
-                            YDirection = this.IsWhite ? 1 : -1,
-                            MaxDistance = 1,
-                        }
-                    );
+                    this.MoveRules = MoveRule.Pawn(this.IsWhite);
                     break;
 
                 case ChessPieceType.Rook:
                     // Horizontal and vertical movement
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = 0,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = 0,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 0,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 0,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
+                    this.MoveRules = MoveRule.Rook();
                     break;
 
                 case ChessPieceType.Knight:
                     // L-shaped movement
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = 2,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 2,
-                            YDirection = 1,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 2,
-                            YDirection = -1,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = -2,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = -2,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -2,
-                            YDirection = -1,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -2,
-                            YDirection = 1,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = 2,
-                            CanJumpOverPieces = true,
-                        }
-                    );
+                    this.MoveRules = MoveRule.Knight();
                     break;
 
                 case ChessPieceType.Bishop:
                     // Diagonal movement
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
+                    this.MoveRules = MoveRule.Bishop();
                     break;
 
                 case ChessPieceType.Queen:
                     // Combination of Rook and Bishop movement
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = 0,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = 0,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 0,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 0,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
+                    this.MoveRules = MoveRule.Queen();
                     break;
 
                 case ChessPieceType.King:
                     // One square in any direction
-                    this.MoveRules.Add(new MoveRule { XDirection = 1, YDirection = 0 });
-                    this.MoveRules.Add(new MoveRule { XDirection = -1, YDirection = 0 });
-                    this.MoveRules.Add(new MoveRule { XDirection = 0, YDirection = 1 });
-                    this.MoveRules.Add(new MoveRule { XDirection = 0, YDirection = -1 });
-                    this.MoveRules.Add(new MoveRule { XDirection = 1, YDirection = 1 });
-                    this.MoveRules.Add(new MoveRule { XDirection = 1, YDirection = -1 });
-                    this.MoveRules.Add(new MoveRule { XDirection = -1, YDirection = 1 });
-                    this.MoveRules.Add(new MoveRule { XDirection = -1, YDirection = -1 });
+                    this.MoveRules = MoveRule.King();
                     break;
 
                 case ChessPieceType.Custom:
-                    // Custom pieces start with no move rules
+                    this.MoveRules = customRules ?? MoveRule.Pawn(this.IsWhite);
                     break;
             }
         }
@@ -305,7 +108,7 @@ namespace Assets.Scripts.Game.Board
 
         public List<ChessTile> GetValidTiles()
         {
-            List<ChessTile> validMoves = new List<ChessTile>();
+            var validMoves = new List<ChessTile>();
 
             if (this.CurrentTile == null || this.board == null)
             {
@@ -486,14 +289,13 @@ namespace Assets.Scripts.Game.Board
         private void DestroyPiece()
         {
             // TODO: add capture animation and add to captured pieces list for ui
-            if (Application.isEditor)
-            {
-                DestroyImmediate(this.gameObject);
-            }
-            else
-            {
-                Destroy(this.gameObject);
-            }
+            this.gameObject.SetActive(false);
+        }
+
+        private void RevivePiece(int lives = 1)
+        {
+            this.gameObject.SetActive(true);
+            this.Lives = lives;
         }
     }
 }

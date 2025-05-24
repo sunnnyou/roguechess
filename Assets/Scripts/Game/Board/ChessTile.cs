@@ -68,49 +68,10 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        /// <summary>
-        /// Tries to remove the current piece from this tile.
-        /// </summary>
-        /// <param name="newPiece">chess piece replacing the current piece on this tile.</param>
-        /// <returns>True if piece was replaced, false otherwise.</returns>
+        // Tries to remove the current piece from this tile.
         private bool RemovePiece(ChessPiece newPiece)
         {
             return this.CurrentPiece.FightPiece(newPiece);
-        }
-
-        // Initialize tile copy without GameObject components (for AI board copying)
-        public void InitializeForCopy(string coordinate, bool isWhite)
-        {
-            this.Coordinate = coordinate;
-            this.IsWhite = isWhite;
-            this.CurrentPiece = null;
-
-            // We don't need SpriteRenderer for AI copies
-            this.SpriteRenderer = null;
-        }
-
-        // Set piece for copied board (without GameObject updates)
-        public void SetPieceForCopy(ChessPiece piece)
-        {
-            // Remove piece from old tile if it exists
-            if (piece != null && piece.CurrentTile != null && piece.CurrentTile != this)
-            {
-                piece.CurrentTile.CurrentPiece = null;
-            }
-
-            // Set new piece
-            this.CurrentPiece = piece;
-            if (piece != null)
-            {
-                piece.CurrentTile = this;
-            }
-        }
-
-        // Get position as Vector2Int (helper for AI)
-        public Vector2Int GetPosition()
-        {
-            ChessBoard.ParseCoordinate(this.Coordinate, out int x, out int y);
-            return new Vector2Int(x, y);
         }
     }
 }
