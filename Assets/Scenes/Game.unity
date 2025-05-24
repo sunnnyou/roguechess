@@ -1022,8 +1022,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SearchDepth: 3
   ThinkingTime: 1
-  IsBlackAI: 1
-  ShowDebugLogs: 1
+  IsAggressive: 0
+  PreferCenter: 1
+  IsDefensive: 0
 --- !u!1 &1747156706
 GameObject:
   m_ObjectHideFlags: 0

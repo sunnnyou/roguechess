@@ -58,6 +58,10 @@ namespace Assets.Scripts.Game.Board
         private RectTransform parentRectTransform;
         private float calculatedTileSize;
 
+        private Stack<MoveRecord> moveHistory = new Stack<MoveRecord>();
+
+        private ChessAI aiComponent;
+
         // Game variables
         private bool isWhiteTurn = true;
         private bool gameOver;
@@ -72,6 +76,13 @@ namespace Assets.Scripts.Game.Board
             this.CalculateScaling();
             this.GenerateBoard();
             this.SetupTraditionalPieces();
+
+            // Get AI component
+            this.aiComponent = this.GetComponent<ChessAI>();
+            if (this.aiComponent == null)
+            {
+                this.aiComponent = this.gameObject.AddComponent<ChessAI>();
+            }
         }
 
         // Calculates appropriate scaling based on parent container
@@ -154,13 +165,40 @@ namespace Assets.Scripts.Game.Board
         // Update is called once per frame
         public void Update()
         {
-            // Block input during AI turn
-            if (this.IsAITurn || this.gameOver)
+            // Check for game over
+            if (this.gameOver)
             {
                 return;
             }
 
-            this.HandleInput();
+            // Check current game state
+            GameState currentState = this.GetGameState(this.isWhiteTurn);
+            if (currentState != GameState.Ongoing)
+            {
+                this.gameOver = true;
+                HandleGameEnd(currentState);
+                return;
+            }
+
+            // Block input during AI processing
+            if (this.IsAITurn)
+            {
+                return;
+            }
+
+            if (this.isWhiteTurn)
+            {
+                // Player's turn - handle input
+                this.HandleInput();
+            }
+            else
+            {
+                // AI's turn - make AI move
+                if (this.aiComponent != null)
+                {
+                    this.aiComponent.CheckAndMakeAIMove();
+                }
+            }
         }
 
         // Handle player input for selecting and moving pieces
@@ -426,49 +464,41 @@ namespace Assets.Scripts.Game.Board
         {
             if (isWhite)
             {
-                switch (type)
+                return type switch
                 {
-                    case ChessPieceType.Pawn:
-                        return this.WhitePawnSprite;
-                    case ChessPieceType.Rook:
-                        return this.WhiteRookSprite;
-                    case ChessPieceType.Knight:
-                        return this.WhiteKnightSprite;
-                    case ChessPieceType.Bishop:
-                        return this.WhiteBishopSprite;
-                    case ChessPieceType.Queen:
-                        return this.WhiteQueenSprite;
-                    case ChessPieceType.King:
-                        return this.WhiteKingSprite;
-                    default:
-                        return this.WhitePawnSprite; // Default
-                }
+                    ChessPieceType.Pawn => this.WhitePawnSprite,
+                    ChessPieceType.Rook => this.WhiteRookSprite,
+                    ChessPieceType.Knight => this.WhiteKnightSprite,
+                    ChessPieceType.Bishop => this.WhiteBishopSprite,
+                    ChessPieceType.Queen => this.WhiteQueenSprite,
+                    ChessPieceType.King => this.WhiteKingSprite,
+                    _ => this.WhitePawnSprite, // Default
+                };
             }
             else
             {
-                switch (type)
+                return type switch
                 {
-                    case ChessPieceType.Pawn:
-                        return this.BlackPawnSprite;
-                    case ChessPieceType.Rook:
-                        return this.BlackRookSprite;
-                    case ChessPieceType.Knight:
-                        return this.BlackKnightSprite;
-                    case ChessPieceType.Bishop:
-                        return this.BlackBishopSprite;
-                    case ChessPieceType.Queen:
-                        return this.BlackQueenSprite;
-                    case ChessPieceType.King:
-                        return this.BlackKingSprite;
-                    default:
-                        return this.BlackPawnSprite; // Default
-                }
+                    ChessPieceType.Pawn => this.BlackPawnSprite,
+                    ChessPieceType.Rook => this.BlackRookSprite,
+                    ChessPieceType.Knight => this.BlackKnightSprite,
+                    ChessPieceType.Bishop => this.BlackBishopSprite,
+                    ChessPieceType.Queen => this.BlackQueenSprite,
+                    ChessPieceType.King => this.BlackKingSprite,
+                    _ => this.BlackPawnSprite, // Default
+                };
             }
         }
 
         // Highlights all valid moves for a piece
         public void HighlightValidMoves(ChessPiece piece)
         {
+            if (piece == null)
+            {
+                Debug.LogWarning("Cannot highlight moves: piece is null");
+                return;
+            }
+
             List<ChessTile> validTiles = piece.GetValidTiles();
 
             foreach (ChessTile tile in validTiles)
@@ -497,14 +527,154 @@ namespace Assets.Scripts.Game.Board
                 return;
             }
 
-            // Update tiles current piece (destroy old piece if any)
+            // Record the move before making it
+            ChessTile fromTile = piece.CurrentTile;
+            ChessPiece capturedPiece = targetTile.CurrentPiece;
+            bool wasFirstMove = piece.HasMoved == false; // Assuming ChessPiece has HasMoved property
+
+            // Create move record
+            MoveRecord moveRecord = new MoveRecord(
+                piece,
+                fromTile,
+                targetTile,
+                capturedPiece,
+                this.isWhiteTurn,
+                wasFirstMove
+            );
+            this.moveHistory.Push(moveRecord);
+
+            // Clear the from tile
+            if (fromTile != null)
+            {
+                fromTile.CurrentPiece = null;
+            }
+
+            // Update target tile with the moved piece
             targetTile.UpdatePiece(piece);
+
+            // Mark piece as moved (you'll need to add this property to ChessPiece)
+            if (piece.HasMoved == false)
+            {
+                piece.HasMoved = true;
+            }
 
             // Update AI icons
             if (this.SpriteHolder != null)
             {
                 this.SpriteHolder.OnPlayerMove();
             }
+        }
+
+        // Undo the last move
+        public bool UndoLastMove()
+        {
+            if (this.moveHistory.Count == 0)
+            {
+                Debug.LogWarning("No moves to undo!");
+                return false;
+            }
+
+            MoveRecord lastMove = this.moveHistory.Pop();
+
+            // Restore the moved piece to its original position
+            lastMove.FromTile.CurrentPiece = lastMove.MovedPiece;
+            lastMove.MovedPiece.CurrentTile = lastMove.FromTile;
+
+            // Update piece position visually
+            if (lastMove.MovedPiece.transform != null)
+            {
+                lastMove.MovedPiece.transform.position = new Vector3(
+                    lastMove.FromTile.transform.position.x,
+                    lastMove.FromTile.transform.position.y,
+                    -2
+                );
+            }
+
+            // Restore captured piece if there was one
+            if (lastMove.CapturedPiece != null)
+            {
+                lastMove.ToTile.CurrentPiece = lastMove.CapturedPiece;
+                lastMove.CapturedPiece.CurrentTile = lastMove.ToTile;
+
+                // Make captured piece visible again
+                if (lastMove.CapturedPiece.gameObject != null)
+                {
+                    lastMove.CapturedPiece.gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                // Clear the target tile if no piece was captured
+                lastMove.ToTile.CurrentPiece = null;
+            }
+
+            // Restore piece's first move status
+            if (lastMove.WasFirstMove)
+            {
+                lastMove.MovedPiece.HasMoved = false;
+            }
+
+            // Restore turn
+            this.isWhiteTurn = lastMove.WasWhiteTurn;
+
+            // Clear any highlights
+            this.ClearHighlights();
+            this.selectedPiece = null;
+
+            Debug.Log(
+                $"Undid move: {lastMove.MovedPiece.PieceType} from {lastMove.FromTile.Coordinate} to {lastMove.ToTile.Coordinate}"
+            );
+            return true;
+        }
+
+        // Undo multiple moves
+        public bool UndoMoves(int numberOfMoves)
+        {
+            if (numberOfMoves <= 0)
+            {
+                return false;
+            }
+
+            if (this.moveHistory.Count < numberOfMoves)
+            {
+                Debug.LogWarning(
+                    $"Cannot undo {numberOfMoves} moves. Only {this.moveHistory.Count} moves in history."
+                );
+                return false;
+            }
+
+            for (int i = 0; i < numberOfMoves; i++)
+            {
+                if (!this.UndoLastMove())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Get the number of moves that can be undone
+        public int GetUndoableMovesCount()
+        {
+            return this.moveHistory.Count;
+        }
+
+        // Clear move history (useful when starting a new game)
+        public void ClearMoveHistory()
+        {
+            this.moveHistory.Clear();
+        }
+
+        // Peek at the last move without undoing it
+        public MoveRecord GetLastMove()
+        {
+            if (this.moveHistory.Count == 0)
+            {
+                return null;
+            }
+
+            return this.moveHistory.Peek();
         }
 
         // Resize the board to a custom size
@@ -619,6 +789,7 @@ namespace Assets.Scripts.Game.Board
 
             if (targetTile != null)
             {
+                // Use the same MovePiece method so it gets recorded
                 this.MovePiece(piece, targetTile);
                 this.isWhiteTurn = !this.isWhiteTurn;
             }
@@ -723,6 +894,28 @@ namespace Assets.Scripts.Game.Board
             }
 
             return GameState.Ongoing; // Game continues
+        }
+
+        public static void HandleGameEnd(GameState state)
+        {
+            // Handle game end logic here
+            switch (state)
+            {
+                case GameState.WhiteWins:
+                    Debug.Log("White wins!");
+                    break;
+                case GameState.BlackWins:
+                    Debug.Log("Black wins!");
+                    break;
+                case GameState.Stalemate:
+                    Debug.Log("Stalemate!");
+                    break;
+                default:
+                    Debug.Log("Game continues.");
+                    break;
+            }
+
+            // TODO
         }
     }
 }

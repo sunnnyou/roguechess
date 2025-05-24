@@ -17,6 +17,8 @@ namespace Assets.Scripts.Game.Board
         private SpriteRenderer spriteRenderer;
         private ChessBoard board;
 
+        public bool HasMoved;
+
         public void Initialize(
             ChessPieceType type,
             bool white,
