@@ -1,5 +1,7 @@
 namespace Assets.Scripts.Game.Board
 {
+    using System.Collections.Generic;
+    using Assets.Scripts.Game.Buffs;
     using UnityEngine;
 
     // Represents a single chess tile on the board
@@ -10,6 +12,7 @@ namespace Assets.Scripts.Game.Board
         public bool IsWhite;
         public ChessPiece CurrentPiece;
         public SpriteRenderer SpriteRenderer;
+        public List<IBuff> Buffs = new List<IBuff>();
 
         private Color highlightColor = new Color(0.0f, 0.4f, 0.0f); // green
 

@@ -2,6 +2,7 @@ namespace Assets.Scripts.Game.Board
 {
     using System.Collections.Generic;
     using Assets.Scripts.Game.AI;
+    using Assets.Scripts.Game.MoveRules;
     using UnityEngine;
     using UnityEngine.InputSystem;
 
@@ -50,7 +51,7 @@ namespace Assets.Scripts.Game.Board
         public bool IsWhiteTurn = true;
         public bool GameOver;
         public bool IsAITurn;
-        private List<ChessMoveHistory> moveHistory = new List<ChessMoveHistory>();
+        public List<ChessMoveHistory> MoveHistory = new List<ChessMoveHistory>();
 
         // Start is called before the first frame update
         public void Start()
@@ -463,7 +464,7 @@ namespace Assets.Scripts.Game.Board
             ChessTile currentTile = piece.CurrentTile;
             string fromCoord = currentTile.Coordinate;
             ChessPiece capturedPiece = targetTile.CurrentPiece;
-            this.moveHistory.Add(
+            this.MoveHistory.Add(
                 new ChessMoveHistory(
                     piece,
                     fromCoord,
@@ -486,7 +487,7 @@ namespace Assets.Scripts.Game.Board
 
         public bool CanUndo()
         {
-            return this.moveHistory.Count > 0;
+            return this.MoveHistory.Count > 0;
         }
 
         public void UndoLastMove()
@@ -497,8 +498,8 @@ namespace Assets.Scripts.Game.Board
             }
 
             // Get the last move
-            var lastMove = this.moveHistory[this.moveHistory.Count - 1];
-            this.moveHistory.RemoveAt(this.moveHistory.Count - 1);
+            var lastMove = this.MoveHistory[this.MoveHistory.Count - 1];
+            this.MoveHistory.RemoveAt(this.MoveHistory.Count - 1);
 
             // Get the tiles involved
             ChessTile fromTile = this.GetTile(lastMove.FromCoordinate);
@@ -532,7 +533,7 @@ namespace Assets.Scripts.Game.Board
 
         public void UndoMoves(int numberOfMoves)
         {
-            int movesToUndo = Mathf.Min(numberOfMoves, this.moveHistory.Count);
+            int movesToUndo = Mathf.Min(numberOfMoves, this.MoveHistory.Count);
             for (int i = 0; i < movesToUndo; i++)
             {
                 this.UndoLastMove();

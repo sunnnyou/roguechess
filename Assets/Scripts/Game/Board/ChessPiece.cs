@@ -2,6 +2,8 @@ namespace Assets.Scripts.Game.Board
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Assets.Scripts.Game.Buffs;
+    using Assets.Scripts.Game.MoveRules;
     using UnityEngine;
 
     public class ChessPiece : MonoBehaviour
@@ -12,6 +14,7 @@ namespace Assets.Scripts.Game.Board
         public ChessTile CurrentTile;
         public List<MoveRule> MoveRules = new List<MoveRule>();
         public int Lives = 1; // Number of hits before piece is destroyed
+        public List<IBuff> Buffs = new List<IBuff>();
 
         private SpriteRenderer spriteRenderer;
         private ChessBoard board;
@@ -22,7 +25,8 @@ namespace Assets.Scripts.Game.Board
             Sprite sprite,
             ChessBoard chessBoard,
             List<Material> materials,
-            List<MoveRule> customRules = null
+            List<MoveRule> customRules = null,
+            List<IBuff> buffs = null
         )
         {
             this.PieceType = type;
@@ -57,6 +61,17 @@ namespace Assets.Scripts.Game.Board
 
             // Set default move rules based on piece type
             this.SetDefaultMoveRules(customRules);
+
+            // Add buffs if provided
+            if (buffs != null)
+            {
+                this.Buffs.AddRange(buffs);
+            }
+
+            if (type == ChessPieceType.Pawn)
+            {
+                this.Buffs.Add(new PawnBuff());
+            }
         }
 
         public void SetDefaultMoveRules(List<MoveRule> customRules = null)
@@ -66,44 +81,27 @@ namespace Assets.Scripts.Game.Board
             switch (this.PieceType)
             {
                 case ChessPieceType.Pawn:
-                    // Forward movement (will need special handling for first move and capture)
-                    this.MoveRules = MoveRule.Pawn(this.IsWhite);
+                    this.MoveRules = PawnMove.GetMoveRules(this.IsWhite);
                     break;
-
                 case ChessPieceType.Rook:
-                    // Horizontal and vertical movement
-                    this.MoveRules = MoveRule.Rook();
+                    this.MoveRules = RookMove.GetMoveRules();
                     break;
-
                 case ChessPieceType.Knight:
-                    // L-shaped movement
-                    this.MoveRules = MoveRule.Knight();
+                    this.MoveRules = KnightMove.GetMoveRules();
                     break;
-
                 case ChessPieceType.Bishop:
-                    // Diagonal movement
-                    this.MoveRules = MoveRule.Bishop();
+                    this.MoveRules = BishopMove.GetMoveRules();
                     break;
-
                 case ChessPieceType.Queen:
-                    // Combination of Rook and Bishop movement
-                    this.MoveRules = MoveRule.Queen();
+                    this.MoveRules = QueenMove.GetMoveRules();
                     break;
-
                 case ChessPieceType.King:
-                    // One square in any direction
-                    this.MoveRules = MoveRule.King();
+                    this.MoveRules = KingMove.GetMoveRules();
                     break;
-
                 case ChessPieceType.Custom:
-                    this.MoveRules = customRules ?? MoveRule.Pawn(this.IsWhite);
+                    this.MoveRules = customRules ?? PawnMove.GetMoveRules(this.IsWhite);
                     break;
             }
-        }
-
-        public void CustomizeMoveRules(List<MoveRule> newRules)
-        {
-            this.MoveRules = newRules;
         }
 
         public List<ChessTile> GetValidTiles()
@@ -122,126 +120,30 @@ namespace Assets.Scripts.Game.Board
                 out int currentY
             );
 
-            foreach (MoveRule rule in this.MoveRules)
+            validMoves = MoveRule.GetValidTiles(
+                this.MoveRules,
+                currentX,
+                currentY,
+                this.board,
+                this.IsWhite
+            );
+
+            // Get valid tiles from buffs
+            foreach (var buff in this.Buffs)
             {
-                for (int distance = 1; distance <= rule.MaxDistance; distance++)
-                {
-                    int targetX = currentX + (rule.XDirection * distance);
-                    int targetY = currentY + (rule.YDirection * distance);
-
-                    // Check if target is within board bounds
-                    if (
-                        targetX < 0
-                        || targetX >= this.board.Width
-                        || targetY < 0
-                        || targetY >= this.board.Height
-                    )
-                    {
-                        break;
-                    }
-
-                    string targetCoord = ChessBoard.GetCoordinateFromPosition(targetX, targetY);
-                    ChessTile targetTile = this.board.GetTile(targetCoord);
-
-                    if (targetTile == null)
-                    {
-                        break;
-                    }
-
-                    // If there's a piece on this tile
-                    if (targetTile.CurrentPiece != null)
-                    {
-                        // If it's an enemy piece, we can capture it
-                        if (targetTile.CurrentPiece.IsWhite != this.IsWhite)
-                        {
-                            validMoves.Add(targetTile);
-                        }
-
-                        // If we can't jump over pieces, stop checking this direction
-                        if (!rule.CanJumpOverPieces)
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        // Empty tile, valid move
-                        validMoves.Add(targetTile);
-                    }
-                }
-            }
-
-            // Special handling for pawns (capturing diagonally)
-            // TODO: fix only diagonal capture for pawns not straight
-            if (this.PieceType != ChessPieceType.Pawn)
-            {
-                return validMoves;
-            }
-
-            // Diagonal captures
-            int[] captureDirections = { -1, 1 };
-            int forwardDirection = this.IsWhite ? 1 : -1;
-
-            foreach (int dir in captureDirections)
-            {
-                int targetX = currentX + dir;
-                int targetY = currentY + forwardDirection;
-
-                if (
-                    targetX < 0
-                    || targetX >= this.board.Width
-                    || targetY < 0
-                    || targetY >= this.board.Height
-                )
+                if (buff == null || !buff.IsActive || buff is not MoveBuff)
                 {
                     continue;
                 }
 
-                string targetCoord = ChessBoard.GetCoordinateFromPosition(targetX, targetY);
-                ChessTile targetTile = this.board.GetTile(targetCoord);
-
                 if (
-                    targetTile != null
-                    && targetTile.CurrentPiece != null
-                    && targetTile.CurrentPiece.IsWhite != this.IsWhite
+                    buff.ApplyBuff(currentX, currentY, this.board, this.IsWhite)
+                        is List<ChessTile> buffedTiles
+                    && buffedTiles.Count > 0
                 )
                 {
-                    validMoves.Add(targetTile);
+                    validMoves.AddRange(buffedTiles);
                 }
-            }
-
-            // First move can be 2 squares forward
-            if (
-                (!this.IsWhite || currentY != 1)
-                && (this.IsWhite || currentY != this.board.Height - 2)
-            )
-            {
-                return validMoves;
-            }
-
-            int twoForward = currentY + (forwardDirection * 2);
-            if (twoForward < 0 || twoForward >= this.board.Height)
-            {
-                return validMoves;
-            }
-
-            string oneStepCoord = ChessBoard.GetCoordinateFromPosition(
-                currentX,
-                currentY + forwardDirection
-            );
-            string twoStepCoord = ChessBoard.GetCoordinateFromPosition(currentX, twoForward);
-
-            ChessTile oneStepTile = this.board.GetTile(oneStepCoord);
-            ChessTile twoStepTile = this.board.GetTile(twoStepCoord);
-
-            if (
-                oneStepTile != null
-                && oneStepTile.CurrentPiece == null
-                && twoStepTile != null
-                && twoStepTile.CurrentPiece == null
-            )
-            {
-                validMoves.Add(twoStepTile);
             }
 
             return validMoves;
