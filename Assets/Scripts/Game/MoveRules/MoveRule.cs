@@ -2,6 +2,7 @@ namespace Assets.Scripts.Game.MoveRules
 {
     using System.Collections.Generic;
     using Assets.Scripts.Game.Board;
+    using UnityEngine;
 
     // Defines how pieces can move
     [System.Serializable]
@@ -21,8 +22,7 @@ namespace Assets.Scripts.Game.MoveRules
 
         public static List<ChessTile> GetValidTiles(
             List<MoveRule> moveRules,
-            int currentX,
-            int currentY,
+            Vector2Int currentPosition,
             ChessBoard board,
             bool isWhite
         )
@@ -38,8 +38,8 @@ namespace Assets.Scripts.Game.MoveRules
             {
                 for (int distance = 1; distance <= rule.MaxDistance; distance++)
                 {
-                    int targetX = currentX + (rule.XDirection * distance);
-                    int targetY = currentY + (rule.YDirection * distance);
+                    int targetX = currentPosition.x + (rule.XDirection * distance);
+                    int targetY = currentPosition.y + (rule.YDirection * distance);
 
                     // Check if target is within board bounds
                     if (
@@ -52,7 +52,7 @@ namespace Assets.Scripts.Game.MoveRules
                         break;
                     }
 
-                    string targetCoord = ChessBoard.GetCoordinateFromPosition(targetX, targetY);
+                    string targetCoord = CoordinateHelper.XYToString(targetX, targetY);
                     ChessTile targetTile = board.GetTile(targetCoord);
 
                     if (targetTile == null)

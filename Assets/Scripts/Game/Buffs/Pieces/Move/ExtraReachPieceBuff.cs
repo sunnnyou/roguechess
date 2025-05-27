@@ -1,0 +1,86 @@
+namespace Assets.Scripts.Game.Buffs.Pieces.Move
+{
+    using System;
+    using System.Collections.Generic;
+    using Assets.Scripts.Game.Board;
+    using UnityEngine;
+
+    // Buff that allows a piece to move twice in one turn
+    public class ExtraReachPieceBuff : PieceMoveBuff
+    {
+        public override string BuffName { get; set; } = "Extra Reach";
+
+        public override string Description { get; set; } =
+            "Allows a piece to move to additional tiles in one turn.";
+
+        public override Sprite Icon { get; set; }
+
+        public override int Cost { get; set; }
+
+        public override bool WasUsed { get; set; }
+
+        private readonly int additionalTiles;
+
+        private readonly bool forwardOnly;
+
+        public ExtraReachPieceBuff(
+            bool forwardOnly = true,
+            int additionalTiles = 1,
+            int durationTurns = 1
+        )
+        {
+            this.forwardOnly = forwardOnly;
+            this.DurationTurns = durationTurns;
+            this.additionalTiles = additionalTiles;
+            this.MoveFunction = DoubleMove;
+        }
+
+        public static List<ChessTile> DoubleMove(
+            Vector2Int currentPos,
+            ChessBoard board,
+            bool isWhite
+        )
+        {
+            var validMoves = new List<ChessTile>();
+            if (
+                board == null
+                || (
+                    (!isWhite || currentPos.y != 1) && (isWhite || currentPos.y != board.Height - 2)
+                )
+            )
+            {
+                return validMoves;
+            }
+
+            // TODO: Implement logic for forward-only moves and additional tiles
+
+            int forwardDirection = isWhite ? 1 : -1;
+            int twoForward = currentPos.y + (forwardDirection * 2);
+            if (twoForward < 0 || twoForward >= board.Height)
+            {
+                return validMoves;
+            }
+
+            Vector2Int oneStepCoord = CoordinateHelper.XYToVector(
+                currentPos.x,
+                currentPos.y + forwardDirection
+            );
+            Vector2Int twoStepCoord = CoordinateHelper.XYToVector(currentPos.x, twoForward);
+
+            ChessTile oneStepTile = board.GetTile(oneStepCoord);
+            ChessTile twoStepTile = board.GetTile(twoStepCoord);
+
+            if (
+                oneStepTile != null
+                && oneStepTile.CurrentPiece == null
+                && twoStepTile != null
+                && twoStepTile.CurrentPiece == null
+            )
+            {
+                validMoves.Add(twoStepTile);
+            }
+
+            return validMoves;
+        }
+    }
+}

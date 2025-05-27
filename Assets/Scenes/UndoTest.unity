@@ -935,7 +935,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1497474796}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 654af8bf4668c8944b686ccb0a3b54e3, type: 3}
+  m_Script: {fileID: 11500000, guid: b383ae23b5065164fb40de771b2e41f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   MainImage: {fileID: 610908069}
@@ -1257,10 +1257,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Width: 8
   Height: 8
-  TileSize: 1
+  TileSize: 1.2
   AutoScale: 1
   ScalePadding: 0.05
-  SpriteHolder: {fileID: 1497474800}
+  EnemySpriteManager: {fileID: 1497474800}
+  MainFont: {fileID: 12800000, guid: 5902badc2752d8547921dc9e9695aa18, type: 3}
   WhiteTileSprite: {fileID: -9163426285224168042, guid: 246c28b0d81d26f43bb3fed30d0a13f1, type: 3}
   BlackTileSprite: {fileID: 8149051649407981845, guid: 44a133846dc76274493b43b6124ce2b5, type: 3}
   WhitePawnSprite: {fileID: 2533179969505074583, guid: 3c58e929b6e078a4db85e153a0ddb531, type: 3}
@@ -1278,7 +1279,7 @@ MonoBehaviour:
   PieceMaterial: {fileID: 2100000, guid: 2894155b5494d254dac34254dac7ebe7, type: 2}
   IsWhiteTurn: 1
   GameOver: 0
-  IsAITurn: 0
+  IsEnemyTurn: 0
 --- !u!1 &1747156706
 GameObject:
   m_ObjectHideFlags: 0

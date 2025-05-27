@@ -7,42 +7,35 @@ namespace Assets.Scripts.Game.Buffs.Pieces
 
     public abstract class PieceMoveBuff : IBuff
     {
-        public Func<int, int, ChessBoard, bool, List<ChessTile>> MoveFunction { get; set; } // Function that is applied when a condition is met
+        public Func<Vector2Int, ChessBoard, bool, List<ChessTile>> MoveFunction { get; set; } // Function that is applied when a condition is met
 
-        public string BuffName { get; set; }
+        public override bool IsActive { get; set; } = true;
 
-        public string Description { get; set; }
+        public override int DurationMoves { get; set; } = -1;
 
-        public Sprite Icon { get; set; }
+        public override int DurationTurns { get; set; } = -1;
 
-        public bool IsActive { get; set; }
+        public override int DurationRounds { get; set; } = -1;
 
-        public int Cost { get; set; }
-
-        public int DurationTurns { get; set; }
-
-        public int DurationRounds { get; set; }
-
-        public bool WasUsed { get; set; }
-
-        public object ApplyBuff(params object[] args)
+        public override object ApplyBuff(object buffReceiver, ChessBoard board)
         {
-            if (
-                args == null
-                || args.Length != 4
-                || args[0] is not int currentX
-                || args[1] is not int currentY
-                || args[2] is not ChessBoard board
-                || args[3] is not bool isWhite
-            )
+            if (buffReceiver is not ChessPiece piece || board == null)
             {
                 Debug.LogError(
-                    "Invalid arguments for Movement buff. Expected int, int, ChessBoard, bool."
+                    "Invalid arguments for Movement buff. Expected ChessPiece, ChessBoard"
                 );
-                return new List<ChessTile>();
+                return new List<ChessPiece>();
             }
 
-            return this.MoveBuffFunction(currentX, currentY, board, isWhite);
+            var additionalValidTiles = this.MoveFunction(
+                piece.CurrentTile.Position,
+                board,
+                piece.IsWhite
+            );
+            this.WasUsed = true;
+            this.DurationMoves--;
+            this.UpdateDuration(board.CurrentTurn, board.CurrentRound);
+            return additionalValidTiles;
         }
     }
 }

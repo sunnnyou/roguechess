@@ -1,20 +1,23 @@
 namespace Assets.Scripts.Game.Board
 {
+    using System;
     using System.Collections.Generic;
     using Assets.Scripts.Game.Buffs;
     using UnityEngine;
 
     // Represents a single chess tile on the board
-    public class ChessTile : MonoBehaviour
+    public class ChessTile : MonoBehaviour, IChessObject
     {
-        public string Coordinate;
+        public List<IBuff> Buffs { get; } = new List<IBuff>();
+
+        public SpriteRenderer SpriteRenderer { get; set; }
+
+        public Vector2Int Position;
         public Color OriginalColor;
         public bool IsWhite;
         public ChessPiece CurrentPiece;
-        public SpriteRenderer SpriteRenderer;
-        public List<IBuff> Buffs = new List<IBuff>();
 
-        private Color highlightColor = new Color(0.0f, 0.4f, 0.0f); // green
+        private Color highlightColor = new(0.0f, 0.4f, 0.0f); // green
 
         public void Awake()
         {
@@ -25,9 +28,9 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        public void Initialize(string coord, bool isWhiteTile)
+        public void Initialize(Vector2Int pos, bool isWhiteTile)
         {
-            this.Coordinate = coord;
+            this.Position = pos;
             this.IsWhite = isWhiteTile;
 
             // Make sure we have a SpriteRenderer at this point
@@ -59,6 +62,8 @@ namespace Assets.Scripts.Game.Board
                 this.CurrentPiece = piece;
             }
 
+            // TODO: add use of buffs here, if any (from piece and/or tile)
+
             if (piece != null)
             {
                 // Ensure Z position is in front of tiles
@@ -75,6 +80,20 @@ namespace Assets.Scripts.Game.Board
         private bool RemovePiece(ChessPiece newPiece)
         {
             return this.CurrentPiece.FightPiece(newPiece);
+        }
+
+        public void Destroy()
+        {
+            if (Application.isEditor)
+            {
+                DestroyImmediate(this.CurrentPiece.gameObject);
+                DestroyImmediate(this.gameObject);
+            }
+            else
+            {
+                Destroy(this.CurrentPiece.gameObject);
+                Destroy(this.gameObject);
+            }
         }
     }
 }

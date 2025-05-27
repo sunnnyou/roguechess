@@ -1,12 +1,14 @@
 namespace Assets.Scripts.Game.Board
 {
+    using UnityEngine;
+
     public class ChessMoveHistory
     {
         public ChessPiece MovedPiece { get; private set; }
 
-        public string FromCoordinate { get; private set; }
+        public Vector2Int FromPosition { get; private set; }
 
-        public string ToCoordinate { get; private set; }
+        public Vector2Int ToPosition { get; private set; }
 
         public ChessPiece CapturedPiece { get; private set; }
 
@@ -14,15 +16,15 @@ namespace Assets.Scripts.Game.Board
 
         public ChessMoveHistory(
             ChessPiece movedPiece,
-            string fromCoord,
-            string toCoord,
+            Vector2Int fromPos,
+            Vector2Int toPos,
             ChessPiece capturedPiece,
             bool wasWhiteTurn
         )
         {
             this.MovedPiece = movedPiece;
-            this.FromCoordinate = fromCoord;
-            this.ToCoordinate = toCoord;
+            this.FromPosition = fromPos;
+            this.ToPosition = toPos;
             this.CapturedPiece = capturedPiece;
             this.WasWhiteTurn = wasWhiteTurn;
         }

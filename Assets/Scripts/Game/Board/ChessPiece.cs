@@ -1,22 +1,28 @@
 namespace Assets.Scripts.Game.Board
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Assets.Scripts.Game.Buffs;
+    using Assets.Scripts.Game.Buffs.Pieces;
+    using Assets.Scripts.Game.Buffs.Pieces.Move;
+    using Assets.Scripts.Game.Buffs.Pieces.Update;
     using Assets.Scripts.Game.MoveRules;
     using UnityEngine;
 
-    public class ChessPiece : MonoBehaviour
+    public class ChessPiece : MonoBehaviour, IChessObject
     {
+        public List<IBuff> Buffs { get; } = new();
+
+        public SpriteRenderer SpriteRenderer { get; set; }
+
         public ChessPieceType PieceType;
         public bool IsWhite;
-        public Sprite Sprite;
         public ChessTile CurrentTile;
-        public List<MoveRule> MoveRules = new List<MoveRule>();
+        public List<MoveRule> MoveRules = new();
+        public int Strength = 1; // Strength of the piece, used for reducing lives in fights
         public int Lives = 1; // Number of hits before piece is destroyed
-        public List<IBuff> Buffs = new List<IBuff>();
 
-        private SpriteRenderer spriteRenderer;
         private ChessBoard board;
 
         public void Initialize(
@@ -31,14 +37,13 @@ namespace Assets.Scripts.Game.Board
         {
             this.PieceType = type;
             this.IsWhite = white;
-            this.Sprite = sprite;
             this.board = chessBoard;
 
             // Check if we already have a SpriteRenderer
-            this.spriteRenderer = this.GetComponent<SpriteRenderer>();
-            if (this.spriteRenderer == null)
+            this.SpriteRenderer = this.GetComponent<SpriteRenderer>();
+            if (this.SpriteRenderer == null)
             {
-                this.spriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
+                this.SpriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
             }
 
             if (materials != null)
@@ -50,14 +55,14 @@ namespace Assets.Scripts.Game.Board
                     {
                         renderQueue = --baseRenderQueue, // lower value so that its rendered behind sprite
                     };
-                    this.spriteRenderer.materials = this
-                        .spriteRenderer.materials.Append(pieceMaterial)
+                    this.SpriteRenderer.materials = this
+                        .SpriteRenderer.materials.Append(pieceMaterial)
                         .ToArray();
                 }
             }
 
-            this.spriteRenderer.sortingOrder = 10; // render above tiles
-            this.spriteRenderer.sprite = sprite;
+            this.SpriteRenderer.sortingOrder = 10; // render above tiles
+            this.SpriteRenderer.sprite = sprite;
 
             // Set default move rules based on piece type
             this.SetDefaultMoveRules(customRules);
@@ -70,7 +75,9 @@ namespace Assets.Scripts.Game.Board
 
             if (type == ChessPieceType.Pawn)
             {
-                this.Buffs.Add(new PawnBuff());
+                this.Buffs.Add(new EnPassantPieceBuff());
+                this.Buffs.Add(new ExtraReachPieceBuff());
+                this.Buffs.Add(new PromoteAtEndPieceBuff(null, white ? this.board.Height - 1 : 0));
             }
         }
 
@@ -113,17 +120,9 @@ namespace Assets.Scripts.Game.Board
                 return validMoves;
             }
 
-            // Parse current position
-            ChessBoard.ParseCoordinate(
-                this.CurrentTile.Coordinate,
-                out int currentX,
-                out int currentY
-            );
-
             validMoves = MoveRule.GetValidTiles(
                 this.MoveRules,
-                currentX,
-                currentY,
+                this.CurrentTile.Position,
                 this.board,
                 this.IsWhite
             );
@@ -131,14 +130,13 @@ namespace Assets.Scripts.Game.Board
             // Get valid tiles from buffs
             foreach (var buff in this.Buffs)
             {
-                if (buff == null || !buff.IsActive || buff is not MoveBuff)
+                if (buff == null || !buff.IsActive || buff is not PieceMoveBuff)
                 {
                     continue;
                 }
 
                 if (
-                    buff.ApplyBuff(currentX, currentY, this.board, this.IsWhite)
-                        is List<ChessTile> buffedTiles
+                    buff.ApplyBuff(this, this.board) is List<ChessTile> buffedTiles
                     && buffedTiles.Count > 0
                 )
                 {
@@ -158,8 +156,8 @@ namespace Assets.Scripts.Game.Board
             {
                 moves.Add(
                     new ChessMove(
-                        ChessBoard.GetPositionFromCoordinate(this.CurrentTile.Coordinate),
-                        ChessBoard.GetPositionFromCoordinate(tile.Coordinate),
+                        this.CurrentTile.Position,
+                        tile.Position,
                         tile.CurrentPiece != null
                     )
                 );
@@ -176,9 +174,9 @@ namespace Assets.Scripts.Game.Board
                 return true;
             }
 
-            // TODO: fight function
+            // TODO: fight function (use buffs)
 
-            this.Lives--;
+            this.Lives -= enemyPiece.Strength;
             if (this.Lives <= 0)
             {
                 this.DestroyPiece();
@@ -198,6 +196,53 @@ namespace Assets.Scripts.Game.Board
         {
             this.gameObject.SetActive(true);
             this.Lives = lives;
+        }
+
+        public void UseUpdateBuffs()
+        {
+            foreach (var buff in this.Buffs)
+            {
+                if (
+                    buff != null
+                    && buff.IsActive
+                    && buff is PieceUpdateBuff
+                    && buff.ApplyBuff(this, this.board) is ChessPiece updatedPiece
+                    && updatedPiece != null
+                )
+                {
+                    this.UpdateFromBuff(updatedPiece);
+                }
+            }
+        }
+
+        private void UpdateFromBuff(ChessPiece updatedPiece)
+        {
+            if (updatedPiece == null)
+            {
+                Debug.LogError("Updated piece is null, cannot apply buff.");
+                return;
+            }
+
+            // Update properties from the buffed piece
+            this.PieceType = updatedPiece.PieceType;
+            this.IsWhite = updatedPiece.IsWhite;
+            this.Lives = updatedPiece.Lives;
+
+            // Update move rules
+            this.MoveRules = new List<MoveRule>(updatedPiece.MoveRules);
+
+            // Update buffs
+            this.Buffs.Clear();
+            this.Buffs.AddRange(updatedPiece.Buffs);
+
+            // Update sprite renderer
+            // TODO: Maybe add function to check if white or black
+            if (this.SpriteRenderer != null)
+            {
+                this.SpriteRenderer.sprite = updatedPiece.SpriteRenderer.sprite;
+            }
+
+            // TODO: maybe add function for updating tile if position has not changed
         }
     }
 }

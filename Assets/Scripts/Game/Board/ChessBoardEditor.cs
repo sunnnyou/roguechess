@@ -37,8 +37,9 @@ namespace Assets.Scripts.Game.Board
         // Material properties
         public SerializedProperty PieceMaterialProperty;
 
-        // Misc sprite properties
-        public SerializedProperty SpriteHolderProperty;
+        // Misc
+        public SerializedProperty EnemySpriteManager;
+        public SerializedProperty MainFont;
 
         private void OnEnable()
         {
@@ -75,8 +76,9 @@ namespace Assets.Scripts.Game.Board
             // Piece material properties
             this.PieceMaterialProperty = this.serializedObject.FindProperty("PieceMaterial");
 
-            // Sprite holder property
-            this.SpriteHolderProperty = this.serializedObject.FindProperty("SpriteHolder");
+            // Misc
+            this.EnemySpriteManager = this.serializedObject.FindProperty("EnemySpriteManager");
+            this.MainFont = this.serializedObject.FindProperty("MainFont");
         }
 
         public override void OnInspectorGUI()
@@ -118,8 +120,12 @@ namespace Assets.Scripts.Game.Board
             EditorGUILayout.PropertyField(this.PieceMaterialProperty);
 
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Sprite Holder", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(this.SpriteHolderProperty);
+            EditorGUILayout.LabelField("Sprite Manger for Enemy", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(this.EnemySpriteManager);
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Main Font", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(this.MainFont);
 
             this.serializedObject.ApplyModifiedProperties();
 

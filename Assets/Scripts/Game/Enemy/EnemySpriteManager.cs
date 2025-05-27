@@ -1,11 +1,11 @@
-namespace Assets.Scripts.Game.AI
+namespace Assets.Scripts.Game.Enemy
 {
     using System.Collections;
     using DG.Tweening;
     using UnityEngine;
     using UnityEngine.UI;
 
-    public class SpriteHolder : MonoBehaviour
+    public class EnemySpriteManager : MonoBehaviour
     {
         [Header("UI References")]
         public Image MainImage;
