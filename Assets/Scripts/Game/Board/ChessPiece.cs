@@ -16,12 +16,17 @@ namespace Assets.Scripts.Game.Board
 
         public SpriteRenderer SpriteRenderer { get; set; }
 
-        public ChessPieceType PieceType;
-        public bool IsWhite;
-        public ChessTile CurrentTile;
-        public List<MoveRule> MoveRules = new();
-        public int Strength = 1; // Strength of the piece, used for reducing lives in fights
-        public int Lives = 1; // Number of hits before piece is destroyed
+        public ChessPieceType PieceType { get; private set; }
+
+        public bool IsWhite { get; set; }
+
+        public ChessTile CurrentTile { get; set; }
+
+        public List<MoveRule> MoveRules { get; private set; } = new();
+
+        public int Strength { get; private set; } = 1; // Strength of the piece, used for reducing lives in fights
+
+        public int Lives { get; private set; } = 1; // Number of hits before piece is destroyed
 
         private ChessBoard board;
 
@@ -53,7 +58,7 @@ namespace Assets.Scripts.Game.Board
                 {
                     var pieceMaterial = new Material(materials[i])
                     {
-                        renderQueue = --baseRenderQueue, // lower value so that its rendered behind sprite
+                        renderQueue = baseRenderQueue - (i + 1), // lower value so that its rendered behind sprite
                     };
                     this.SpriteRenderer.materials = this
                         .SpriteRenderer.materials.Append(pieceMaterial)

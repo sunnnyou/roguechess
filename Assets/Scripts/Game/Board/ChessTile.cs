@@ -19,15 +19,6 @@ namespace Assets.Scripts.Game.Board
 
         private Color highlightColor = new(0.0f, 0.4f, 0.0f); // green
 
-        public void Awake()
-        {
-            this.SpriteRenderer = this.GetComponent<SpriteRenderer>();
-            if (this.SpriteRenderer == null)
-            {
-                this.SpriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
-            }
-        }
-
         public void Initialize(Vector2Int pos, bool isWhiteTile)
         {
             this.Position = pos;

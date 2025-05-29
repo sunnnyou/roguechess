@@ -548,7 +548,7 @@ namespace Assets.Scripts.Game.Board
                 return;
             }
 
-            if (!this.GetTile(lastMove.FromPosition, out ChessTile toTile))
+            if (!this.GetTile(lastMove.ToPosition, out ChessTile toTile))
             {
                 return;
             }

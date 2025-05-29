@@ -31,8 +31,3 @@ dotnet_diagnostic.CA1819.severity = none
 # SA1000: Keywords should be spaced correctly
 dotnet_diagnostic.SA1000.severity = none
 
-[*.cs]
-
-# Default severity for all analyzer diagnostics
-dotnet_analyzer_diagnostic.severity = none
-csharpier.severity = none
