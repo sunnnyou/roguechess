@@ -53,9 +53,8 @@ namespace Assets.Scripts.Game.MoveRules
                     }
 
                     string targetCoord = CoordinateHelper.XYToString(targetX, targetY);
-                    ChessTile targetTile = board.GetTile(targetCoord);
 
-                    if (targetTile == null)
+                    if (!board.GetTile(targetCoord, out ChessTile targetTile))
                     {
                         break;
                     }

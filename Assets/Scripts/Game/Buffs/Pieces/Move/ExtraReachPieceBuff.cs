@@ -67,15 +67,17 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
             );
             Vector2Int twoStepCoord = CoordinateHelper.XYToVector(currentPos.x, twoForward);
 
-            ChessTile oneStepTile = board.GetTile(oneStepCoord);
-            ChessTile twoStepTile = board.GetTile(twoStepCoord);
+            if (!board.GetTile(oneStepCoord, out ChessTile oneStepTile))
+            {
+                return validMoves;
+            }
 
-            if (
-                oneStepTile != null
-                && oneStepTile.CurrentPiece == null
-                && twoStepTile != null
-                && twoStepTile.CurrentPiece == null
-            )
+            if (!board.GetTile(twoStepCoord, out ChessTile twoStepTile))
+            {
+                return validMoves;
+            }
+
+            if (oneStepTile.CurrentPiece == null && twoStepTile.CurrentPiece == null)
             {
                 validMoves.Add(twoStepTile);
             }

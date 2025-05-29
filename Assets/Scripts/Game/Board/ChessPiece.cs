@@ -149,8 +149,8 @@ namespace Assets.Scripts.Game.Board
 
         public List<ChessMove> GetValidMoves()
         {
-            List<ChessMove> moves = new List<ChessMove>();
-            List<ChessTile> validTiles = this.GetValidTiles();
+            var moves = new List<ChessMove>();
+            var validTiles = this.GetValidTiles();
 
             foreach (var tile in validTiles)
             {

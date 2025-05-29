@@ -76,9 +76,8 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
             {
                 int targetY = isWhite ? correctRank + 1 : correctRank - 1;
                 string targetCoord = CoordinateHelper.XYToString(lastMovedPawnX, targetY);
-                ChessTile targetTile = board.GetTile(targetCoord);
 
-                if (targetTile != null)
+                if (board.GetTile(targetCoord, out ChessTile targetTile))
                 {
                     validTiles.Add(targetTile);
 

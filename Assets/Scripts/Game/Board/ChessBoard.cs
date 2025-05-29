@@ -226,8 +226,7 @@ namespace Assets.Scripts.Game.Board
             List<MoveRule> customMoveRules = null
         )
         {
-            ChessTile tile = this.GetTile(position);
-            if (tile == null)
+            if (!this.GetTile(position, out ChessTile tile))
             {
                 Debug.LogError($"Cannot spawn piece: tile {position} not found");
                 return null;
@@ -544,8 +543,16 @@ namespace Assets.Scripts.Game.Board
             this.MoveHistory.RemoveAt(this.MoveHistory.Count - 1);
 
             // Get the tiles involved
-            ChessTile fromTile = this.GetTile(lastMove.FromPosition);
-            ChessTile toTile = this.GetTile(lastMove.FromPosition);
+            if (!this.GetTile(lastMove.FromPosition, out ChessTile fromTile))
+            {
+                return;
+            }
+
+            if (!this.GetTile(lastMove.FromPosition, out ChessTile toTile))
+            {
+                return;
+            }
+
             ChessPiece pieceToMove = lastMove.MovedPiece;
 
             // Move the piece back
@@ -628,28 +635,22 @@ namespace Assets.Scripts.Game.Board
             }
 
             string targetCoord = CoordinateHelper.VectorToString(move.TargetPosition);
-            ChessTile targetTile = this.GetTile(targetCoord);
 
-            if (targetTile != null)
+            if (this.GetTile(targetCoord, out ChessTile targetTile))
             {
                 this.MovePiece(piece, targetTile);
                 this.IsWhiteTurn = !this.IsWhiteTurn;
             }
         }
 
-        public ChessTile GetTile(string position)
+        public bool GetTile(string position, out ChessTile tile)
         {
-            if (this.tiles.TryGetValue(position, out ChessTile tile))
-            {
-                return tile;
-            }
-
-            return null;
+            return this.tiles.TryGetValue(position, out tile);
         }
 
-        public ChessTile GetTile(Vector2Int vector)
+        public bool GetTile(Vector2Int vector, out ChessTile tile)
         {
-            return this.GetTile(CoordinateHelper.VectorToString(vector));
+            return this.GetTile(CoordinateHelper.VectorToString(vector), out tile);
         }
 
         public bool IsValidCoordinate(string coordinate)
