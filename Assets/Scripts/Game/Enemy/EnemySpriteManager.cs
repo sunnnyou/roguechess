@@ -3,27 +3,26 @@ namespace Assets.Scripts.Game.Enemy
     using System.Collections;
     using DG.Tweening;
     using UnityEngine;
-    using UnityEngine.UI;
 
     public class EnemySpriteManager : MonoBehaviour
     {
-        [Header("UI References")]
-        public Image MainImage;
-        public Image LoadingIcon;
-        public Image PlayerMoveIcon;
-        public Image IdleIcon;
+        [Header("Sprite References")]
+        public SpriteRenderer MainSprite;
+        public SpriteRenderer LoadingSprite;
+        public SpriteRenderer PlayerMoveSprite;
+        public SpriteRenderer IdleSprite;
 
         [Header("Animation Settings")]
         public float FadeTime = 1f;
         public float GrowthDuration = 0.1f;
-        public float GrowthScale = 1.15f;
+        public float GrowthScale = 1.075f;
         public float IdleDisplayDelay = 5f;
 
         [Header("Materials")]
-        public Material MainImageMaterial;
-        public Material PlayerMoveIconMaterial;
-        public Material IdleIconMaterial;
-        public Material LoadingIconMaterial;
+        public Material MainSpriteMaterial;
+        public Material PlayerMoveSpriteMaterial;
+        public Material IdleSpriteMaterial;
+        public Material LoadingSpriteMaterial;
 
         private float lastMoveTime;
         private Coroutine idleCheckCoroutine;
@@ -31,54 +30,60 @@ namespace Assets.Scripts.Game.Enemy
 
         private void Awake()
         {
-            if (this.LoadingIcon != null)
+            if (this.LoadingSprite != null)
             {
-                this.LoadingIcon.gameObject.SetActive(false);
+                this.LoadingSprite.gameObject.SetActive(false);
             }
 
-            if (this.PlayerMoveIcon != null)
+            if (this.PlayerMoveSprite != null)
             {
-                this.PlayerMoveIcon.gameObject.SetActive(false);
-                this.originalPlayerMoveScale = this.PlayerMoveIcon.transform.localScale;
-                this.PlayerMoveIcon.rectTransform.pivot = new Vector2(0.5f, 0);
+                this.PlayerMoveSprite.gameObject.SetActive(false);
+                this.originalPlayerMoveScale = this.PlayerMoveSprite.transform.localScale;
             }
 
-            if (this.IdleIcon != null)
+            if (this.IdleSprite != null)
             {
-                this.IdleIcon.gameObject.SetActive(false);
+                this.IdleSprite.gameObject.SetActive(false);
             }
 
             // Apply materials if assigned
-            ApplyMaterial(this.MainImage, this.MainImageMaterial);
-            ApplyMaterial(this.PlayerMoveIcon, this.PlayerMoveIconMaterial);
-            ApplyMaterial(this.IdleIcon, this.IdleIconMaterial);
-            ApplyMaterial(this.LoadingIcon, this.LoadingIconMaterial);
+            ApplyMaterial(this.MainSprite, this.MainSpriteMaterial);
+            ApplyMaterial(this.PlayerMoveSprite, this.PlayerMoveSpriteMaterial);
+            ApplyMaterial(this.IdleSprite, this.IdleSpriteMaterial);
+            ApplyMaterial(this.LoadingSprite, this.LoadingSpriteMaterial);
 
             this.lastMoveTime = Time.time;
             this.StartIdleCheck();
         }
 
-        private static void ApplyMaterial(Image image, Material material)
+        private static void ApplyMaterial(SpriteRenderer sprite, Material material)
         {
-            if (image != null && material != null)
+            if (sprite != null && material != null)
             {
-                image.material = Instantiate(material); // Create instance to avoid shared material modifications
+                sprite.material = Instantiate(material); // Create instance to avoid shared material modifications
             }
         }
 
         public void SetSprite(Sprite sprite)
         {
-            if (this.MainImage != null)
+            if (this.MainSprite != null)
             {
-                this.MainImage.sprite = sprite;
+                this.MainSprite.sprite = sprite;
             }
         }
 
         public void ShowLoading(bool show)
         {
-            if (this.LoadingIcon != null)
+            if (this.LoadingSprite != null)
             {
-                this.LoadingIcon.gameObject.SetActive(show);
+                if (show)
+                {
+                    this.PlayerMoveSprite.gameObject.SetActive(false);
+                    this.IdleSprite.gameObject.SetActive(false);
+                    this.OnDestroy();
+                }
+
+                this.LoadingSprite.gameObject.SetActive(show);
             }
         }
 
@@ -86,38 +91,41 @@ namespace Assets.Scripts.Game.Enemy
         {
             this.lastMoveTime = Time.time;
             this.StartIdleCheck();
-            this.ShowPlayerMoveIcon();
+            this.ShowPlayerMoveSprite();
         }
 
-        private void ShowPlayerMoveIcon()
+        private void ShowPlayerMoveSprite()
         {
-            if (this.PlayerMoveIcon == null)
+            if (this.PlayerMoveSprite == null)
             {
                 return;
             }
 
+            this.LoadingSprite.gameObject.SetActive(false);
+            this.IdleSprite.gameObject.SetActive(false);
+            this.OnDestroy();
+
             // Reset state
-            this.PlayerMoveIcon.gameObject.SetActive(true);
-            this.PlayerMoveIcon.transform.localScale = this.originalPlayerMoveScale;
-            this.PlayerMoveIcon.color = new Color(1, 1, 1, 1);
+            this.PlayerMoveSprite.gameObject.SetActive(true);
+            this.PlayerMoveSprite.transform.localScale = this.originalPlayerMoveScale;
+            this.PlayerMoveSprite.color = new Color(1, 1, 1, 1);
 
             // Create animation sequence
-            Sequence sequence = DOTween.Sequence();
+            Sequence sequence = DOTween.Sequence(this.PlayerMoveSprite);
 
-            // Growth animation over 1 second
+            // Growth animation
             sequence.Append(
-                this.PlayerMoveIcon.transform.DOScale(
+                this.PlayerMoveSprite.transform.DOScale(
                         this.originalPlayerMoveScale * this.GrowthScale,
-                        1f
+                        0.1f
                     )
                     .SetEase(Ease.OutQuad)
             );
 
             // Fade out
             sequence.Append(
-                this.PlayerMoveIcon.DOFade(0, this.FadeTime)
-                    .SetDelay(0.5f) // Add delay before fade starts
-                    .OnComplete(() => this.PlayerMoveIcon.gameObject.SetActive(false))
+                this.PlayerMoveSprite.DOFade(0, this.FadeTime)
+                    .OnComplete(() => this.PlayerMoveSprite.gameObject.SetActive(false))
             );
         }
 
@@ -139,74 +147,78 @@ namespace Assets.Scripts.Game.Enemy
                 float timeSinceLastMove = Time.time - this.lastMoveTime;
                 if (timeSinceLastMove >= this.IdleDisplayDelay)
                 {
-                    this.ShowIdleIcon();
+                    this.ShowIdleSprite();
 
                     // Wait for fade animation to complete before showing again
                     yield return new WaitForSeconds(this.FadeTime + this.IdleDisplayDelay);
                 }
                 else
                 {
-                    yield return new WaitForSeconds(0.5f); // Check every half second
+                    yield return new WaitForSeconds(0.5f);
                 }
             }
         }
 
-        private void ShowIdleIcon()
+        private void ShowIdleSprite()
         {
-            if (this.IdleIcon == null)
+            if (this.IdleSprite == null)
             {
                 return;
             }
 
-            this.IdleIcon.gameObject.SetActive(true);
-            this.IdleIcon.color = new Color(1, 1, 1, 1);
+            this.LoadingSprite.gameObject.SetActive(false);
+            this.PlayerMoveSprite.gameObject.SetActive(false);
+            this.OnDestroy();
+
+            this.IdleSprite.gameObject.SetActive(true);
+            this.IdleSprite.color = new Color(1, 1, 1, 1);
 
             // Show for specified duration before starting fade
-            Sequence sequence = DOTween.Sequence();
+            Sequence sequence = DOTween.Sequence(this.IdleSprite);
 
             sequence.AppendInterval(2f); // Show for 2 seconds
             sequence.Append(
-                this.IdleIcon.DOFade(0, this.FadeTime)
+                this.IdleSprite.DOFade(0, this.FadeTime)
                     .OnComplete(() =>
                     {
-                        this.IdleIcon.gameObject.SetActive(false);
-                        this.IdleIcon.color = new Color(1, 1, 1, 1);
+                        this.IdleSprite.gameObject.SetActive(false);
+                        this.IdleSprite.color = new Color(1, 1, 1, 1);
                     })
             );
         }
 
-        public void SetMainImageMaterial(Material material)
+        public void SetMainSpriteMaterial(Material material)
         {
-            ApplyMaterial(this.MainImage, material);
+            ApplyMaterial(this.MainSprite, material);
         }
 
-        public void SetPlayerMoveIconMaterial(Material material)
+        public void SetPlayerMoveSpriteMaterial(Material material)
         {
-            ApplyMaterial(this.PlayerMoveIcon, material);
+            ApplyMaterial(this.PlayerMoveSprite, material);
         }
 
-        public void SetIdleIconMaterial(Material material)
+        public void SetIdleSpriteMaterial(Material material)
         {
-            ApplyMaterial(this.IdleIcon, material);
+            ApplyMaterial(this.IdleSprite, material);
         }
 
-        public void SetLoadingIconMaterial(Material material)
+        public void SetLoadingSpriteMaterial(Material material)
         {
-            ApplyMaterial(this.LoadingIcon, material);
+            ApplyMaterial(this.LoadingSprite, material);
         }
 
         private void OnDestroy()
         {
             // Clean up DOTween animations
-            if (this.PlayerMoveIcon != null)
+            if (this.PlayerMoveSprite != null)
             {
-                DOTween.Kill(this.PlayerMoveIcon.transform);
-                DOTween.Kill(this.PlayerMoveIcon);
+                DOTween.Kill(this.PlayerMoveSprite.transform);
+                DOTween.Kill(this.PlayerMoveSprite);
             }
 
-            if (this.IdleIcon != null)
+            if (this.IdleSprite != null)
             {
-                DOTween.Kill(this.IdleIcon);
+                DOTween.Kill(this.IdleSprite);
             }
         }
     }

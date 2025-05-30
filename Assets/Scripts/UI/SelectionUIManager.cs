@@ -149,7 +149,7 @@ namespace Assets.Scripts.UI
             this.titleText = titleGO.AddComponent<UnityEngine.UI.Text>();
             this.titleText.text = title;
             this.titleText.font = board.MainFont;
-            this.titleText.fontSize = 24;
+            this.titleText.fontSize = 40;
             this.titleText.fontStyle = FontStyle.Bold;
             this.titleText.color = Color.white;
             this.titleText.alignment = TextAnchor.MiddleCenter;
@@ -166,7 +166,7 @@ namespace Assets.Scripts.UI
             this.descriptionText = descGO.AddComponent<UnityEngine.UI.Text>();
             this.descriptionText.text = description;
             this.descriptionText.font = board.MainFont;
-            this.descriptionText.fontSize = 14;
+            this.descriptionText.fontSize = 25;
             this.descriptionText.color = Color.gray;
             this.descriptionText.alignment = TextAnchor.MiddleCenter;
 
@@ -183,13 +183,21 @@ namespace Assets.Scripts.UI
             this.buttonContainer.transform.SetParent(this.selectionPanel.transform, false);
 
             var gridLayout = this.buttonContainer.AddComponent<UnityEngine.UI.GridLayoutGroup>();
-            gridLayout.cellSize = new Vector2(80, 80);
-            gridLayout.spacing = new Vector2(10, 10);
+
+            gridLayout.cellSize = new Vector2(100, 100);
+            gridLayout.spacing = new Vector2(15, 15);
             gridLayout.constraint = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
             gridLayout.constraintCount = Mathf.Min(4, selectableObjects.Count);
+            gridLayout.childAlignment = TextAnchor.MiddleCenter;
 
             var containerRT = this.buttonContainer.GetComponent<RectTransform>();
-            containerRT.sizeDelta = new Vector2(0, 100);
+
+            containerRT.sizeDelta = new Vector2(0, 150);
+
+            // Center anchors
+            containerRT.anchorMin = new Vector2(0.5f, 0.5f);
+            containerRT.anchorMax = new Vector2(0.5f, 0.5f);
+            containerRT.pivot = new Vector2(0.5f, 0.5f);
 
             // Create selection buttons
             this.selectionButtons.Clear();
@@ -216,6 +224,10 @@ namespace Assets.Scripts.UI
                 buttonImage.sprite = sprite;
                 buttonImage.type = UnityEngine.UI.Image.Type.Simple;
                 buttonImage.preserveAspect = true;
+
+                // Make sprite fill more of the button
+                var rectTransform = buttonGO.GetComponent<RectTransform>();
+                rectTransform.sizeDelta = new Vector2(90, 90);
             }
             else
             {
@@ -284,7 +296,7 @@ namespace Assets.Scripts.UI
             var buttonText = textGO.AddComponent<UnityEngine.UI.Text>();
             buttonText.text = confirmButtonText;
             buttonText.font = board.MainFont;
-            buttonText.fontSize = 16;
+            buttonText.fontSize = 30;
             buttonText.color = Color.white;
             buttonText.alignment = TextAnchor.MiddleCenter;
 
@@ -317,7 +329,7 @@ namespace Assets.Scripts.UI
 
             this.tooltipText = tooltipTextGO.AddComponent<UnityEngine.UI.Text>();
             this.tooltipText.font = board.MainFont;
-            this.tooltipText.fontSize = 12;
+            this.tooltipText.fontSize = 25;
             this.tooltipText.color = Color.white;
             this.tooltipText.alignment = TextAnchor.MiddleCenter;
 
