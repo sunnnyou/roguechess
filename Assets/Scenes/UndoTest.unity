@@ -1233,7 +1233,7 @@ RectTransform:
   m_GameObject: {fileID: 1715971527}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.3}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 0.35099998}
+  m_LocalScale: {x: 0.92, y: 0.92, z: 0.3588}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -1257,9 +1257,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Width: 8
   Height: 8
-  TileSize: 1.2
+  TileSize: 1
   AutoScale: 1
-  ScalePadding: 0.05
+  ScalePadding: 0.058
   EnemySpriteManager: {fileID: 1497474800}
   MainFont: {fileID: 12800000, guid: 5902badc2752d8547921dc9e9695aa18, type: 3}
   WhiteTileSprite: {fileID: -9163426285224168042, guid: 246c28b0d81d26f43bb3fed30d0a13f1, type: 3}
