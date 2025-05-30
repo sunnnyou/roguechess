@@ -214,7 +214,8 @@ namespace Assets.Scripts.UI
             if (sprite != null)
             {
                 buttonImage.sprite = sprite;
-                buttonImage.type = UnityEngine.UI.Image.Type.Filled;
+                buttonImage.type = UnityEngine.UI.Image.Type.Simple;
+                buttonImage.preserveAspect = true;
             }
             else
             {
