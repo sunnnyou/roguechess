@@ -27,9 +27,9 @@ namespace Assets.Scripts.Game.Buffs
 
         public int Round { get; set; } // The number of times the player or enemy have won a match/round. Used for update DurationRounds
 
-        public abstract object ApplyBuff(object buffReceiver, ChessBoard board); // Apply the buff
+        internal abstract object BuffFunction(IChessObject buffReceiver, ChessBoard board); // Apply the buff
 
-        public void UpdateDuration(int currentTurn, int currentRound)
+        private void UpdateDuration(int currentTurn, int currentRound)
         {
             if (this.Turn < currentTurn)
             {
@@ -47,6 +47,32 @@ namespace Assets.Scripts.Game.Buffs
             {
                 this.IsActive = false;
             }
+
+            this.WasUsed = true;
+            this.DurationMoves--;
+        }
+
+        public object ApplyBuff(IChessObject buffReceiver, ChessBoard board)
+        {
+            if (buffReceiver == null || board == null)
+            {
+                Debug.LogError(
+                    $"Invalid arguments for buff '{this.BuffName}'. Expected IChessObject, ChessBoard."
+                );
+                return null;
+            }
+
+            if (!this.IsActive)
+            {
+                Debug.LogError($"This buff '{this.BuffName}' is not active.");
+                return null;
+            }
+
+            var buffResult = this.BuffFunction(buffReceiver, board);
+
+            this.UpdateDuration(board.CurrentTurn, board.CurrentRound);
+
+            return buffResult;
         }
     }
 }

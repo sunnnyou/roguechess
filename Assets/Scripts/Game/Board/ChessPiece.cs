@@ -28,7 +28,7 @@ namespace Assets.Scripts.Game.Board
 
         public int Lives { get; private set; } = 1; // Number of hits before piece is destroyed
 
-        private ChessBoard board;
+        internal ChessBoard Board { get; private set; }
 
         public void Initialize(
             ChessPieceType type,
@@ -42,7 +42,7 @@ namespace Assets.Scripts.Game.Board
         {
             this.PieceType = type;
             this.IsWhite = white;
-            this.board = chessBoard;
+            this.Board = chessBoard;
 
             // Check if we already have a SpriteRenderer
             this.SpriteRenderer = this.GetComponent<SpriteRenderer>();
@@ -82,7 +82,7 @@ namespace Assets.Scripts.Game.Board
             {
                 this.Buffs.Add(new EnPassantPieceBuff());
                 this.Buffs.Add(new ExtraReachPieceBuff());
-                this.Buffs.Add(new PromoteAtEndPieceBuff(null, white ? this.board.Height - 1 : 0));
+                this.Buffs.Add(new PromoteAtEndPieceBuff(null, white ? this.Board.Height - 1 : 0));
             }
         }
 
@@ -120,7 +120,7 @@ namespace Assets.Scripts.Game.Board
         {
             var validMoves = new List<ChessTile>();
 
-            if (this.CurrentTile == null || this.board == null)
+            if (this.CurrentTile == null || this.Board == null)
             {
                 return validMoves;
             }
@@ -128,20 +128,20 @@ namespace Assets.Scripts.Game.Board
             validMoves = MoveRule.GetValidTiles(
                 this.MoveRules,
                 this.CurrentTile.Position,
-                this.board,
+                this.Board,
                 this.IsWhite
             );
 
             // Get valid tiles from buffs
             foreach (var buff in this.Buffs)
             {
-                if (buff == null || !buff.IsActive || buff is not PieceMoveBuff)
+                if (buff == null || !buff.IsActive || buff is not MoveBuff)
                 {
                     continue;
                 }
 
                 if (
-                    buff.ApplyBuff(this, this.board) is List<ChessTile> buffedTiles
+                    buff.ApplyBuff(this, this.Board) is List<ChessTile> buffedTiles
                     && buffedTiles.Count > 0
                 )
                 {
@@ -171,21 +171,28 @@ namespace Assets.Scripts.Game.Board
             return moves;
         }
 
-        public bool FightPiece(ChessPiece enemyPiece)
+        public static bool FightPiece(ChessPiece currentPiece, ChessPiece enemyPiece)
         {
-            if (enemyPiece == null)
+            if (currentPiece == null && enemyPiece != null)
             {
-                this.DestroyPiece();
                 return true;
             }
-
-            // TODO: fight function (use buffs)
-
-            this.Lives -= enemyPiece.Strength;
-            if (this.Lives <= 0)
+            else if (currentPiece != null && enemyPiece == null)
             {
-                this.DestroyPiece();
+                currentPiece.DestroyPiece();
                 return true;
+            }
+            else if (currentPiece != null && enemyPiece != null)
+            {
+                // TODO: fight function (use buffs)
+
+                currentPiece.Lives -= enemyPiece.Strength;
+                if (currentPiece.Lives <= 0)
+                {
+                    // Enemy won and killed this piece
+                    currentPiece.DestroyPiece();
+                    return true;
+                }
             }
 
             return false;
@@ -210,8 +217,8 @@ namespace Assets.Scripts.Game.Board
                 if (
                     buff != null
                     && buff.IsActive
-                    && buff is PieceUpdateBuff
-                    && buff.ApplyBuff(this, this.board) is ChessPiece updatedPiece
+                    && buff is UpdateBuff
+                    && buff.ApplyBuff(this, this.Board) is ChessPiece updatedPiece
                     && updatedPiece != null
                 )
                 {
@@ -220,7 +227,7 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        private void UpdateFromBuff(ChessPiece updatedPiece)
+        public void UpdateFromBuff(ChessPiece updatedPiece)
         {
             if (updatedPiece == null)
             {

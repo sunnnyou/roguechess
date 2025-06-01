@@ -6,7 +6,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
     using UnityEngine;
 
     // Buff that allows a piece to move twice in one turn
-    public class ExtraReachPieceBuff : PieceMoveBuff
+    public class ExtraReachPieceBuff : MoveBuff
     {
         public override string BuffName { get; set; } = "Extra Reach";
 

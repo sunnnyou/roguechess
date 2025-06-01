@@ -6,7 +6,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
     using Assets.Scripts.UI;
     using UnityEngine;
 
-    public class PromoteAtEndPieceBuff : PieceUpdateBuff
+    public class PromoteAtEndPieceBuff : UpdateBuff
     {
         public override string BuffName { get; set; } = "Royal Ascension";
 
@@ -26,13 +26,13 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
         private static SelectionUIManager selectionUIManager;
 
         // Promotion configuration - can be set statically or per instance
-        public static List<IChessObject> PromotionPieces { get; set; } = new();
+        public static List<IChessObject> PromotionPieces { get; private set; } = new();
 
-        public static List<string> PromotionTooltips { get; set; } = new();
+        public static List<string> PromotionTooltips { get; private set; } = new();
 
         public static string PromotionTitle { get; set; } = "Royal Ascension";
 
-        public static string PromotionDescription { get; set; } = "Choose a piece to promote to:";
+        public static string PromotionDescription { get; set; } = "Choose a piece to promote to";
 
         public static string PromotionConfirmText { get; set; } = "Promote";
 
@@ -65,9 +65,9 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
             PromotionConfirmText = confirmText;
         }
 
-        public ChessPiece RoyalAscension(ChessPiece piece, ChessBoard board)
+        public IChessObject RoyalAscension(IChessObject chessObject, ChessBoard board)
         {
-            if (piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null || board == null)
             {
                 Debug.LogError("Invalid arguments for Royal Ascension buff.");
                 return null;

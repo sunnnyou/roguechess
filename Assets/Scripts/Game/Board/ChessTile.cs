@@ -3,6 +3,7 @@ namespace Assets.Scripts.Game.Board
     using System;
     using System.Collections.Generic;
     using Assets.Scripts.Game.Buffs;
+    using Assets.Scripts.Game.MoveRules;
     using UnityEngine;
 
     // Represents a single chess tile on the board
@@ -45,32 +46,66 @@ namespace Assets.Scripts.Game.Board
             this.SpriteRenderer.color = highlight ? this.highlightColor : this.OriginalColor;
         }
 
-        public void UpdatePiece(ChessPiece piece)
+        public void UpdatePiece(ChessPiece newPiece, bool ignoreMoveHistory, bool ignoreFight)
         {
-            // If there's already a piece here, try to remove it
-            if (this.CurrentPiece == null || this.RemovePiece(piece))
+            // Fight current piece with new piece and set winner as this tiles current piece
+            if (!ignoreFight && !ChessPiece.FightPiece(this.CurrentPiece, newPiece))
             {
-                this.CurrentPiece = piece;
+                return;
             }
 
-            // TODO: add use of buffs here, if any (from piece and/or tile)
-
-            if (piece != null)
+            if (newPiece != null)
             {
+                Vector2Int? enemyPos =
+                    newPiece.CurrentTile != null ? newPiece.CurrentTile.Position : null;
+
                 // Ensure Z position is in front of tiles
-                piece.transform.position = new Vector3(
+                newPiece.transform.position = new Vector3(
                     this.transform.position.x,
                     this.transform.position.y,
                     -2 // render in front of tiles
                 );
-                piece.CurrentTile = this;
-            }
-        }
+                newPiece.CurrentTile = this;
 
-        // Tries to remove the current piece from this tile.
-        private bool RemovePiece(ChessPiece newPiece)
-        {
-            return this.CurrentPiece.FightPiece(newPiece);
+                // process buffs at end to get updated piece position and tile
+                var additionalCapturedPieces = this.ApplyBuffs(newPiece);
+
+                if (!ignoreMoveHistory)
+                {
+                    Vector2Int? enemyTargetPos;
+                    if (this.CurrentPiece == null || this.CurrentPiece.Lives <= 0)
+                    {
+                        enemyTargetPos = this.Position;
+                    }
+                    else
+                    {
+                        enemyTargetPos = enemyPos;
+                    }
+
+                    newPiece.Board.AddMove(
+                        newPiece,
+                        enemyPos,
+                        enemyTargetPos,
+                        this.CurrentPiece,
+                        additionalCapturedPieces
+                    );
+                }
+            }
+            else if (this.CurrentPiece != null)
+            {
+                if (!ignoreMoveHistory)
+                {
+                    this.CurrentPiece.Board.AddMove(
+                        null,
+                        null,
+                        this.Position,
+                        this.CurrentPiece,
+                        null
+                    );
+                }
+            }
+
+            this.CurrentPiece = newPiece;
         }
 
         public void Destroy()
@@ -85,6 +120,53 @@ namespace Assets.Scripts.Game.Board
                 Destroy(this.CurrentPiece.gameObject);
                 Destroy(this.gameObject);
             }
+        }
+
+        public void AddBuff(IBuff buff)
+        {
+            this.Buffs.Add(buff);
+        }
+
+        private List<ChessPiece> ApplyBuffs(ChessPiece piece)
+        {
+            List<ChessPiece> destroyedPieces = new();
+            foreach (var buff in this.Buffs)
+            {
+                if (buff == null || !buff.IsActive)
+                {
+                    continue;
+                }
+
+                if (buff is MoveBuff)
+                {
+                    if (
+                        buff.ApplyBuff(piece, piece.Board) is List<MoveRule> additionalMoves
+                        && additionalMoves.Count > 0
+                    )
+                    {
+                        piece.MoveRules.AddRange(additionalMoves);
+                    }
+                }
+                else if (buff is UpdateBuff)
+                {
+                    if (
+                        buff.ApplyBuff(piece, piece.Board) is ChessPiece updatedPiece
+                        && updatedPiece != null
+                    )
+                    {
+                        if (updatedPiece.IsWhite == piece.IsWhite)
+                        {
+                            piece.UpdateFromBuff(updatedPiece);
+                        }
+                        else
+                        {
+                            destroyedPieces.Add(updatedPiece);
+                        }
+                    }
+                }
+            }
+
+            return destroyedPieces;
         }
     }
 }

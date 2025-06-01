@@ -94,10 +94,10 @@ namespace Assets.Scripts.Game.Board
             PromoteAtEndPieceBuff.ConfigurePromotionPieces(
                 pieces: new List<IChessObject>
                 {
-                    this.SpawnPiece(ChessPieceType.Queen, true, "a1"),
-                    this.SpawnPiece(ChessPieceType.Rook, true, "a1"),
-                    this.SpawnPiece(ChessPieceType.Bishop, true, "a1"),
-                    this.SpawnPiece(ChessPieceType.Knight, true, "a1"),
+                    this.SpawnPiece(ChessPieceType.Queen, true, null),
+                    this.SpawnPiece(ChessPieceType.Rook, true, null),
+                    this.SpawnPiece(ChessPieceType.Bishop, true, null),
+                    this.SpawnPiece(ChessPieceType.Knight, true, null),
                 },
                 tooltips: new List<string> { "Queen", "Rook", "Bishop", "Knight" }
             );
@@ -228,8 +228,7 @@ namespace Assets.Scripts.Game.Board
         {
             if (!this.GetTile(position, out ChessTile tile))
             {
-                Debug.LogError($"Cannot spawn piece: tile {position} not found");
-                return null;
+                Debug.Log($"Tile {position} not found. Spawning piece without tile.");
             }
 
             var pieceObject = new GameObject($"{(isWhite ? "White" : "Black")}_{type}");
@@ -258,8 +257,16 @@ namespace Assets.Scripts.Game.Board
 
             pieceObject.transform.localScale = new Vector3(scale, scale, -2); // -2 to render in front of tiles
 
-            // Place the piece on the tile
-            tile.UpdatePiece(piece);
+            if (tile == null)
+            {
+                // Piece spawned without tile, set inactive until piece is needed
+                piece.gameObject.SetActive(false);
+            }
+            else
+            {
+                // Place the piece on the tile
+                tile.UpdatePiece(piece, true, true);
+            }
 
             return piece;
         }
@@ -505,18 +512,9 @@ namespace Assets.Scripts.Game.Board
             // Record the move history before making the move
             ChessTile currentTile = piece.CurrentTile;
             ChessPiece capturedPiece = targetTile.CurrentPiece;
-            this.MoveHistory.Add(
-                new ChessMoveHistory(
-                    piece,
-                    currentTile.Position,
-                    targetTile.Position,
-                    capturedPiece,
-                    this.IsWhiteTurn
-                )
-            );
 
             // Update tiles current piece (destroy/disable old piece if any)
-            targetTile.UpdatePiece(piece);
+            targetTile.UpdatePiece(piece, false, false);
             currentTile.CurrentPiece = null;
 
             // Update Enemy icons
@@ -526,6 +524,26 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
+        public void AddMove(
+            ChessPiece piece,
+            Vector2Int? currentPos,
+            Vector2Int? targetPos,
+            ChessPiece mainCapturedPiece,
+            List<ChessPiece> additionalCapturedPieces
+        )
+        {
+            this.MoveHistory.Add(
+                new ChessMoveHistory(
+                    piece,
+                    currentPos,
+                    targetPos,
+                    mainCapturedPiece,
+                    additionalCapturedPieces,
+                    this.IsWhiteTurn
+                )
+            );
+        }
+
         public bool CanUndo()
         {
             return this.MoveHistory.Count > 0;
@@ -533,6 +551,7 @@ namespace Assets.Scripts.Game.Board
 
         public void UndoLastMove()
         {
+            // TODO: reset buffs of pieces in move history
             if (!this.CanUndo())
             {
                 return;
@@ -543,12 +562,18 @@ namespace Assets.Scripts.Game.Board
             this.MoveHistory.RemoveAt(this.MoveHistory.Count - 1);
 
             // Get the tiles involved
-            if (!this.GetTile(lastMove.FromPosition, out ChessTile fromTile))
+            if (
+                lastMove.FromPosition is not Vector2Int fromPos
+                || !this.GetTile(fromPos, out ChessTile fromTile)
+            )
             {
                 return;
             }
 
-            if (!this.GetTile(lastMove.ToPosition, out ChessTile toTile))
+            if (
+                lastMove.ToPosition is not Vector2Int toPos
+                || !this.GetTile(toPos, out ChessTile toTile)
+            )
             {
                 return;
             }
@@ -556,18 +581,35 @@ namespace Assets.Scripts.Game.Board
             ChessPiece pieceToMove = lastMove.MovedPiece;
 
             // Move the piece back
-            fromTile.UpdatePiece(pieceToMove);
+            fromTile.UpdatePiece(pieceToMove, true, true);
 
-            // Restore captured piece if there was one
-            if (lastMove.CapturedPiece != null)
+            // Restore captured pieces if there was one
+            if (
+                lastMove.AdditionalCapturedPieces != null
+                && lastMove.AdditionalCapturedPieces.Count > 0
+            )
+            {
+                foreach (ChessPiece capturePiece in lastMove.AdditionalCapturedPieces)
+                {
+                    if (capturePiece == null)
+                    {
+                        continue;
+                    }
+
+                    // Reactivate the captured piece
+                    capturePiece.gameObject.SetActive(true);
+                }
+            }
+
+            if (lastMove.MainCapturedPiece != null)
             {
                 // Reactivate the captured piece
-                lastMove.CapturedPiece.gameObject.SetActive(true);
-                toTile.UpdatePiece(lastMove.CapturedPiece);
+                lastMove.MainCapturedPiece.gameObject.SetActive(true);
+                toTile.UpdatePiece(lastMove.MainCapturedPiece, true, true);
             }
             else
             {
-                toTile.UpdatePiece(null);
+                toTile.UpdatePiece(null, true, true);
             }
 
             lastMove.MovedPiece.gameObject.SetActive(true);
@@ -645,7 +687,8 @@ namespace Assets.Scripts.Game.Board
 
         public bool GetTile(string position, out ChessTile tile)
         {
-            return this.tiles.TryGetValue(position, out tile);
+            tile = null;
+            return position != null && this.tiles.TryGetValue(position, out tile);
         }
 
         public bool GetTile(Vector2Int vector, out ChessTile tile)
