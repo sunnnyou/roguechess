@@ -1,10 +1,8 @@
 namespace Assets.Scripts.Game.Board
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Assets.Scripts.Game.Buffs;
-    using Assets.Scripts.Game.Buffs.Pieces;
     using Assets.Scripts.Game.Buffs.Pieces.Move;
     using Assets.Scripts.Game.Buffs.Pieces.Update;
     using Assets.Scripts.Game.MoveRules;

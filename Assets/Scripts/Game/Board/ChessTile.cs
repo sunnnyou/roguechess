@@ -91,18 +91,9 @@ namespace Assets.Scripts.Game.Board
                     );
                 }
             }
-            else if (this.CurrentPiece != null)
+            else if (this.CurrentPiece != null && !ignoreMoveHistory)
             {
-                if (!ignoreMoveHistory)
-                {
-                    this.CurrentPiece.Board.AddMove(
-                        null,
-                        null,
-                        this.Position,
-                        this.CurrentPiece,
-                        null
-                    );
-                }
+                this.CurrentPiece.Board.AddMove(null, null, this.Position, this.CurrentPiece, null);
             }
 
             this.CurrentPiece = newPiece;

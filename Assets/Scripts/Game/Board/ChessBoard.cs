@@ -529,7 +529,8 @@ namespace Assets.Scripts.Game.Board
             Vector2Int? currentPos,
             Vector2Int? targetPos,
             ChessPiece mainCapturedPiece,
-            List<ChessPiece> additionalCapturedPieces
+            List<ChessPiece> additionalCapturedPieces,
+            bool? isWhiteTurn = null
         )
         {
             this.MoveHistory.Add(
@@ -539,7 +540,7 @@ namespace Assets.Scripts.Game.Board
                     targetPos,
                     mainCapturedPiece,
                     additionalCapturedPieces,
-                    this.IsWhiteTurn
+                    isWhiteTurn ?? this.IsWhiteTurn
                 )
             );
         }
@@ -552,6 +553,7 @@ namespace Assets.Scripts.Game.Board
         public void UndoLastMove()
         {
             // TODO: reset buffs of pieces in move history
+            // TODO: add change to previous piece on updatebuff (e.g. PromoteAtEndPieceBuff)
             if (!this.CanUndo())
             {
                 return;
@@ -579,6 +581,19 @@ namespace Assets.Scripts.Game.Board
             }
 
             ChessPiece pieceToMove = lastMove.MovedPiece;
+
+            // ChessPiece was updated. Deactivate update piece and activate previous piece
+            // TODO: add chess piece properties to ChessMoveHistory and restore them if they were changed, instead of this
+            var toTilePiece = toTile.CurrentPiece;
+            if (
+                toTilePiece != null
+                && toTilePiece.gameObject != null
+                && toTilePiece.gameObject.GetInstanceID() != pieceToMove.gameObject.GetInstanceID()
+                && toTilePiece.IsWhite == pieceToMove.IsWhite
+            )
+            {
+                toTilePiece.gameObject.SetActive(false);
+            }
 
             // Move the piece back
             fromTile.UpdatePiece(pieceToMove, true, true);
@@ -612,7 +627,7 @@ namespace Assets.Scripts.Game.Board
                 toTile.UpdatePiece(null, true, true);
             }
 
-            lastMove.MovedPiece.gameObject.SetActive(true);
+            pieceToMove.gameObject.SetActive(true);
 
             // Restore the turn
             this.IsWhiteTurn = lastMove.WasWhiteTurn;

@@ -1,6 +1,5 @@
 namespace Assets.Scripts.Game.Buffs.Pieces.Update
 {
-    using System;
     using System.Collections.Generic;
     using Assets.Scripts.Game.Board;
     using Assets.Scripts.UI;
@@ -194,11 +193,6 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
             newPiece.gameObject.SetActive(true);
 
             Debug.Log($"Promotion completed: {oldPiece.name} -> {newPiece.name}");
-        }
-
-        public static List<string> GetDefaultPromotionPieceNames()
-        {
-            return new List<string> { "Queen", "Rook", "Bishop", "Knight" };
         }
     }
 }
