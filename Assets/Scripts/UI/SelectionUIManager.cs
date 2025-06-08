@@ -3,8 +3,8 @@ namespace Assets.Scripts.UI
     using System;
     using System.Collections.Generic;
     using Assets.Scripts.Game.Board;
+    using Assets.Scripts.UI.Tooltip;
     using UnityEngine;
-    using UnityEngine.InputSystem;
 
     // UI Manager for handling object selection
     public class SelectionUIManager : MonoBehaviour
@@ -20,8 +20,6 @@ namespace Assets.Scripts.UI
         private UnityEngine.UI.Text titleText;
         private UnityEngine.UI.Text descriptionText;
         private GameObject buttonContainer;
-        private GameObject tooltipPanel;
-        private UnityEngine.UI.Text tooltipText;
 
         private void Start()
         {
@@ -136,9 +134,6 @@ namespace Assets.Scripts.UI
 
             // Create confirm button
             this.CreateConfirmButton(confirmButtonText, board);
-
-            // Create tooltip panel
-            this.CreateTooltipPanel(board);
         }
 
         private void CreateTitleText(string title, ChessBoard board)
@@ -237,10 +232,15 @@ namespace Assets.Scripts.UI
             // Add selection logic
             button.onClick.AddListener(() => this.SelectObject(targetObject, button));
 
-            // Add hover effects and tooltip
-            var eventTrigger = buttonGO.AddComponent<UnityEngine.EventSystems.EventTrigger>();
+            // Add Tooltip
+            if (!string.IsNullOrEmpty(tooltip))
+            {
+                var tooltipUI = buttonGO.AddComponent<TooltipHover>();
+                tooltipUI.TipToShow = tooltip;
+            }
 
-            // Mouse enter
+            // Pointer enter color effect
+            var eventTrigger = buttonGO.AddComponent<UnityEngine.EventSystems.EventTrigger>();
             var enterEntry = new UnityEngine.EventSystems.EventTrigger.Entry
             {
                 eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter,
@@ -249,15 +249,11 @@ namespace Assets.Scripts.UI
                 (data) =>
                 {
                     buttonImage.color = new Color(1f, 1f, 1f, 0.8f);
-                    if (!string.IsNullOrEmpty(tooltip))
-                    {
-                        this.ShowTooltip(tooltip);
-                    }
                 }
             );
             eventTrigger.triggers.Add(enterEntry);
 
-            // Mouse exit
+            // Pointer exit color effect
             var exitEntry = new UnityEngine.EventSystems.EventTrigger.Entry
             {
                 eventID = UnityEngine.EventSystems.EventTriggerType.PointerExit,
@@ -269,12 +265,11 @@ namespace Assets.Scripts.UI
                     {
                         buttonImage.color = Color.white;
                     }
-
-                    this.HideTooltip();
                 }
             );
             eventTrigger.triggers.Add(exitEntry);
 
+            // Add to button list
             this.selectionButtons.Add(button);
         }
 
@@ -312,34 +307,6 @@ namespace Assets.Scripts.UI
             this.confirmButton.onClick.AddListener(this.ConfirmSelection);
         }
 
-        private void CreateTooltipPanel(ChessBoard board)
-        {
-            this.tooltipPanel = new GameObject("TooltipPanel");
-            this.tooltipPanel.transform.SetParent(this.parentCanvas.transform, false);
-            this.tooltipPanel.SetActive(false);
-
-            var tooltipImage = this.tooltipPanel.AddComponent<UnityEngine.UI.Image>();
-            tooltipImage.color = new Color(0f, 0f, 0f, 0.8f);
-
-            var tooltipRT = this.tooltipPanel.GetComponent<RectTransform>();
-            tooltipRT.sizeDelta = new Vector2(200, 50);
-
-            var tooltipTextGO = new GameObject("TooltipText");
-            tooltipTextGO.transform.SetParent(this.tooltipPanel.transform, false);
-
-            this.tooltipText = tooltipTextGO.AddComponent<UnityEngine.UI.Text>();
-            this.tooltipText.font = board.MainFont;
-            this.tooltipText.fontSize = 25;
-            this.tooltipText.color = Color.white;
-            this.tooltipText.alignment = TextAnchor.MiddleCenter;
-
-            var tooltipTextRT = tooltipTextGO.GetComponent<RectTransform>();
-            tooltipTextRT.anchorMin = Vector2.zero;
-            tooltipTextRT.anchorMax = Vector2.one;
-            tooltipTextRT.sizeDelta = Vector2.zero;
-            tooltipTextRT.anchoredPosition = Vector2.zero;
-        }
-
         private void SelectObject(IChessObject obj, UnityEngine.UI.Button button)
         {
             this.selectedObject = obj;
@@ -373,37 +340,6 @@ namespace Assets.Scripts.UI
 
             this.selectionCallback(this.selectedObject);
             this.HideSelectionUI();
-        }
-
-        private void ShowTooltip(string text)
-        {
-            if (this.tooltipPanel == null || this.tooltipText == null)
-            {
-                return;
-            }
-
-            this.tooltipText.text = text;
-            this.tooltipPanel.SetActive(true);
-
-            // Position tooltip at mouse position
-            Vector2 mousePos = Mouse.current.position.ReadValue();
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                this.parentCanvas.GetComponent<RectTransform>(),
-                mousePos,
-                this.parentCanvas.worldCamera,
-                out Vector2 localPoint
-            );
-
-            this.tooltipPanel.GetComponent<RectTransform>().anchoredPosition =
-                mousePos + new Vector2(10, 10);
-        }
-
-        private void HideTooltip()
-        {
-            if (this.tooltipPanel != null)
-            {
-                this.tooltipPanel.SetActive(false);
-            }
         }
 
         private void HideSelectionUI()

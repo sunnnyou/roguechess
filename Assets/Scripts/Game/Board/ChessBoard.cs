@@ -33,6 +33,7 @@ namespace Assets.Scripts.Game.Board
         private float calculatedTileSize;
 
         // Sprites, fonts and materials
+        public SelectionUIManager SelectionManager;
         public EnemySpriteManager EnemySpriteManager;
         public Font MainFont;
         public Sprite WhiteTileSprite;
@@ -88,9 +89,7 @@ namespace Assets.Scripts.Game.Board
 
         public void SetupPromotion()
         {
-            var promotionUIObject = new GameObject($"Promotion_Selection_UI");
-            var promotionUI = promotionUIObject.AddComponent<SelectionUIManager>();
-            PromoteAtEndPieceBuff.InitializePromotionSystem(promotionUI);
+            PromoteAtEndPieceBuff.InitializePromotionSystem(this.SelectionManager);
             PromoteAtEndPieceBuff.ConfigurePromotionPieces(
                 pieces: new List<IChessObject>
                 {

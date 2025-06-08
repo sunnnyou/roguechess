@@ -38,6 +38,7 @@ namespace Assets.Scripts.Game.Board
         public SerializedProperty PieceMaterialProperty;
 
         // Misc
+        public SerializedProperty SelectionManager;
         public SerializedProperty EnemySpriteManager;
         public SerializedProperty MainFont;
 
@@ -77,6 +78,7 @@ namespace Assets.Scripts.Game.Board
             this.PieceMaterialProperty = this.serializedObject.FindProperty("PieceMaterial");
 
             // Misc
+            this.SelectionManager = this.serializedObject.FindProperty("SelectionManager");
             this.EnemySpriteManager = this.serializedObject.FindProperty("EnemySpriteManager");
             this.MainFont = this.serializedObject.FindProperty("MainFont");
         }
@@ -118,6 +120,13 @@ namespace Assets.Scripts.Game.Board
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Piece Material", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(this.PieceMaterialProperty);
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField(
+                "Selection Manager for reaching end of board",
+                EditorStyles.boldLabel
+            );
+            EditorGUILayout.PropertyField(this.SelectionManager);
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Sprite Manger for Enemy", EditorStyles.boldLabel);
