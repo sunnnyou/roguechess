@@ -28,6 +28,8 @@ namespace Assets.Scripts.Game.Board
 
         internal ChessBoard Board { get; private set; }
 
+        public bool HasMoved;
+
         public void Initialize(
             ChessPieceType type,
             bool white,

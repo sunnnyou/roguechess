@@ -54,7 +54,9 @@ namespace Assets.Scripts.Game.Board
 
         private readonly Dictionary<string, ChessTile> tiles = new();
         private ChessPiece selectedPiece;
-        private readonly List<ChessTile> highlightedTiles = new();
+        private List<ChessTile> highlightedTiles = new List<ChessTile>();
+        private RectTransform parentRectTransform;
+        private float calculatedTileSize;
 
         // Game variables
         public bool IsWhiteTurn = true;
@@ -72,265 +74,6 @@ namespace Assets.Scripts.Game.Board
             this.CalculateScaling();
             this.GenerateBoard();
             this.SetupTraditionalPieces();
-            this.SetupPromotion();
-        }
-
-        // Update is called once per frame
-        public void Update()
-        {
-            // Block input during Enemy turn
-            if (this.IsEnemyTurn || this.GameOver)
-            {
-                return;
-            }
-
-            this.HandleInput();
-        }
-
-        public void SetupPromotion()
-        {
-            PromoteAtEndPieceBuff.InitializePromotionSystem(this.SelectionManager);
-            PromoteAtEndPieceBuff.ConfigurePromotionPieces(
-                pieces: new List<IChessObject>
-                {
-                    this.SpawnPiece(ChessPieceType.Queen, true, null),
-                    this.SpawnPiece(ChessPieceType.Rook, true, null),
-                    this.SpawnPiece(ChessPieceType.Bishop, true, null),
-                    this.SpawnPiece(ChessPieceType.Knight, true, null),
-                },
-                tooltips: new List<string> { "Queen", "Rook", "Bishop", "Knight" }
-            );
-        }
-
-        public void GenerateBoard()
-        {
-            // Clear existing tiles if board is regenerated
-            foreach (var tile in this.tiles.Values)
-            {
-                if (tile == null)
-                {
-                    continue;
-                }
-
-                tile.Destroy();
-            }
-
-            this.tiles.Clear();
-
-            // Calculate board center offset for alignment
-            float boardWidth = this.Width * this.calculatedTileSize;
-            float boardHeight = this.Height * this.calculatedTileSize;
-            var boardCenter = new Vector2(boardWidth / 2, boardHeight / 2);
-            var startPos = new Vector2(
-                -boardCenter.x + (this.calculatedTileSize / 2),
-                -boardCenter.y + (this.calculatedTileSize / 2)
-            );
-
-            for (int x = 0; x < this.Width; x++)
-            {
-                for (int y = 0; y < this.Height; y++)
-                {
-                    // Create chess tile game object
-                    var tileObject = new GameObject($"Tile_{CoordinateHelper.XYToString(x, y)}");
-                    tileObject.transform.parent = this.transform;
-
-                    // Calculate centered position
-                    float posX = startPos.x + (x * this.calculatedTileSize);
-                    float posY = startPos.y + (y * this.calculatedTileSize);
-                    tileObject.transform.localPosition = new Vector3(posX, posY, -1);
-
-                    // Setup collider for mouse interaction
-                    BoxCollider2D collider = tileObject.AddComponent<BoxCollider2D>();
-                    collider.size = new Vector2(this.TileSize, this.TileSize);
-
-                    // Setup tile component
-                    ChessTile tile = tileObject.AddComponent<ChessTile>();
-
-                    bool isWhite = (x + y) % 2 == 0;
-                    tile.Initialize(new Vector2Int(x, y), isWhite);
-
-                    // Set sprite
-                    tile.SpriteRenderer.sprite = isWhite
-                        ? this.WhiteTileSprite
-                        : this.BlackTileSprite;
-
-                    // Set sorting order to be behind chess pieces
-                    tile.SpriteRenderer.sortingOrder = 2;
-
-                    // Set proper size for the tile
-                    tileObject.transform.localScale = new Vector3(
-                        1 / this.calculatedTileSize,
-                        1 / this.calculatedTileSize,
-                        -1 // be in front of background but behind chess pieces
-                    );
-
-                    // Add to dictionary for easy lookup
-                    this.tiles.Add(CoordinateHelper.XYToString(x, y), tile);
-                }
-            }
-        }
-
-        // Set up traditional chess piece layout
-        public void SetupTraditionalPieces()
-        {
-            // Make sure we have a standard board size
-            if (this.Width != 8 || this.Height != 8)
-            {
-                Debug.LogWarning("Standard chess setup requires an 8x8 board.");
-                return;
-            }
-
-            // Setup white pieces
-            this.SpawnPiece(ChessPieceType.Rook, true, "a1");
-            this.SpawnPiece(ChessPieceType.Knight, true, "b1");
-            this.SpawnPiece(ChessPieceType.Bishop, true, "c1");
-            this.SpawnPiece(ChessPieceType.Queen, true, "d1");
-            this.SpawnPiece(ChessPieceType.King, true, "e1");
-            this.SpawnPiece(ChessPieceType.Bishop, true, "f1");
-            this.SpawnPiece(ChessPieceType.Knight, true, "g1");
-            this.SpawnPiece(ChessPieceType.Rook, true, "h1");
-
-            // Setup white pawns
-            for (int i = 0; i < this.Width; i++)
-            {
-                string coord = CoordinateHelper.XYToString(i, 1);
-                this.SpawnPiece(ChessPieceType.Pawn, true, coord);
-            }
-
-            // Setup black pieces
-            this.SpawnPiece(ChessPieceType.Rook, false, "a8");
-            this.SpawnPiece(ChessPieceType.Knight, false, "b8");
-            this.SpawnPiece(ChessPieceType.Bishop, false, "c8");
-            this.SpawnPiece(ChessPieceType.Queen, false, "d8");
-            this.SpawnPiece(ChessPieceType.King, false, "e8");
-            this.SpawnPiece(ChessPieceType.Bishop, false, "f8");
-            this.SpawnPiece(ChessPieceType.Knight, false, "g8");
-            this.SpawnPiece(ChessPieceType.Rook, false, "h8");
-
-            // Setup black pawns
-            for (int i = 0; i < this.Width; i++)
-            {
-                string coord = CoordinateHelper.XYToString(i, 6);
-                this.SpawnPiece(ChessPieceType.Pawn, false, coord);
-            }
-        }
-
-        // Spawn a chess piece on the board
-        public ChessPiece SpawnPiece(
-            ChessPieceType type,
-            bool isWhite,
-            string position,
-            Sprite customSprite = null,
-            List<Material> customMaterials = null,
-            List<MoveRule> customMoveRules = null
-        )
-        {
-            if (!this.GetTile(position, out ChessTile tile))
-            {
-                Debug.Log($"Tile {position} not found. Spawning piece without tile.");
-            }
-
-            var pieceObject = new GameObject($"{(isWhite ? "White" : "Black")}_{type}");
-            pieceObject.transform.parent = this.transform;
-
-            var piece = pieceObject.AddComponent<ChessPiece>();
-
-            // Get the appropriate sprite based on piece type and color
-            Sprite sprite =
-                customSprite != null ? customSprite : this.GetPieceSprite(type, isWhite);
-
-            // Set up the piece materials
-            var pieceMaterials = new List<Material> { this.PieceMaterial };
-            if (customMaterials != null && customMaterials.Count > 0)
-            {
-                pieceMaterials.AddRange(customMaterials);
-            }
-
-            // Initialize the piece
-            piece.Initialize(type, isWhite, sprite, this, pieceMaterials, customMoveRules);
-
-            // Scale to fit within the tile, centered
-            float scaleX = this.calculatedTileSize * 0.8f; // Use 80% of tile width
-            float scaleY = this.calculatedTileSize * 0.8f; // Use 80% of tile height
-            float scale = Mathf.Min(scaleX, scaleY); // Use the smaller scale to maintain aspect ratio
-
-            pieceObject.transform.localScale = new Vector3(scale, scale, -2); // -2 to render in front of tiles
-
-            if (tile == null)
-            {
-                // Piece spawned without tile, set inactive until piece is needed
-                piece.gameObject.SetActive(false);
-            }
-            else
-            {
-                // Place the piece on the tile
-                tile.UpdatePiece(piece, true, true);
-            }
-
-            return piece;
-        }
-
-        // Get all pieces from player
-        public List<ChessPiece> GetAllPieces(bool isWhite)
-        {
-            List<ChessPiece> pieces = new();
-            foreach (var tile in this.tiles.Values)
-            {
-                if (tile.CurrentPiece != null && tile.CurrentPiece.IsWhite == isWhite)
-                {
-                    pieces.Add(tile.CurrentPiece);
-                }
-            }
-
-            return pieces;
-        }
-
-        // Helper to get the proper sprite based on piece type and color
-        public Sprite GetPieceSprite(ChessPieceType type, bool isWhite)
-        {
-            if (isWhite)
-            {
-                return type switch
-                {
-                    ChessPieceType.Rook => this.WhiteRookSprite,
-                    ChessPieceType.Knight => this.WhiteKnightSprite,
-                    ChessPieceType.Bishop => this.WhiteBishopSprite,
-                    ChessPieceType.Queen => this.WhiteQueenSprite,
-                    ChessPieceType.King => this.WhiteKingSprite,
-                    _ => this.WhitePawnSprite, // Default
-                };
-            }
-            else
-            {
-                return type switch
-                {
-                    ChessPieceType.Rook => this.BlackRookSprite,
-                    ChessPieceType.Knight => this.BlackKnightSprite,
-                    ChessPieceType.Bishop => this.BlackBishopSprite,
-                    ChessPieceType.Queen => this.BlackQueenSprite,
-                    ChessPieceType.King => this.BlackKingSprite,
-                    _ => this.BlackPawnSprite, // Default
-                };
-            }
-        }
-
-        public static void DestroyObjectsByType<T>(
-            FindObjectsSortMode sortMode = FindObjectsSortMode.None
-        )
-            where T : Object
-        {
-            T[] objects = Object.FindObjectsByType<T>(sortMode);
-            foreach (T obj in objects)
-            {
-                if (Application.isPlaying)
-                {
-                    Object.Destroy(obj);
-                }
-                else
-                {
-                    Object.DestroyImmediate(obj);
-                }
-            }
         }
 
         // Calculates appropriate scaling based on parent container
@@ -395,46 +138,32 @@ namespace Assets.Scripts.Game.Board
                 float heightBasedSize = availableHeight / this.Height;
                 this.calculatedTileSize = Mathf.Min(widthBasedSize, heightBasedSize);
 
-                Debug.Log(
-                    $"Auto-scaling based on transform scale. Tile size: {this.calculatedTileSize}"
-                );
-            }
-            else
-            {
-                // No suitable parent size found, use default tile size
-                this.calculatedTileSize = this.TileSize;
-                Debug.LogWarning(
-                    "Could not determine parent size for auto-scaling. Using default tile size."
-                );
-            }
-        }
-
-        // handle board resizing
-        public void Resize(int newWidth, int newHeight, bool regenerate = true)
-        {
-            this.Width = newWidth;
-            this.Height = newHeight;
-
-            if (this.AutoScale)
-            {
-                this.CalculateScaling();
-            }
-
-            if (regenerate)
-            {
-                this.GenerateBoard();
+                        Debug.Log(
+                            $"Auto-scaling based on transform scale. Tile size: {this.calculatedTileSize}"
+                        );
+                    }
+                    else
+                    {
+                        // No suitable parent size found, use default tile size
+                        this.calculatedTileSize = this.TileSize;
+                        Debug.LogWarning(
+                            "Could not determine parent size for auto-scaling. Using default tile size."
+                        );
+                    }
+                }
             }
         }
 
-        // Handler for scaling from UI
-        public void OnRectTransformDimensionsChange()
+        // Update is called once per frame
+        public void Update()
         {
-            if (!this.AutoScale || !this.gameObject.activeInHierarchy)
+            // Block input during AI turn
+            if (this.IsAITurn || this.gameOver)
             {
                 return;
             }
 
-            this.Start();
+            this.HandleInput();
         }
 
         // Handle player input for selecting and moving pieces
@@ -597,62 +326,70 @@ namespace Assets.Scripts.Game.Board
             // Move the piece back
             fromTile.UpdatePiece(pieceToMove, true, true);
 
-            // Restore captured pieces if there was one
-            if (
-                lastMove.AdditionalCapturedPieces != null
-                && lastMove.AdditionalCapturedPieces.Count > 0
-            )
+            // Initialize the piece
+            piece.Initialize(type, isWhite, sprite, this, this.PieceMaterial);
+
+            // Scale to fit within the tile, centered
+            float scaleX = this.calculatedTileSize * 0.8f; // Use 80% of tile width
+            float scaleY = this.calculatedTileSize * 0.8f; // Use 80% of tile height
+            float scale = Mathf.Min(scaleX, scaleY); // Use the smaller scale to maintain aspect ratio
+
+            pieceObject.transform.localScale = new Vector3(scale, scale, -2); // -2 to render in front of tiles
+
+            // Place the piece on the tile
+            tile.UpdatePiece(piece);
+
+            return piece;
+        }
+
+        // Helper to get the proper sprite based on piece type and color
+        public Sprite GetPieceSprite(ChessPieceType type, bool isWhite)
+        {
+            if (isWhite)
             {
-                foreach (ChessPiece capturePiece in lastMove.AdditionalCapturedPieces)
+                switch (type)
                 {
-                    if (capturePiece == null)
-                    {
-                        continue;
-                    }
-
-                    // Reactivate the captured piece
-                    capturePiece.gameObject.SetActive(true);
+                    case ChessPieceType.Pawn:
+                        return this.WhitePawnSprite;
+                    case ChessPieceType.Rook:
+                        return this.WhiteRookSprite;
+                    case ChessPieceType.Knight:
+                        return this.WhiteKnightSprite;
+                    case ChessPieceType.Bishop:
+                        return this.WhiteBishopSprite;
+                    case ChessPieceType.Queen:
+                        return this.WhiteQueenSprite;
+                    case ChessPieceType.King:
+                        return this.WhiteKingSprite;
+                    default:
+                        return this.WhitePawnSprite; // Default
                 }
-            }
-
-            if (lastMove.MainCapturedPiece != null)
-            {
-                // Reactivate the captured piece
-                lastMove.MainCapturedPiece.gameObject.SetActive(true);
-                toTile.UpdatePiece(lastMove.MainCapturedPiece, true, true);
             }
             else
             {
-                toTile.UpdatePiece(null, true, true);
-            }
-
-            pieceToMove.gameObject.SetActive(true);
-
-            // Restore the turn
-            this.IsWhiteTurn = lastMove.WasWhiteTurn;
-
-            // Clear any highlights
-            this.ClearHighlights();
-            this.selectedPiece = null;
-        }
-
-        public void UndoMoves(int numberOfMoves)
-        {
-            int movesToUndo = Mathf.Min(numberOfMoves, this.MoveHistory.Count);
-            for (int i = 0; i < movesToUndo; i++)
-            {
-                this.UndoLastMove();
+                switch (type)
+                {
+                    case ChessPieceType.Pawn:
+                        return this.BlackPawnSprite;
+                    case ChessPieceType.Rook:
+                        return this.BlackRookSprite;
+                    case ChessPieceType.Knight:
+                        return this.BlackKnightSprite;
+                    case ChessPieceType.Bishop:
+                        return this.BlackBishopSprite;
+                    case ChessPieceType.Queen:
+                        return this.BlackQueenSprite;
+                    case ChessPieceType.King:
+                        return this.BlackKingSprite;
+                    default:
+                        return this.BlackPawnSprite; // Default
+                }
             }
         }
 
         // Highlights all valid moves for a piece
         public void HighlightValidMoves(ChessPiece piece)
         {
-            if (piece == null)
-            {
-                return;
-            }
-
             List<ChessTile> validTiles = piece.GetValidTiles();
 
             foreach (ChessTile tile in validTiles)
@@ -673,13 +410,134 @@ namespace Assets.Scripts.Game.Board
             this.highlightedTiles.Clear();
         }
 
-        public void SetEnemyTurn(bool enemyTurn)
+        // Move a piece to a new tile
+        public void MovePiece(ChessPiece piece, ChessTile targetTile)
         {
-            this.IsEnemyTurn = enemyTurn;
-            if (this.EnemySpriteManager != null)
+            if (piece == null || targetTile == null)
+            {
+                return;
+            }
+
+            // Update tiles current piece (destroy old piece if any)
+            targetTile.UpdatePiece(piece);
+
+            // Update AI icons
+            if (this.SpriteHolder != null)
             {
                 this.EnemySpriteManager.ShowLoading(enemyTurn);
             }
+        }
+
+        // Undo the last move
+        public bool UndoLastMove()
+        {
+            if (this.moveHistory.Count == 0)
+            {
+                Debug.LogWarning("No moves to undo!");
+                return false;
+            }
+
+            MoveRecord lastMove = this.moveHistory.Pop();
+
+            // Restore the moved piece to its original position
+            lastMove.FromTile.CurrentPiece = lastMove.MovedPiece;
+            lastMove.MovedPiece.CurrentTile = lastMove.FromTile;
+
+            // Update piece position visually
+            if (lastMove.MovedPiece.transform != null)
+            {
+                lastMove.MovedPiece.transform.position = new Vector3(
+                    lastMove.FromTile.transform.position.x,
+                    lastMove.FromTile.transform.position.y,
+                    -2
+                );
+            }
+
+            // Restore captured piece if there was one
+            if (lastMove.CapturedPiece != null)
+            {
+                lastMove.ToTile.CurrentPiece = lastMove.CapturedPiece;
+                lastMove.CapturedPiece.CurrentTile = lastMove.ToTile;
+
+                // Make captured piece visible again
+                if (lastMove.CapturedPiece.gameObject != null)
+                {
+                    lastMove.CapturedPiece.gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                // Clear the target tile if no piece was captured
+                lastMove.ToTile.CurrentPiece = null;
+            }
+
+            // Restore piece's first move status
+            if (lastMove.WasFirstMove)
+            {
+                lastMove.MovedPiece.HasMoved = false;
+            }
+
+            // Restore turn
+            this.isWhiteTurn = lastMove.WasWhiteTurn;
+
+            // Clear any highlights
+            this.ClearHighlights();
+            this.selectedPiece = null;
+
+            Debug.Log(
+                $"Undid move: {lastMove.MovedPiece.PieceType} from {lastMove.FromTile.Coordinate} to {lastMove.ToTile.Coordinate}"
+            );
+            return true;
+        }
+
+        // Undo multiple moves
+        public bool UndoMoves(int numberOfMoves)
+        {
+            if (numberOfMoves <= 0)
+            {
+                return false;
+            }
+
+            if (this.moveHistory.Count < numberOfMoves)
+            {
+                Debug.LogWarning(
+                    $"Cannot undo {numberOfMoves} moves. Only {this.moveHistory.Count} moves in history."
+                );
+                return false;
+            }
+
+            for (int i = 0; i < numberOfMoves; i++)
+            {
+                if (!this.UndoLastMove())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Get the number of moves that can be undone
+        public int GetUndoableMovesCount()
+        {
+            return this.moveHistory.Count;
+        }
+
+        // Clear move history (useful when starting a new game)
+        public void ClearMoveHistory()
+        {
+            this.moveHistory.Clear();
+        }
+
+        // Peek at the last move without undoing it
+        public MoveRecord GetLastMove()
+        {
+            if (this.moveHistory.Count == 0)
+            {
+                return null;
+            }
+
+            return this.moveHistory.Peek();
         }
 
         public void MovePieceEnemy(ChessPiece piece, ChessMove move)
@@ -701,11 +559,26 @@ namespace Assets.Scripts.Game.Board
 
         public bool GetTile(string position, out ChessTile tile)
         {
-            tile = null;
-            return position != null && this.tiles.TryGetValue(position, out tile);
+            if (move == null)
+            {
+                throw new System.ArgumentNullException(nameof(move));
+            }
+
+            string targetCoord = GetCoordinateFromPosition(
+                move.TargetPosition.x,
+                move.TargetPosition.y
+            );
+            ChessTile targetTile = this.GetTile(targetCoord);
+
+            if (targetTile != null)
+            {
+                this.MovePiece(piece, targetTile);
+                this.isWhiteTurn = !this.isWhiteTurn;
+            }
         }
 
-        public bool GetTile(Vector2Int vector, out ChessTile tile)
+        // Get tile by Vector2Int position (overload for AI use)
+        public ChessTile GetTile(Vector2Int position)
         {
             return this.GetTile(CoordinateHelper.VectorToString(vector), out tile);
         }
@@ -801,6 +674,28 @@ namespace Assets.Scripts.Game.Board
             }
 
             return GameState.Ongoing; // Game continues
+        }
+
+        public static void HandleGameEnd(GameState state)
+        {
+            // Handle game end logic here
+            switch (state)
+            {
+                case GameState.WhiteWins:
+                    Debug.Log("White wins!");
+                    break;
+                case GameState.BlackWins:
+                    Debug.Log("Black wins!");
+                    break;
+                case GameState.Stalemate:
+                    Debug.Log("Stalemate!");
+                    break;
+                default:
+                    Debug.Log("Game continues.");
+                    break;
+            }
+
+            // TODO
         }
     }
 }
