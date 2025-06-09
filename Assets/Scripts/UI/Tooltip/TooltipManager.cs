@@ -39,8 +39,8 @@ namespace Assets.Scripts.UI.Tooltip
 
             this.TipWindow.gameObject.SetActive(true);
             this.TipWindow.transform.position = new Vector2(
-                mousePos.x + this.TipWindow.sizeDelta.x,
-                mousePos.y + this.TipWindow.sizeDelta.y
+                mousePos.x,
+                mousePos.y
             );
         }
 

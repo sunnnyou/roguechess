@@ -10,7 +10,6 @@ namespace Assets.Scripts.UI
     public class SelectionUIManager : MonoBehaviour
     {
         private GameObject selectionPanel;
-        private Canvas parentCanvas;
         private IChessObject selectedObject;
         private Action<IChessObject> selectionCallback;
         private readonly List<UnityEngine.UI.Button> selectionButtons = new();
@@ -23,16 +22,7 @@ namespace Assets.Scripts.UI
 
         private void Start()
         {
-            // Find or create canvas
-            this.parentCanvas = FindFirstObjectByType<Canvas>();
-            if (this.parentCanvas == null)
-            {
-                var canvasGO = new GameObject("Canvas");
-                this.parentCanvas = canvasGO.AddComponent<Canvas>();
-                this.parentCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-                canvasGO.AddComponent<UnityEngine.UI.CanvasScaler>();
-                canvasGO.AddComponent<UnityEngine.UI.GraphicRaycaster>();
-            }
+            // empty for now
         }
 
         // Shows selection UI with customizable options.
@@ -97,7 +87,7 @@ namespace Assets.Scripts.UI
         {
             // Create main panel
             this.selectionPanel = new GameObject("SelectionPanel");
-            this.selectionPanel.transform.SetParent(this.parentCanvas.transform, false);
+            this.selectionPanel.transform.SetParent(this.gameObject.transform, false);
 
             var panelImage = this.selectionPanel.AddComponent<UnityEngine.UI.Image>();
             panelImage.color = new Color(0.1f, 0.1f, 0.1f, 0.9f);
