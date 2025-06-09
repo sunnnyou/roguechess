@@ -56,10 +56,6 @@ namespace Assets.Scripts.Game.Board
         private ChessPiece selectedPiece;
         private readonly List<ChessTile> highlightedTiles = new();
 
-        private Stack<MoveRecord> moveHistory = new Stack<MoveRecord>();
-
-        private ChessAI aiComponent;
-
         // Game variables
         public bool IsWhiteTurn = true;
         public bool GameOver;
