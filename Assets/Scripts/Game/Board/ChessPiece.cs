@@ -2,20 +2,31 @@ namespace Assets.Scripts.Game.Board
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Assets.Scripts.Game.Buffs;
+    using Assets.Scripts.Game.Buffs.Pieces.Move;
+    using Assets.Scripts.Game.Buffs.Pieces.Update;
+    using Assets.Scripts.Game.MoveRules;
     using UnityEngine;
 
-    public class ChessPiece : MonoBehaviour
+    public class ChessPiece : MonoBehaviour, IChessObject
     {
-        public ChessPieceType PieceType;
-        public bool IsWhite;
-        public Sprite Sprite;
-        public ChessTile CurrentTile;
-        public List<MoveRule> MoveRules = new List<MoveRule>();
-        public Material PieceMaterial;
-        public int Lives = 1; // Number of hits before piece is destroyed
+        public List<IBuff> Buffs { get; } = new();
 
-        private SpriteRenderer spriteRenderer;
-        private ChessBoard board;
+        public SpriteRenderer SpriteRenderer { get; set; }
+
+        public ChessPieceType PieceType { get; private set; }
+
+        public bool IsWhite { get; set; }
+
+        public ChessTile CurrentTile { get; set; }
+
+        public List<MoveRule> MoveRules { get; private set; } = new();
+
+        public int Strength { get; private set; } = 1; // Strength of the piece, used for reducing lives in fights
+
+        public int Lives { get; private set; } = 1; // Number of hits before piece is destroyed
+
+        internal ChessBoard Board { get; private set; }
 
         public bool HasMoved;
 
@@ -24,423 +35,118 @@ namespace Assets.Scripts.Game.Board
             bool white,
             Sprite sprite,
             ChessBoard chessBoard,
-            Material material = null
+            List<Material> materials,
+            List<MoveRule> customRules = null,
+            List<IBuff> buffs = null
         )
         {
             this.PieceType = type;
             this.IsWhite = white;
-            this.Sprite = sprite;
-            this.board = chessBoard;
+            this.Board = chessBoard;
 
             // Check if we already have a SpriteRenderer
-            this.spriteRenderer = this.GetComponent<SpriteRenderer>();
-            if (this.spriteRenderer == null)
+            this.SpriteRenderer = this.GetComponent<SpriteRenderer>();
+            if (this.SpriteRenderer == null)
             {
-                this.spriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
+                this.SpriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
             }
 
-            if (material != null)
+            if (materials != null)
             {
-                this.PieceMaterial = new Material(material); // Get copy of material so that material texture is that of this sprite
-                this.PieceMaterial.renderQueue = 2999; // lower value so that its rendered behind sprite
-                this.spriteRenderer.materials = this
-                    .spriteRenderer.materials.Append(this.PieceMaterial)
-                    .ToArray();
+                int baseRenderQueue = 3000; // default render queue value for sprites
+                for (int i = 0; i < materials.Count; i++)
+                {
+                    var pieceMaterial = new Material(materials[i])
+                    {
+                        renderQueue = baseRenderQueue - (i + 1), // lower value so that its rendered behind sprite
+                    };
+                    this.SpriteRenderer.materials = this
+                        .SpriteRenderer.materials.Append(pieceMaterial)
+                        .ToArray();
+                }
             }
 
-            this.spriteRenderer.sortingOrder = 10; // render above tiles
-            this.spriteRenderer.sprite = sprite;
+            this.SpriteRenderer.sortingOrder = 10; // render above tiles
+            this.SpriteRenderer.sprite = sprite;
 
             // Set default move rules based on piece type
-            this.SetDefaultMoveRules();
+            this.SetDefaultMoveRules(customRules);
+
+            // Add buffs if provided
+            if (buffs != null)
+            {
+                this.Buffs.AddRange(buffs);
+            }
+
+            if (type == ChessPieceType.Pawn)
+            {
+                this.Buffs.Add(new EnPassantPieceBuff());
+                this.Buffs.Add(new ExtraReachPieceBuff());
+                this.Buffs.Add(new PromoteAtEndPieceBuff(null, white ? this.Board.Height - 1 : 0));
+            }
         }
 
-        public void SetDefaultMoveRules()
+        public void SetDefaultMoveRules(List<MoveRule> customRules = null)
         {
-            // TODO: make this a dictionary or special class for each piece type
             this.MoveRules.Clear();
 
             switch (this.PieceType)
             {
                 case ChessPieceType.Pawn:
-                    // Forward movement (will need special handling for first move and capture)
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 0,
-                            YDirection = this.IsWhite ? 1 : -1,
-                            MaxDistance = 1,
-                        }
-                    );
+                    this.MoveRules = PawnMove.GetMoveRules(this.IsWhite);
                     break;
-
                 case ChessPieceType.Rook:
-                    // Horizontal and vertical movement
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = 0,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = 0,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 0,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 0,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
+                    this.MoveRules = RookMove.GetMoveRules();
                     break;
-
                 case ChessPieceType.Knight:
-                    // L-shaped movement
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = 2,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 2,
-                            YDirection = 1,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 2,
-                            YDirection = -1,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = -2,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = -2,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -2,
-                            YDirection = -1,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -2,
-                            YDirection = 1,
-                            CanJumpOverPieces = true,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = 2,
-                            CanJumpOverPieces = true,
-                        }
-                    );
+                    this.MoveRules = KnightMove.GetMoveRules();
                     break;
-
                 case ChessPieceType.Bishop:
-                    // Diagonal movement
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
+                    this.MoveRules = BishopMove.GetMoveRules();
                     break;
-
                 case ChessPieceType.Queen:
-                    // Combination of Rook and Bishop movement
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = 0,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = 0,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 0,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 0,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = 1,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = 1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
-                    this.MoveRules.Add(
-                        new MoveRule
-                        {
-                            XDirection = -1,
-                            YDirection = -1,
-                            MaxDistance = int.MaxValue,
-                        }
-                    );
+                    this.MoveRules = QueenMove.GetMoveRules();
                     break;
-
                 case ChessPieceType.King:
-                    // One square in any direction
-                    this.MoveRules.Add(new MoveRule { XDirection = 1, YDirection = 0 });
-                    this.MoveRules.Add(new MoveRule { XDirection = -1, YDirection = 0 });
-                    this.MoveRules.Add(new MoveRule { XDirection = 0, YDirection = 1 });
-                    this.MoveRules.Add(new MoveRule { XDirection = 0, YDirection = -1 });
-                    this.MoveRules.Add(new MoveRule { XDirection = 1, YDirection = 1 });
-                    this.MoveRules.Add(new MoveRule { XDirection = 1, YDirection = -1 });
-                    this.MoveRules.Add(new MoveRule { XDirection = -1, YDirection = 1 });
-                    this.MoveRules.Add(new MoveRule { XDirection = -1, YDirection = -1 });
+                    this.MoveRules = KingMove.GetMoveRules();
                     break;
-
                 case ChessPieceType.Custom:
-                    // Custom pieces start with no move rules
+                    this.MoveRules = customRules ?? PawnMove.GetMoveRules(this.IsWhite);
                     break;
             }
-        }
-
-        public void CustomizeMoveRules(List<MoveRule> newRules)
-        {
-            this.MoveRules = newRules;
         }
 
         public List<ChessTile> GetValidTiles()
         {
-            List<ChessTile> validMoves = new List<ChessTile>();
+            var validMoves = new List<ChessTile>();
 
-            if (this.CurrentTile == null || this.board == null)
+            if (this.CurrentTile == null || this.Board == null)
             {
                 return validMoves;
             }
 
-            // Parse current position
-            ChessBoard.ParseCoordinate(
-                this.CurrentTile.Coordinate,
-                out int currentX,
-                out int currentY
+            validMoves = MoveRule.GetValidTiles(
+                this.MoveRules,
+                this.CurrentTile.Position,
+                this.Board,
+                this.IsWhite
             );
 
-            foreach (MoveRule rule in this.MoveRules)
+            // Get valid tiles from buffs
+            foreach (var buff in this.Buffs)
             {
-                for (int distance = 1; distance <= rule.MaxDistance; distance++)
-                {
-                    int targetX = currentX + (rule.XDirection * distance);
-                    int targetY = currentY + (rule.YDirection * distance);
-
-                    // Check if target is within board bounds
-                    if (
-                        targetX < 0
-                        || targetX >= this.board.Width
-                        || targetY < 0
-                        || targetY >= this.board.Height
-                    )
-                    {
-                        break;
-                    }
-
-                    string targetCoord = ChessBoard.GetCoordinateFromPosition(targetX, targetY);
-                    ChessTile targetTile = this.board.GetTile(targetCoord);
-
-                    if (targetTile == null)
-                    {
-                        break;
-                    }
-
-                    // If there's a piece on this tile
-                    if (targetTile.CurrentPiece != null)
-                    {
-                        // If it's an enemy piece, we can capture it
-                        if (targetTile.CurrentPiece.IsWhite != this.IsWhite)
-                        {
-                            validMoves.Add(targetTile);
-                        }
-
-                        // If we can't jump over pieces, stop checking this direction
-                        if (!rule.CanJumpOverPieces)
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        // Empty tile, valid move
-                        validMoves.Add(targetTile);
-                    }
-                }
-            }
-
-            // Special handling for pawns (capturing diagonally)
-            // TODO: fix only diagonal capture for pawns not straight
-            if (this.PieceType != ChessPieceType.Pawn)
-            {
-                return validMoves;
-            }
-
-            // Diagonal captures
-            int[] captureDirections = { -1, 1 };
-            int forwardDirection = this.IsWhite ? 1 : -1;
-
-            foreach (int dir in captureDirections)
-            {
-                int targetX = currentX + dir;
-                int targetY = currentY + forwardDirection;
-
-                if (
-                    targetX < 0
-                    || targetX >= this.board.Width
-                    || targetY < 0
-                    || targetY >= this.board.Height
-                )
+                if (buff == null || !buff.IsActive || buff is not MoveBuff)
                 {
                     continue;
                 }
 
-                string targetCoord = ChessBoard.GetCoordinateFromPosition(targetX, targetY);
-                ChessTile targetTile = this.board.GetTile(targetCoord);
-
                 if (
-                    targetTile != null
-                    && targetTile.CurrentPiece != null
-                    && targetTile.CurrentPiece.IsWhite != this.IsWhite
+                    buff.ApplyBuff(this, this.Board) is List<ChessTile> buffedTiles
+                    && buffedTiles.Count > 0
                 )
                 {
-                    validMoves.Add(targetTile);
+                    validMoves.AddRange(buffedTiles);
                 }
-            }
-
-            // First move can be 2 squares forward
-            if (
-                (!this.IsWhite || currentY != 1)
-                && (this.IsWhite || currentY != this.board.Height - 2)
-            )
-            {
-                return validMoves;
-            }
-
-            int twoForward = currentY + (forwardDirection * 2);
-            if (twoForward < 0 || twoForward >= this.board.Height)
-            {
-                return validMoves;
-            }
-
-            string oneStepCoord = ChessBoard.GetCoordinateFromPosition(
-                currentX,
-                currentY + forwardDirection
-            );
-            string twoStepCoord = ChessBoard.GetCoordinateFromPosition(currentX, twoForward);
-
-            ChessTile oneStepTile = this.board.GetTile(oneStepCoord);
-            ChessTile twoStepTile = this.board.GetTile(twoStepCoord);
-
-            if (
-                oneStepTile != null
-                && oneStepTile.CurrentPiece == null
-                && twoStepTile != null
-                && twoStepTile.CurrentPiece == null
-            )
-            {
-                validMoves.Add(twoStepTile);
             }
 
             return validMoves;
@@ -448,15 +154,15 @@ namespace Assets.Scripts.Game.Board
 
         public List<ChessMove> GetValidMoves()
         {
-            List<ChessMove> moves = new List<ChessMove>();
-            List<ChessTile> validTiles = this.GetValidTiles();
+            var moves = new List<ChessMove>();
+            var validTiles = this.GetValidTiles();
 
             foreach (var tile in validTiles)
             {
                 moves.Add(
                     new ChessMove(
-                        ChessBoard.GetPositionFromCoordinate(this.CurrentTile.Coordinate),
-                        ChessBoard.GetPositionFromCoordinate(tile.Coordinate),
+                        this.CurrentTile.Position,
+                        tile.Position,
                         tile.CurrentPiece != null
                     )
                 );
@@ -465,21 +171,28 @@ namespace Assets.Scripts.Game.Board
             return moves;
         }
 
-        public bool FightPiece(ChessPiece enemyPiece)
+        public static bool FightPiece(ChessPiece currentPiece, ChessPiece enemyPiece)
         {
-            if (enemyPiece == null)
+            if (currentPiece == null && enemyPiece != null)
             {
-                this.DestroyPiece();
                 return true;
             }
-
-            // TODO: fight function
-
-            this.Lives--;
-            if (this.Lives <= 0)
+            else if (currentPiece != null && enemyPiece == null)
             {
-                this.DestroyPiece();
+                currentPiece.DestroyPiece();
                 return true;
+            }
+            else if (currentPiece != null && enemyPiece != null)
+            {
+                // TODO: fight function (use buffs)
+
+                currentPiece.Lives -= enemyPiece.Strength;
+                if (currentPiece.Lives <= 0)
+                {
+                    // Enemy won and killed this piece
+                    currentPiece.DestroyPiece();
+                    return true;
+                }
             }
 
             return false;
@@ -488,14 +201,60 @@ namespace Assets.Scripts.Game.Board
         private void DestroyPiece()
         {
             // TODO: add capture animation and add to captured pieces list for ui
-            if (Application.isEditor)
+            this.gameObject.SetActive(false);
+        }
+
+        private void RevivePiece(int lives = 1)
+        {
+            this.gameObject.SetActive(true);
+            this.Lives = lives;
+        }
+
+        public void UseUpdateBuffs()
+        {
+            foreach (var buff in this.Buffs)
             {
-                DestroyImmediate(this.gameObject);
+                if (
+                    buff != null
+                    && buff.IsActive
+                    && buff is UpdateBuff
+                    && buff.ApplyBuff(this, this.Board) is ChessPiece updatedPiece
+                    && updatedPiece != null
+                )
+                {
+                    this.UpdateFromBuff(updatedPiece);
+                }
             }
-            else
+        }
+
+        public void UpdateFromBuff(ChessPiece updatedPiece)
+        {
+            if (updatedPiece == null)
             {
-                Destroy(this.gameObject);
+                Debug.LogError("Updated piece is null, cannot apply buff.");
+                return;
             }
+
+            // Update properties from the buffed piece
+            this.PieceType = updatedPiece.PieceType;
+            this.IsWhite = updatedPiece.IsWhite;
+            this.Lives = updatedPiece.Lives;
+
+            // Update move rules
+            this.MoveRules = new List<MoveRule>(updatedPiece.MoveRules);
+
+            // Update buffs
+            this.Buffs.Clear();
+            this.Buffs.AddRange(updatedPiece.Buffs);
+
+            // Update sprite renderer
+            // TODO: Maybe add function to check if white or black
+            if (this.SpriteRenderer != null)
+            {
+                this.SpriteRenderer.sprite = updatedPiece.SpriteRenderer.sprite;
+            }
+
+            // TODO: maybe add function for updating tile if position has not changed
         }
     }
 }

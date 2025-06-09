@@ -1,30 +1,28 @@
 namespace Assets.Scripts.Game.Board
 {
+    using System;
+    using System.Collections.Generic;
+    using Assets.Scripts.Game.Buffs;
+    using Assets.Scripts.Game.MoveRules;
     using UnityEngine;
 
     // Represents a single chess tile on the board
-    public class ChessTile : MonoBehaviour
+    public class ChessTile : MonoBehaviour, IChessObject
     {
-        public string Coordinate;
+        public List<IBuff> Buffs { get; } = new List<IBuff>();
+
+        public SpriteRenderer SpriteRenderer { get; set; }
+
+        public Vector2Int Position;
         public Color OriginalColor;
         public bool IsWhite;
         public ChessPiece CurrentPiece;
-        public SpriteRenderer SpriteRenderer;
 
-        private Color highlightColor = new Color(0.0f, 0.4f, 0.0f); // green
+        private Color highlightColor = new(0.0f, 0.4f, 0.0f); // green
 
-        public void Awake()
+        public void Initialize(Vector2Int pos, bool isWhiteTile)
         {
-            this.SpriteRenderer = this.GetComponent<SpriteRenderer>();
-            if (this.SpriteRenderer == null)
-            {
-                this.SpriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
-            }
-        }
-
-        public void Initialize(string coord, bool isWhiteTile)
-        {
-            this.Coordinate = coord;
+            this.Position = pos;
             this.IsWhite = isWhiteTile;
 
             // Make sure we have a SpriteRenderer at this point
@@ -48,69 +46,118 @@ namespace Assets.Scripts.Game.Board
             this.SpriteRenderer.color = highlight ? this.highlightColor : this.OriginalColor;
         }
 
-        public void UpdatePiece(ChessPiece piece)
+        public void UpdatePiece(ChessPiece newPiece, bool ignoreMoveHistory, bool ignoreFight)
         {
-            // If there's already a piece here, try to remove it
-            if (this.CurrentPiece == null || this.RemovePiece(piece))
+            // Fight current piece with new piece and set winner as this tiles current piece
+            if (!ignoreFight && !ChessPiece.FightPiece(this.CurrentPiece, newPiece))
             {
-                this.CurrentPiece = piece;
+                return;
             }
 
-            if (piece != null)
+            if (newPiece != null)
             {
+                Vector2Int? enemyPos =
+                    newPiece.CurrentTile != null ? newPiece.CurrentTile.Position : null;
+
                 // Ensure Z position is in front of tiles
-                piece.transform.position = new Vector3(
+                newPiece.transform.position = new Vector3(
                     this.transform.position.x,
                     this.transform.position.y,
                     -2 // render in front of tiles
                 );
-                piece.CurrentTile = this;
+                newPiece.CurrentTile = this;
+
+                // process buffs at end to get updated piece position and tile
+                var additionalCapturedPieces = this.ApplyBuffs(newPiece);
+
+                if (!ignoreMoveHistory)
+                {
+                    Vector2Int? enemyTargetPos;
+                    if (this.CurrentPiece == null || this.CurrentPiece.Lives <= 0)
+                    {
+                        enemyTargetPos = this.Position;
+                    }
+                    else
+                    {
+                        enemyTargetPos = enemyPos;
+                    }
+
+                    newPiece.Board.AddMove(
+                        newPiece,
+                        enemyPos,
+                        enemyTargetPos,
+                        this.CurrentPiece,
+                        additionalCapturedPieces
+                    );
+                }
             }
-        }
-
-        /// <summary>
-        /// Tries to remove the current piece from this tile.
-        /// </summary>
-        /// <param name="newPiece">chess piece replacing the current piece on this tile.</param>
-        /// <returns>True if piece was replaced, false otherwise.</returns>
-        private bool RemovePiece(ChessPiece newPiece)
-        {
-            return this.CurrentPiece.FightPiece(newPiece);
-        }
-
-        // Initialize tile copy without GameObject components (for AI board copying)
-        public void InitializeForCopy(string coordinate, bool isWhite)
-        {
-            this.Coordinate = coordinate;
-            this.IsWhite = isWhite;
-            this.CurrentPiece = null;
-
-            // We don't need SpriteRenderer for AI copies
-            this.SpriteRenderer = null;
-        }
-
-        // Set piece for copied board (without GameObject updates)
-        public void SetPieceForCopy(ChessPiece piece)
-        {
-            // Remove piece from old tile if it exists
-            if (piece != null && piece.CurrentTile != null && piece.CurrentTile != this)
+            else if (this.CurrentPiece != null && !ignoreMoveHistory)
             {
-                piece.CurrentTile.CurrentPiece = null;
+                this.CurrentPiece.Board.AddMove(null, null, this.Position, this.CurrentPiece, null);
             }
 
-            // Set new piece
-            this.CurrentPiece = piece;
-            if (piece != null)
+            this.CurrentPiece = newPiece;
+        }
+
+        public void Destroy()
+        {
+            if (Application.isEditor)
             {
-                piece.CurrentTile = this;
+                DestroyImmediate(this.CurrentPiece.gameObject);
+                DestroyImmediate(this.gameObject);
+            }
+            else
+            {
+                Destroy(this.CurrentPiece.gameObject);
+                Destroy(this.gameObject);
             }
         }
 
-        // Get position as Vector2Int (helper for AI)
-        public Vector2Int GetPosition()
+        public void AddBuff(IBuff buff)
         {
-            ChessBoard.ParseCoordinate(this.Coordinate, out int x, out int y);
-            return new Vector2Int(x, y);
+            this.Buffs.Add(buff);
+        }
+
+        private List<ChessPiece> ApplyBuffs(ChessPiece piece)
+        {
+            List<ChessPiece> destroyedPieces = new();
+            foreach (var buff in this.Buffs)
+            {
+                if (buff == null || !buff.IsActive)
+                {
+                    continue;
+                }
+
+                if (buff is MoveBuff)
+                {
+                    if (
+                        buff.ApplyBuff(piece, piece.Board) is List<MoveRule> additionalMoves
+                        && additionalMoves.Count > 0
+                    )
+                    {
+                        piece.MoveRules.AddRange(additionalMoves);
+                    }
+                }
+                else if (buff is UpdateBuff)
+                {
+                    if (
+                        buff.ApplyBuff(piece, piece.Board) is ChessPiece updatedPiece
+                        && updatedPiece != null
+                    )
+                    {
+                        if (updatedPiece.IsWhite == piece.IsWhite)
+                        {
+                            piece.UpdateFromBuff(updatedPiece);
+                        }
+                        else
+                        {
+                            destroyedPieces.Add(updatedPiece);
+                        }
+                    }
+                }
+            }
+
+            return destroyedPieces;
         }
     }
 }

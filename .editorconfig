@@ -1,4 +1,7 @@
-[*.cs]
+# Top-most EditorConfig file
+root = true
+
+[Assets/Scripts/**/*.cs]
 dotnet_diagnostic.SA1009.severity = none # Closing square brackets should not be followed by space
 dotnet_diagnostic.SA1111.severity = none # Closing brace should not be preceded by blank line
 dotnet_diagnostic.SA1202.severity = none # Public members should appear before Private members
@@ -19,5 +22,15 @@ dotnet_diagnostic.SA1201.severity = none
 # SA1214: Readonly fields should appear before non-readonly fields
 dotnet_diagnostic.SA1214.severity = none
 
-# SA1214: Readonly fields should appear before non-readonly fields
-dotnet_diagnostic.SA1214.severity = none
+# SA1502: Element should not be on a single line
+dotnet_diagnostic.SA1502.severity = none
+
+# CA1819: Properties should not return arrays
+dotnet_diagnostic.CA1819.severity = none
+
+# SA1000: Keywords should be spaced correctly
+dotnet_diagnostic.SA1000.severity = none
+
+
+# SA1515: Single-line comment should be preceded by blank line
+dotnet_diagnostic.SA1515.severity = none
