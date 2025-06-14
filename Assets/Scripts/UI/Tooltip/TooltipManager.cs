@@ -30,7 +30,6 @@ namespace Assets.Scripts.UI.Tooltip
 
         private void ShowTip(string tip, Vector2 mousePos)
         {
-            Debug.Log(tip);
             this.TipText.text = tip;
             this.TipWindow.sizeDelta = new Vector2(
                 this.TipText.preferredWidth > 200 ? 200 : this.TipText.preferredWidth,
@@ -38,10 +37,7 @@ namespace Assets.Scripts.UI.Tooltip
             );
 
             this.TipWindow.gameObject.SetActive(true);
-            this.TipWindow.transform.position = new Vector2(
-                mousePos.x,
-                mousePos.y
-            );
+            this.TipWindow.transform.position = new Vector2(mousePos.x, mousePos.y);
         }
 
         private void HideTip()

@@ -39,6 +39,7 @@ namespace Assets.Scripts.Game.Board
 
         // Misc
         public SerializedProperty SelectionManager;
+        public SerializedProperty NotificationManager;
         public SerializedProperty EnemySpriteManager;
         public SerializedProperty MainFont;
 
@@ -79,6 +80,7 @@ namespace Assets.Scripts.Game.Board
 
             // Misc
             this.SelectionManager = this.serializedObject.FindProperty("SelectionManager");
+            this.NotificationManager = this.serializedObject.FindProperty("NotificationManager");
             this.EnemySpriteManager = this.serializedObject.FindProperty("EnemySpriteManager");
             this.MainFont = this.serializedObject.FindProperty("MainFont");
         }
@@ -127,6 +129,13 @@ namespace Assets.Scripts.Game.Board
                 EditorStyles.boldLabel
             );
             EditorGUILayout.PropertyField(this.SelectionManager);
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField(
+                "Notification Manger for showing user and enemy moves on the bottom right",
+                EditorStyles.boldLabel
+            );
+            EditorGUILayout.PropertyField(this.NotificationManager);
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Sprite Manger for Enemy", EditorStyles.boldLabel);

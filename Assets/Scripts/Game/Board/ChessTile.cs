@@ -56,8 +56,12 @@ namespace Assets.Scripts.Game.Board
 
             if (newPiece != null)
             {
-                Vector2Int? enemyPos =
-                    newPiece.CurrentTile != null ? newPiece.CurrentTile.Position : null;
+                Vector2Int? enemyPos = null;
+                if (newPiece.CurrentTile != null)
+                {
+                    enemyPos = newPiece.CurrentTile.Position;
+                    newPiece.CurrentTile.CurrentPiece = null;
+                }
 
                 // Ensure Z position is in front of tiles
                 newPiece.transform.position = new Vector3(
@@ -65,6 +69,8 @@ namespace Assets.Scripts.Game.Board
                     this.transform.position.y,
                     -2 // render in front of tiles
                 );
+
+                // Update tile of new piece
                 newPiece.CurrentTile = this;
 
                 // process buffs at end to get updated piece position and tile

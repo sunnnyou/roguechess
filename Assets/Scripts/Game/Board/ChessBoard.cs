@@ -12,8 +12,7 @@ namespace Assets.Scripts.Game.Board
     {
         // TODO: fix bug with overlapping enemy icons
         // TODO: add custom piece with custom movement rules
-        // TODO: add function to receive new piece when pawn reaches the end (maybe with custom piece)
-        // TODO: add other chess functions (castling, en passant, promotion, check, checkmate, stalemate)
+        // TODO: add other chess functions (castling, check, checkmate, stalemate)
         // TODO: add buff for checkmate (can be used on an enemy piece and is always used on the king)
         // TODO: buffs (undo action(zaa wardoo), multiple tile destroy, more reach, player second chance, multi-life chess pieces, freeze opponent piece, "invisible" pieces, clone pieces, more gold, more time)
         // TODO: consumables (one-time use buffs, one-time use pieces, chess pieces management (destroy pieces, clone))
@@ -34,6 +33,7 @@ namespace Assets.Scripts.Game.Board
 
         // Sprites, fonts and materials
         public SelectionUIManager SelectionManager;
+        public NotificationManager NotificationManager;
         public EnemySpriteManager EnemySpriteManager;
         public Font MainFont;
         public Sprite WhiteTileSprite;
@@ -508,13 +508,8 @@ namespace Assets.Scripts.Game.Board
                 return;
             }
 
-            // Record the move history before making the move
-            ChessTile currentTile = piece.CurrentTile;
-            ChessPiece capturedPiece = targetTile.CurrentPiece;
-
             // Update tiles current piece (destroy/disable old piece if any)
             targetTile.UpdatePiece(piece, false, false);
-            currentTile.CurrentPiece = null;
 
             // Update Enemy icons
             if (this.EnemySpriteManager != null)
@@ -542,6 +537,15 @@ namespace Assets.Scripts.Game.Board
                     isWhiteTurn ?? this.IsWhiteTurn
                 )
             );
+
+            if (currentPos != null && targetPos != null)
+            {
+                var notification =
+                    CoordinateHelper.VectorToString((Vector2Int)currentPos)
+                    + " to "
+                    + CoordinateHelper.VectorToString((Vector2Int)targetPos);
+                this.NotificationManager.CreateSlideUpUI(notification);
+            }
         }
 
         public bool CanUndo()
@@ -634,6 +638,8 @@ namespace Assets.Scripts.Game.Board
             // Clear any highlights
             this.ClearHighlights();
             this.selectedPiece = null;
+
+            this.NotificationManager.PopNewestUI();
         }
 
         public void UndoMoves(int numberOfMoves)
@@ -823,7 +829,7 @@ namespace Assets.Scripts.Game.Board
                     break;
             }
 
-            // TODO
+            // TODO:
         }
     }
 }
