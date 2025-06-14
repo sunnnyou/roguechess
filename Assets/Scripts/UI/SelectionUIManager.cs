@@ -20,6 +20,10 @@ namespace Assets.Scripts.UI
         private UnityEngine.UI.Text descriptionText;
         private GameObject buttonContainer;
 
+        // Colors
+        private Color buttonSelectedColor = new(0.3f, 0.7f, 1f, 1f);
+        private Color buttonHoverColor = new(1f, 1f, 1f, 0.8f);
+
         private void Start()
         {
             // empty for now
@@ -238,7 +242,10 @@ namespace Assets.Scripts.UI
             enterEntry.callback.AddListener(
                 (data) =>
                 {
-                    buttonImage.color = new Color(1f, 1f, 1f, 0.8f);
+                    if (buttonImage.color != this.buttonSelectedColor)
+                    {
+                        buttonImage.color = this.buttonHoverColor;
+                    }
                 }
             );
             eventTrigger.triggers.Add(enterEntry);
@@ -308,7 +315,7 @@ namespace Assets.Scripts.UI
             }
 
             // Highlight selected button
-            button.GetComponent<UnityEngine.UI.Image>().color = new Color(0.3f, 0.7f, 1f, 1f);
+            button.GetComponent<UnityEngine.UI.Image>().color = this.buttonSelectedColor;
 
             // Enable confirm button
             this.confirmButton.interactable = true;
