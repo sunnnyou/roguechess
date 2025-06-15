@@ -1,5 +1,6 @@
 namespace Assets.Scripts.UI
 {
+    using System.Collections;
     using System.Collections.Generic;
     using DG.Tweening;
     using TMPro;
@@ -32,7 +33,7 @@ namespace Assets.Scripts.UI
         private ScrollRect scrollRect;
         private RectTransform contentRect;
         private VerticalLayoutGroup layoutGroup;
-        private List<GameObject> uiObjectStack = new List<GameObject>();
+        private readonly List<GameObject> uiObjectStack = new();
 
         public void Start()
         {
@@ -287,31 +288,24 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            if (uiObject.TryGetComponent<RectTransform>(out var uiRect))
+            // Fade out
+            if (!uiObject.TryGetComponent<CanvasGroup>(out var canvasGroup))
             {
-                // Animate scale down and fade out
-                uiRect
-                    .DOScale(Vector3.zero, this.slideDuration)
-                    .SetEase(Ease.InBack)
-                    .OnComplete(() =>
-                    {
-                        if (uiObject != null)
-                        {
-                            Destroy(uiObject);
-                        }
-                    });
-
-                // Fade out
-                if (!uiObject.TryGetComponent<CanvasGroup>(out var canvasGroup))
-                {
-                    canvasGroup = uiObject.AddComponent<CanvasGroup>();
-                }
-
-                canvasGroup.DOFade(0f, this.slideDuration);
+                canvasGroup = uiObject.AddComponent<CanvasGroup>();
             }
+
+            canvasGroup
+                .DOFade(0f, 0.25f * this.slideDuration)
+                .OnComplete(() =>
+                {
+                    if (uiObject != null)
+                    {
+                        Destroy(uiObject);
+                    }
+                });
         }
 
-        private System.Collections.IEnumerator UpdateLayoutAndScrollDelayed()
+        private IEnumerator UpdateLayoutAndScrollDelayed()
         {
             // Wait a frame for instantiation to complete
             yield return null;
@@ -358,42 +352,6 @@ namespace Assets.Scripts.UI
                         "No Text or TextMeshProUGUI component found in UI prefab children!"
                     );
                 }
-            }
-        }
-
-        /// <summary>
-        /// Example methods for testing
-        /// </summary>
-        [ContextMenu("Test Add Notification")]
-        public void TestAddNotification()
-        {
-            this.CreateSlideUpUI($"Notification {this.GetUIObjectCount() + 1}");
-        }
-
-        [ContextMenu("Test Pop Notification")]
-        public void TestPopNotification()
-        {
-            this.PopNewestUI();
-        }
-
-        [ContextMenu("Test Clear All")]
-        public void TestClearAll()
-        {
-            this.ClearAllUI();
-        }
-
-        [ContextMenu("Debug Layout")]
-        public void DebugLayout()
-        {
-            Debug.Log($"UI Object Count: {this.GetUIObjectCount()}");
-            Debug.Log($"Content Rect: {(this.contentRect != null ? "Found" : "Missing")}");
-            Debug.Log($"Scroll Rect: {(this.scrollRect != null ? "Found" : "Missing")}");
-            Debug.Log($"Layout Group: {(this.layoutGroup != null ? "Found" : "Missing")}");
-
-            if (this.contentRect != null)
-            {
-                Debug.Log($"Content children count: {this.contentRect.childCount}");
-                Debug.Log($"Content size: {this.contentRect.sizeDelta}");
             }
         }
     }
