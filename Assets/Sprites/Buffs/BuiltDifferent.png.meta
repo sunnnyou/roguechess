@@ -1,10 +1,34 @@
 fileFormatVersion: 2
-guid: 9a4ef4465da18d14090e87a5a4bd7056
+guid: b4fedc34ace05e74a8fbc3529be40a2a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7551563686925879246
-    second: ShopReroll_0
+      213: -1895293480102615298
+    second: BuiltDifferent_0
+  - first:
+      213: 6897848481646522705
+    second: BuiltDifferent_1
+  - first:
+      213: -4214169509553951516
+    second: BuiltDifferent_2
+  - first:
+      213: 8652311519660540214
+    second: BuiltDifferent_3
+  - first:
+      213: -4565275112985980830
+    second: BuiltDifferent_4
+  - first:
+      213: 3705180838069696953
+    second: BuiltDifferent_5
+  - first:
+      213: 6951682562391360674
+    second: BuiltDifferent_6
+  - first:
+      213: 7701527521185341180
+    second: BuiltDifferent_7
+  - first:
+      213: -2244044208541990523
+    second: BuiltDifferent_8
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +137,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ShopReroll_0
+      name: BuiltDifferent_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 111
-        height: 203
+        width: 231
+        height: 229
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +152,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2383b0e26d4733790800000000000000
-      internalID: -7551563686925879246
+      spriteID: ef6ae5d1f9092b5e0800000000000000
+      internalID: -1895293480102615298
       vertices: []
       indices: 
       edges: []
@@ -138,7 +162,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7aa152a3a6ee3a546a53b67647f9d3a1
+    spriteID: 7a00fc11f32ad5d4eb55295d7681c9a1
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +172,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ShopReroll_0: -7551563686925879246
+      BuiltDifferent_0: -1895293480102615298
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

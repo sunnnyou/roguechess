@@ -1,10 +1,22 @@
 fileFormatVersion: 2
-guid: 9a4ef4465da18d14090e87a5a4bd7056
+guid: d88383b7bec182a4781cd68a7f737c4f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7551563686925879246
-    second: ShopReroll_0
+      213: -7575284744764469784
+    second: Snap_0
+  - first:
+      213: -8694491785898037586
+    second: Snap_1
+  - first:
+      213: 3701254406410076617
+    second: Snap_2
+  - first:
+      213: 2117230935780756708
+    second: Snap_3
+  - first:
+      213: -2999548258881235009
+    second: Snap_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +125,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ShopReroll_0
+      name: Snap_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 111
-        height: 203
+        width: 231
+        height: 229
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +140,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2383b0e26d4733790800000000000000
-      internalID: -7551563686925879246
+      spriteID: 8edc0e309ae2fd690800000000000000
+      internalID: -7575284744764469784
       vertices: []
       indices: 
       edges: []
@@ -138,7 +150,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7aa152a3a6ee3a546a53b67647f9d3a1
+    spriteID: 29acc07c5f005d84c8472db43956bfce
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +160,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ShopReroll_0: -7551563686925879246
+      Snap_0: -7575284744764469784
+      Snap_1: -8694491785898037586
+      Snap_2: 3701254406410076617
+      Snap_3: 2117230935780756708
+      Snap_4: -2999548258881235009
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

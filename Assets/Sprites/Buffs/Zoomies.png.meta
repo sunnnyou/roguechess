@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 9a4ef4465da18d14090e87a5a4bd7056
+guid: 9c8e9c6248bd5fb42b09baebd6509699
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7551563686925879246
-    second: ShopReroll_0
+      213: -7052421935781660520
+    second: Zoomies_0
+  - first:
+      213: 6984038022374861424
+    second: Zoomies_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ShopReroll_0
+      name: Zoomies_1
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 111
-        height: 203
+        width: 231
+        height: 229
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +131,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2383b0e26d4733790800000000000000
-      internalID: -7551563686925879246
+      spriteID: 07aa97d04994ce060800000000000000
+      internalID: 6984038022374861424
       vertices: []
       indices: 
       edges: []
@@ -138,7 +141,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7aa152a3a6ee3a546a53b67647f9d3a1
+    spriteID: e346584f577661c4a9d7b4d070095c97
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +151,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ShopReroll_0: -7551563686925879246
+      Zoomies_0: -7052421935781660520
+      Zoomies_1: 6984038022374861424
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

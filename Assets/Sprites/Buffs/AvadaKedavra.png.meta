@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9a4ef4465da18d14090e87a5a4bd7056
+guid: b4b71be8b306b0147899d63e57fd5100
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7551563686925879246
-    second: ShopReroll_0
+      213: 7494061042037780570
+    second: AvadaKedavra_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ShopReroll_0
+      name: AvadaKedavra_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 111
-        height: 203
+        width: 231
+        height: 229
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2383b0e26d4733790800000000000000
-      internalID: -7551563686925879246
+      spriteID: a5071cfffc0400860800000000000000
+      internalID: 7494061042037780570
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7aa152a3a6ee3a546a53b67647f9d3a1
+    spriteID: 73876259fae4d2c4c8265caae009f9a8
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ShopReroll_0: -7551563686925879246
+      AvadaKedavra_0: 7494061042037780570
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

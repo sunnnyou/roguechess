@@ -1,10 +1,40 @@
 fileFormatVersion: 2
-guid: 9a4ef4465da18d14090e87a5a4bd7056
+guid: 3fdb88101b0cefc4cb10369d0f91ccb0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7551563686925879246
-    second: ShopReroll_0
+      213: -5925642069798460707
+    second: Blessing_0
+  - first:
+      213: 1331332330577216044
+    second: Blessing_1
+  - first:
+      213: 455860346758567844
+    second: Blessing_2
+  - first:
+      213: -5282990178486032769
+    second: Blessing_3
+  - first:
+      213: 484371766450027097
+    second: Blessing_4
+  - first:
+      213: -3876465702927433634
+    second: Blessing_5
+  - first:
+      213: 3219411809349730413
+    second: Blessing_6
+  - first:
+      213: 7630174027150764229
+    second: Blessing_7
+  - first:
+      213: -4837748813344372926
+    second: Blessing_8
+  - first:
+      213: -6954530610077984541
+    second: Blessing_9
+  - first:
+      213: -1675675871872570738
+    second: Blessing_10
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +143,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ShopReroll_0
+      name: Blessing_4
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 111
-        height: 203
+        width: 231
+        height: 229
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +158,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2383b0e26d4733790800000000000000
-      internalID: -7551563686925879246
+      spriteID: 95a7b762e85d8b600800000000000000
+      internalID: 484371766450027097
       vertices: []
       indices: 
       edges: []
@@ -138,7 +168,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7aa152a3a6ee3a546a53b67647f9d3a1
+    spriteID: 016b84508e0fccb48a2a9d8737899b77
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +178,17 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ShopReroll_0: -7551563686925879246
+      Blessing_0: -5925642069798460707
+      Blessing_1: 1331332330577216044
+      Blessing_10: -1675675871872570738
+      Blessing_2: 455860346758567844
+      Blessing_3: -5282990178486032769
+      Blessing_4: 484371766450027097
+      Blessing_5: -3876465702927433634
+      Blessing_6: 3219411809349730413
+      Blessing_7: 7630174027150764229
+      Blessing_8: -4837748813344372926
+      Blessing_9: -6954530610077984541
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

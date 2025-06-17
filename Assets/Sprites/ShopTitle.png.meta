@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: 9a4ef4465da18d14090e87a5a4bd7056
+guid: 5bb0fbc8ffc04444992d697fbbe95be1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7551563686925879246
-    second: ShopReroll_0
+      213: 2237686161390443198
+    second: ShopTitle_0
+  - first:
+      213: -1058904813713226943
+    second: ShopTitle_1
+  - first:
+      213: -1830392626684146753
+    second: ShopTitle_2
+  - first:
+      213: -3997320502889531410
+    second: ShopTitle_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +122,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ShopReroll_0
+      name: ShopTitle_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 111
-        height: 203
+        width: 433
+        height: 181
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +137,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2383b0e26d4733790800000000000000
-      internalID: -7551563686925879246
+      spriteID: eba1c7045bbdd0f10800000000000000
+      internalID: 2237686161390443198
       vertices: []
       indices: 
       edges: []
@@ -138,7 +147,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7aa152a3a6ee3a546a53b67647f9d3a1
+    spriteID: 0a91068c6c93f7d44b064fc0f69b1d17
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +157,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ShopReroll_0: -7551563686925879246
+      ShopTitle_0: 2237686161390443198
+      ShopTitle_1: -1058904813713226943
+      ShopTitle_2: -1830392626684146753
+      ShopTitle_3: -3997320502889531410
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
