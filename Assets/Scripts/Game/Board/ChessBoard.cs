@@ -10,7 +10,7 @@ namespace Assets.Scripts.Game.Board
 
     public class ChessBoard : MonoBehaviour
     {
-        // TODO: fix bug with overlapping enemy icons
+        // TODO: fix bug with disabled chess pieces being taking in for consideration of valid tiles
         // TODO: add custom piece with custom movement rules
         // TODO: add other chess functions (castling, check, checkmate, stalemate)
         // TODO: add buff for checkmate (can be used on an enemy piece and is always used on the king)

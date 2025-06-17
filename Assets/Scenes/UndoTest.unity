@@ -947,8 +947,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -353.8, y: -470.3}
-  m_SizeDelta: {x: 156.2, y: 141.7}
+  m_AnchoredPosition: {x: -415.4715, y: -503.03918}
+  m_SizeDelta: {x: 119.6538, y: 76.2216}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &425028962
 MonoBehaviour:
@@ -2490,8 +2490,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4282610061
+  m_fontColor: {r: 0.5529412, g: 0.4431373, b: 0.2627451, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5058,6 +5058,7 @@ GameObject:
   - component: {fileID: 1921152936}
   - component: {fileID: 1921152934}
   - component: {fileID: 1921152933}
+  - component: {fileID: 1921152937}
   m_Layer: 5
   m_Name: TimePanel
   m_TagString: Untagged
@@ -5133,6 +5134,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1921152931}
   m_CullTransparentMesh: 1
+--- !u!114 &1921152937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1921152931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 198b025c05cd017409b6a48c3a0b5c8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timerText: {fileID: 572727420}
 --- !u!1 &1983154752
 GameObject:
   m_ObjectHideFlags: 0
