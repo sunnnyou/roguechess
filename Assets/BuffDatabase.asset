@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf359a7acdab0504f98220260f44fc4f, type: 3}
   m_Name: BuffDatabase
   m_EditorClassIdentifier: 
-  allBuffs:
+  AllBuffs:
   - title: AI Shield
     description: Shields a selected piece from the evil AI and blocks all damage
       from the enemy's next attack.
