@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d9644288f0f35c47aabd425d4b03c54, type: 3}
+  m_Name: ZombieBuff
+  m_EditorClassIdentifier: 
+  BuffName: Zombie
+  Description: A selected piece will heal back to 1 health after its health has been
+    reduced to zero.
+  Icon: {fileID: -5089570426462481736, guid: 4e7428988d203c14297306fa16c9072a, type: 3}
+  IsActive: 1
+  Cost: 9
+  DurationMoves: -1
+  DurationTurns: -1
+  DurationRounds: -1
+  WasUsed: 0
+  Turn: 0
+  Round: 0

@@ -6,18 +6,19 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
     using UnityEngine;
 
     // Buff that allows a piece to move twice in one turn
+    [CreateAssetMenu(fileName = "ExtraReachPieceBuff", menuName = "Game/Buffs/ExtraReachPieceBuff")]
     public class ExtraReachPieceBuff : MoveBuff
     {
-        public override string BuffName { get; set; } = "Extra Reach";
+        public string BuffName { get; set; } = "Extra Reach";
 
-        public override string Description { get; set; } =
+        public string Description { get; set; } =
             "Allows a piece to move to additional tiles in one turn.";
 
-        public override Sprite Icon { get; set; }
+        public Sprite Icon { get; set; }
 
-        public override int Cost { get; set; }
+        public int Cost { get; set; }
 
-        public override bool WasUsed { get; set; }
+        public bool WasUsed { get; set; }
 
         private readonly int additionalTiles;
 

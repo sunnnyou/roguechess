@@ -10,7 +10,7 @@ namespace Assets.Scripts.Game.Board
 
     public class ChessPiece : MonoBehaviour, IChessObject
     {
-        public List<IBuff> Buffs { get; } = new();
+        public List<BuffBase> Buffs { get; } = new();
 
         public SpriteRenderer SpriteRenderer { get; set; }
 
@@ -37,7 +37,7 @@ namespace Assets.Scripts.Game.Board
             ChessBoard chessBoard,
             List<Material> materials,
             List<MoveRule> customRules = null,
-            List<IBuff> buffs = null
+            List<BuffBase> buffs = null
         )
         {
             this.PieceType = type;

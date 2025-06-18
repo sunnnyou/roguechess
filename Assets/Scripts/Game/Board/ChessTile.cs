@@ -9,7 +9,7 @@ namespace Assets.Scripts.Game.Board
     // Represents a single chess tile on the board
     public class ChessTile : MonoBehaviour, IChessObject
     {
-        public List<IBuff> Buffs { get; } = new List<IBuff>();
+        public List<BuffBase> Buffs { get; } = new List<BuffBase>();
 
         public SpriteRenderer SpriteRenderer { get; set; }
 
@@ -119,7 +119,7 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        public void AddBuff(IBuff buff)
+        public void AddBuff(BuffBase buff)
         {
             this.Buffs.Add(buff);
         }

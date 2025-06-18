@@ -5,18 +5,22 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
     using Assets.Scripts.UI;
     using UnityEngine;
 
+    [CreateAssetMenu(
+        fileName = "PromoteAtEndPieceBuff",
+        menuName = "Game/Buffs/PromoteAtEndPieceBuff"
+    )]
     public class PromoteAtEndPieceBuff : UpdateBuff
     {
-        public override string BuffName { get; set; } = "Royal Ascension";
+        public string BuffName { get; set; } = "Royal Ascension";
 
-        public override string Description { get; set; } =
+        public string Description { get; set; } =
             "Allows a piece to be switched to a new piece when it reaches the end of the board.";
 
-        public override Sprite Icon { get; set; }
+        public Sprite Icon { get; set; }
 
-        public override int Cost { get; set; }
+        public int Cost { get; set; }
 
-        public override bool WasUsed { get; set; }
+        public bool WasUsed { get; set; }
 
         private readonly int? promoteAtX;
         private readonly int? promoteAtY;

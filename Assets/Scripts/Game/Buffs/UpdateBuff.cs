@@ -5,19 +5,19 @@ namespace Assets.Scripts.Game.Buffs
     using UnityEngine;
 
     // Update buffs update a piece or tile (disable/enable, sprite change, ...)
-    public abstract class UpdateBuff : IBuff
+    public abstract class UpdateBuff : BuffBase
     {
         public Func<IChessObject, ChessBoard, IChessObject> UpdateFunction { get; set; } // Function that is applied when a condition is met
 
-        public override bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; } = true;
 
-        public override int DurationMoves { get; set; } = -1;
+        public int DurationMoves { get; set; } = -1;
 
-        public override int DurationTurns { get; set; } = -1;
+        public int DurationTurns { get; set; } = -1;
 
-        public override int DurationRounds { get; set; } = -1;
+        public int DurationRounds { get; set; } = -1;
 
-        internal override object BuffFunction(IChessObject buffReceiver, ChessBoard board)
+        public override object BuffFunction(IChessObject buffReceiver, ChessBoard board)
         {
             return this.UpdateFunction(buffReceiver, board);
         }

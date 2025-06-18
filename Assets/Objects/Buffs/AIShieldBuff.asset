@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00f5737bd5a4054489e2ecb5a2001d34, type: 3}
+  m_Name: AIShieldBuff
+  m_EditorClassIdentifier: 
+  BuffName: AI Shield
+  Description: Shields a selected piece from the evil AI and blocks all damage from
+    the enemy's next attack.
+  Icon: {fileID: -7198497989327922717, guid: db27f010ee2b9db49889ec325c0a27e7, type: 3}
+  IsActive: 1
+  Cost: 4
+  DurationMoves: -1
+  DurationTurns: -1
+  DurationRounds: 1
+  WasUsed: 0
+  Turn: 0
+  Round: 0

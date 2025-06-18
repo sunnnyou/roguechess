@@ -152,11 +152,11 @@ RectTransform:
   m_Children:
   - {fileID: 70440383}
   - {fileID: 1376988194}
-  m_Father: {fileID: 958612672}
+  m_Father: {fileID: 2040451941}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -10}
+  m_AnchoredPosition: {x: 770, y: 220}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &11203104
@@ -1717,11 +1717,11 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
+  m_fontSize: 24.2
   m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 30
+  m_fontSizeMin: 5
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
@@ -1732,7 +1732,7 @@ MonoBehaviour:
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
+  m_charWidthMaxAdj: 5
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 1
@@ -2579,7 +2579,7 @@ MonoBehaviour:
   m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 30
+  m_fontSizeMin: 5
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
@@ -2590,7 +2590,7 @@ MonoBehaviour:
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
+  m_charWidthMaxAdj: 5
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 1
@@ -2737,11 +2737,11 @@ MonoBehaviour:
   ScrollPanel: {fileID: 778247473}
   ScrollSoundOpen: {fileID: 701530872}
   ScrollSoundClose: {fileID: 1751812940}
-  titleText: {fileID: 1021536099}
-  descriptionText: {fileID: 1407608675}
-  costText: {fileID: 1842623736}
-  buffImage: {fileID: 1645856256}
-  buffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
+  TitleText: {fileID: 1021536099}
+  DescriptionText: {fileID: 1407608675}
+  CostText: {fileID: 1842623736}
+  BuffImage: {fileID: 1645856256}
+  BuffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
 --- !u!114 &778247471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3082,6 +3082,7 @@ GameObject:
   - component: {fileID: 958612674}
   - component: {fileID: 958612673}
   - component: {fileID: 958612675}
+  - component: {fileID: 958612676}
   m_Layer: 5
   m_Name: RerollButton
   m_TagString: Untagged
@@ -3100,8 +3101,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 11203103}
+  m_Children: []
   m_Father: {fileID: 2040451941}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
@@ -3172,7 +3172,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
     m_PressedColor: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -3239,6 +3239,50 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
+        m_TargetAssemblyTypeName: Assets.Scripts.UI.Buffs.BuffDatabase, Assembly-CSharp
+        m_MethodName: ResetBuffPool
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 958612676}
+        m_TargetAssemblyTypeName: Assets.Scripts.UI.Buffs.CordPullAnimator, Assembly-CSharp
+        m_MethodName: QuickCordPull
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &958612676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 958612671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff2b64d1b07b70f4faa96e767d1430e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CordRect: {fileID: 958612672}
+  CordButton: {fileID: 958612675}
+  PullDistance: 100
+  PullDuration: 0.11
+  ReturnDuration: 0.17
+  PullEase: 7
+  ReturnEase: 11
+  RerollCostTMP: {fileID: 1927878637}
 --- !u!1 &984872480
 GameObject:
   m_ObjectHideFlags: 0
@@ -3903,7 +3947,7 @@ MonoBehaviour:
   m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 30
+  m_fontSizeMin: 5
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
@@ -3914,7 +3958,7 @@ MonoBehaviour:
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
+  m_charWidthMaxAdj: 5
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 1
@@ -4434,11 +4478,11 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
+  m_fontSize: 27.3
   m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 30
+  m_fontSizeMin: 1
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
@@ -4449,7 +4493,7 @@ MonoBehaviour:
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
+  m_charWidthMaxAdj: 5
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 1
@@ -6558,11 +6602,11 @@ MonoBehaviour:
   ScrollPanel: {fileID: 2010214280}
   ScrollSoundOpen: {fileID: 701530872}
   ScrollSoundClose: {fileID: 1751812940}
-  titleText: {fileID: 385178861}
-  descriptionText: {fileID: 503639037}
-  costText: {fileID: 1369300940}
-  buffImage: {fileID: 1143347779}
-  buffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
+  TitleText: {fileID: 385178861}
+  DescriptionText: {fileID: 503639037}
+  CostText: {fileID: 1369300940}
+  BuffImage: {fileID: 1143347779}
+  BuffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
 --- !u!114 &2010214282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6680,6 +6724,7 @@ RectTransform:
   - {fileID: 1587658373}
   - {fileID: 1407795911}
   - {fileID: 1592415922}
+  - {fileID: 11203103}
   - {fileID: 958612672}
   - {fileID: 1851908220}
   - {fileID: 1344558226}
@@ -6788,11 +6833,11 @@ MonoBehaviour:
   ScrollPanel: {fileID: 2051804555}
   ScrollSoundOpen: {fileID: 701530872}
   ScrollSoundClose: {fileID: 1751812940}
-  titleText: {fileID: 102627227}
-  descriptionText: {fileID: 1311967671}
-  costText: {fileID: 403917718}
-  buffImage: {fileID: 984872482}
-  buffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
+  TitleText: {fileID: 102627227}
+  DescriptionText: {fileID: 1311967671}
+  CostText: {fileID: 403917718}
+  BuffImage: {fileID: 984872482}
+  BuffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
 --- !u!114 &2051804557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6933,11 +6978,11 @@ MonoBehaviour:
   ScrollPanel: {fileID: 2058474198}
   ScrollSoundOpen: {fileID: 701530872}
   ScrollSoundClose: {fileID: 1751812940}
-  titleText: {fileID: 1611375365}
-  descriptionText: {fileID: 744803801}
-  costText: {fileID: 547055914}
-  buffImage: {fileID: 155397263}
-  buffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
+  TitleText: {fileID: 1611375365}
+  DescriptionText: {fileID: 744803801}
+  CostText: {fileID: 547055914}
+  BuffImage: {fileID: 155397263}
+  BuffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
 --- !u!114 &2058474200
 MonoBehaviour:
   m_ObjectHideFlags: 0

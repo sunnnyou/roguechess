@@ -7,10 +7,9 @@ namespace Assets.Scripts.UI.Buffs
     [CreateAssetMenu(fileName = "BuffDatabase", menuName = "Game/Buff Database")]
     public class BuffDatabase : ScriptableObject
     {
-        public IBuff[] AllBuffs;
+        public BuffBase[] AllBuffs;
 
-        // Internal list to track remaining buffs
-        private List<IBuff> remainingBuffs;
+        private List<BuffBase> remainingBuffs;
 
         private void OnEnable()
         {
@@ -18,7 +17,7 @@ namespace Assets.Scripts.UI.Buffs
             this.ResetBuffPool();
         }
 
-        public IBuff GetRandomBuff()
+        public BuffBase GetRandomBuff()
         {
             if (this.remainingBuffs == null || this.remainingBuffs.Count == 0)
             {
@@ -26,16 +25,16 @@ namespace Assets.Scripts.UI.Buffs
             }
 
             int index = Random.Range(0, this.remainingBuffs.Count);
-            IBuff selectedBuff = this.remainingBuffs[index];
+            BuffBase selected = this.remainingBuffs[index];
             this.remainingBuffs.RemoveAt(index);
-            return selectedBuff;
+            return selected;
         }
 
         public void ResetBuffPool()
         {
             if (this.AllBuffs != null)
             {
-                this.remainingBuffs = new List<IBuff>(this.AllBuffs);
+                this.remainingBuffs = new List<BuffBase>(this.AllBuffs);
             }
         }
     }

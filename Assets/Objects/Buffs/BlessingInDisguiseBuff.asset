@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac192dee85516e740b1fb576973512ff, type: 3}
+  m_Name: BlessingInDisguiseBuff
+  m_EditorClassIdentifier: 
+  BuffName: Blessing in disguise
+  Description: Select any of your pieces to heal 1 health for all pieces 1 distance
+    away in any direction. The selected pieces health will be reduced by the total
+    health healed.
+  Icon: {fileID: 484371766450027097, guid: 3fdb88101b0cefc4cb10369d0f91ccb0, type: 3}
+  IsActive: 1
+  Cost: 9
+  DurationMoves: 1
+  DurationTurns: -1
+  DurationRounds: -1
+  WasUsed: 0
+  Turn: 0
+  Round: 0

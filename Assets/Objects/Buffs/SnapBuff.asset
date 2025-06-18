@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb8ef664c24c2cb458adae009f750664, type: 3}
+  m_Name: SnapBuff
+  m_EditorClassIdentifier: 
+  BuffName: Snap
+  Description: Using this buff will reduce the health of all pieces on the board
+    by 50%
+  Icon: {fileID: -7575284744764469784, guid: d88383b7bec182a4781cd68a7f737c4f, type: 3}
+  IsActive: 1
+  Cost: 12
+  DurationMoves: -1
+  DurationTurns: -1
+  DurationRounds: -1
+  WasUsed: 0
+  Turn: 0
+  Round: 0

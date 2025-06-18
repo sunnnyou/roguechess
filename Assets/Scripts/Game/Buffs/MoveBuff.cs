@@ -6,19 +6,19 @@ namespace Assets.Scripts.Game.Buffs
     using UnityEngine;
 
     // Move buffs add valid moves to a chess piece
-    public abstract class MoveBuff : IBuff
+    public abstract class MoveBuff : BuffBase
     {
         public Func<Vector2Int, ChessBoard, bool, List<ChessTile>> MoveFunction { get; set; } // Function that is applied when a condition is met
 
-        public override bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; } = true;
 
-        public override int DurationMoves { get; set; } = -1;
+        public int DurationMoves { get; set; } = -1;
 
-        public override int DurationTurns { get; set; } = -1;
+        public int DurationTurns { get; set; } = -1;
 
-        public override int DurationRounds { get; set; } = -1;
+        public int DurationRounds { get; set; } = -1;
 
-        internal override object BuffFunction(IChessObject buffReceiver, ChessBoard board)
+        public override object BuffFunction(IChessObject buffReceiver, ChessBoard board)
         {
             if (buffReceiver is not ChessPiece piece)
             {

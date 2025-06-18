@@ -2,23 +2,22 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
 {
     using System;
     using System.Collections.Generic;
-    using System.Numerics;
     using Assets.Scripts.Game.Board;
     using Assets.Scripts.Game.Buffs.Tiles.Update;
     using UnityEngine;
 
+    [CreateAssetMenu(fileName = "EnPassantPieceBuff", menuName = "Game/Buffs/EnPassantPieceBuff")]
     public class EnPassantPieceBuff : MoveBuff
     {
-        public override string BuffName { get; set; } = "En Passant";
+        public string BuffName { get; set; } = "En Passant";
 
-        public override string Description { get; set; } =
-            "Gives a piece the ability to use en passant.";
+        public string Description { get; set; } = "Gives a piece the ability to use en passant.";
 
-        public override Sprite Icon { get; set; }
+        public Sprite Icon { get; set; }
 
-        public override int Cost { get; set; }
+        public int Cost { get; set; }
 
-        public override bool WasUsed { get; set; }
+        public bool WasUsed { get; set; }
 
         public EnPassantPieceBuff()
         {

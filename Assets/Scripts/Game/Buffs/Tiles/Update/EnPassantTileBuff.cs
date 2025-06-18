@@ -3,18 +3,18 @@ namespace Assets.Scripts.Game.Buffs.Tiles.Update
     using Assets.Scripts.Game.Board;
     using UnityEngine;
 
+    [CreateAssetMenu(fileName = "EnPassantTileBuff", menuName = "Game/Buffs/EnPassantTileBuff")]
     public class EnPassantTileBuff : UpdateBuff
     {
-        public override string BuffName { get; set; } = "En Passant Debuff";
+        public string BuffName { get; set; } = "En Passant Debuff";
 
-        public override string Description { get; set; } =
-            "Makes a piece susceptible to en passant";
+        public string Description { get; set; } = "Makes a piece susceptible to en passant";
 
-        public override Sprite Icon { get; set; }
+        public Sprite Icon { get; set; }
 
-        public override int Cost { get; set; }
+        public int Cost { get; set; }
 
-        public override bool WasUsed { get; set; }
+        public bool WasUsed { get; set; }
 
         public EnPassantTileBuff()
         {

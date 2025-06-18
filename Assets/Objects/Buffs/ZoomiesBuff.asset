@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e842d483c5bbe45ba7cde35cd7c222, type: 3}
+  m_Name: ZoomiesBuff
+  m_EditorClassIdentifier: 
+  BuffName: Zoomies
+  Description: Select any piece on the board to add the reach of a queen for this
+    round.
+  Icon: {fileID: 6984038022374861424, guid: 9c8e9c6248bd5fb42b09baebd6509699, type: 3}
+  IsActive: 1
+  Cost: 6
+  DurationMoves: -1
+  DurationTurns: -1
+  DurationRounds: -1
+  WasUsed: 0
+  Turn: 0
+  Round: 0

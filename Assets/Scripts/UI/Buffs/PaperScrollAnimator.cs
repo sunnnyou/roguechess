@@ -21,7 +21,7 @@ namespace Assets.Scripts.UI.Buffs
         [Header("Data Source - Choose One")]
         public BuffDatabase BuffDatabase; // For ScriptableObject approach
 
-        private IBuff currentBuff;
+        private BuffBase currentBuff;
 
         private bool isOpen;
         private bool isAnimating; // Prevent multiple simultaneous animations
@@ -188,7 +188,7 @@ namespace Assets.Scripts.UI.Buffs
         }
 
         // Public method to get the current buff (useful for other systems)
-        public IBuff GetCurrentBuff()
+        public BuffBase GetCurrentBuff()
         {
             return this.currentBuff;
         }
