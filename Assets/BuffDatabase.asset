@@ -13,108 +13,108 @@ MonoBehaviour:
   m_Name: BuffDatabase
   m_EditorClassIdentifier: 
   AllBuffs:
-  - title: AI Shield
-    description: Shields a selected piece from the evil AI and blocks all damage
+  - Title: AI Shield
+    Description: Shields a selected piece from the evil AI and blocks all damage
       from the enemy's next attack.
-    cost: 4
-    image: {fileID: -7198497989327922717, guid: db27f010ee2b9db49889ec325c0a27e7, type: 3}
-  - title: Aura
-    description: Improve a selected pieces aura, which protects itself and all surrounding
+    Cost: 4
+    Image: {fileID: -7198497989327922717, guid: db27f010ee2b9db49889ec325c0a27e7, type: 3}
+  - Title: Aura
+    Description: Improve a selected pieces aura, which protects itself and all surrounding
       pieces in 1 distance in all directions for 1 damage.
-    cost: 5
-    image: {fileID: 2141188580037841102, guid: d2900ca20197dce4192bec434f946198, type: 3}
-  - title: Abracadabra
-    description: Select any piece 2 distances away in any direction and deal a fatal
+    Cost: 5
+    Image: {fileID: 2141188580037841102, guid: d2900ca20197dce4192bec434f946198, type: 3}
+  - Title: Abracadabra
+    Description: Select any piece 2 distances away in any direction and deal a fatal
       blow to it reducing its health to zero.
-    cost: 0
-    image: {fileID: 7494061042037780570, guid: b4b71be8b306b0147899d63e57fd5100, type: 3}
-  - title: Banana Peel
-    description: Place on any tile on the chess board. The next piece moving onto
+    Cost: 0
+    Image: {fileID: 7494061042037780570, guid: b4b71be8b306b0147899d63e57fd5100, type: 3}
+  - Title: Banana Peel
+    Description: Place on any tile on the chess board. The next piece moving onto
       this tile will take 2 damage.
-    cost: 2
-    image: {fileID: -6539845494953745017, guid: 3a900c813aceacf489777a8612b0c024, type: 3}
-  - title: Blessing in disguise
-    description: Select any of your pieces to heal 1 health for all pieces 1 distance
+    Cost: 2
+    Image: {fileID: -6539845494953745017, guid: 3a900c813aceacf489777a8612b0c024, type: 3}
+  - Title: Blessing in disguise
+    Description: Select any of your pieces to heal 1 health for all pieces 1 distance
       away in any direction. The selected pieces health will be reduced by the total
       health healed
-    cost: 6
-    image: {fileID: 484371766450027097, guid: 3fdb88101b0cefc4cb10369d0f91ccb0, type: 3}
-  - title: Built Different
-    description: Permanently doubles a selected pieces starting health
-    cost: 2
-    image: {fileID: -1895293480102615298, guid: b4fedc34ace05e74a8fbc3529be40a2a, type: 3}
-  - title: Extinction Event
-    description: Select any tile on the map to cause an asteroid to come down. Any
+    Cost: 6
+    Image: {fileID: 484371766450027097, guid: 3fdb88101b0cefc4cb10369d0f91ccb0, type: 3}
+  - Title: Built Different
+    Description: Permanently doubles a selected pieces starting health
+    Cost: 2
+    Image: {fileID: -1895293480102615298, guid: b4fedc34ace05e74a8fbc3529be40a2a, type: 3}
+  - Title: Extinction Event
+    Description: Select any tile on the map to cause an asteroid to come down. Any
       pieces on the selected tile and 1 distance away from it in any direction will
       have their health reduced to 1.
-    cost: 8
-    image: {fileID: 7029301469737702658, guid: fe261fcdaf29a9242bab340ff8bd49de, type: 3}
-  - title: Crypto King
-    description: Gain 1 gold for every enemy piece defeated, but lose 1 gold for
+    Cost: 8
+    Image: {fileID: 7029301469737702658, guid: fe261fcdaf29a9242bab340ff8bd49de, type: 3}
+  - Title: Crypto King
+    Description: Gain 1 gold for every enemy piece defeated, but lose 1 gold for
       every friendly piece defeated
-    cost: 5
-    image: {fileID: -7510014920548875093, guid: 2d5d599a6a814cc4ab63840d72deab92, type: 3}
-  - title: Flaming Hot
-    description: A selected piece will lose all attack power, but all surrounding
+    Cost: 5
+    Image: {fileID: -7510014920548875093, guid: 2d5d599a6a814cc4ab63840d72deab92, type: 3}
+  - Title: Flaming Hot
+    Description: A selected piece will lose all attack power, but all surrounding
       enemy pieces 1 distance away in all directions will take 1 damage every turn.
-    cost: 7
-    image: {fileID: 3485014977411509234, guid: 223b347e6ec1bd64dad3d474c4357cc4, type: 3}
-  - title: Golden Goose
-    description: Every time a selected piece is defeated in battle, gain 5 gold.
-    cost: 6
-    image: {fileID: -6424387001677298617, guid: 7c2ac1f3e571b6a45b6b4adecbc3aa40, type: 3}
-  - title: Installing Updates
-    description: Use this buff to skip the next turn of your enemy.
-    cost: 3
-    image: {fileID: 4703672058491577280, guid: 4a440401bea148d4195cd159294b658d, type: 3}
-  - title: Throwing Hands
-    description: Permanently increase a pieces' attack power by 1
-    cost: 3
-    image: {fileID: -5844357905139420229, guid: f3534e30df75b4a4299c9368798fd92f, type: 3}
-  - title: Pawn Broker
-    description: Gain an extra 3 gold at the end of every round.
-    cost: 8
-    image: {fileID: -1691934006974469841, guid: 9e3e0b83f01bcdc43badaf2ac7db08a9, type: 3}
-  - title: Zombie
-    description: A selected piece will heal back to 1 health after its health has
+    Cost: 7
+    Image: {fileID: 3485014977411509234, guid: 223b347e6ec1bd64dad3d474c4357cc4, type: 3}
+  - Title: Golden Goose
+    Description: Every time a selected piece is defeated in battle, gain 5 gold.
+    Cost: 6
+    Image: {fileID: -6424387001677298617, guid: 7c2ac1f3e571b6a45b6b4adecbc3aa40, type: 3}
+  - Title: Installing Updates
+    Description: Use this buff to skip the next turn of your enemy.
+    Cost: 3
+    Image: {fileID: 4703672058491577280, guid: 4a440401bea148d4195cd159294b658d, type: 3}
+  - Title: Throwing Hands
+    Description: Permanently increase a pieces' attack power by 1
+    Cost: 3
+    Image: {fileID: -5844357905139420229, guid: f3534e30df75b4a4299c9368798fd92f, type: 3}
+  - Title: Pawn Broker
+    Description: Gain an extra 3 gold at the end of every round.
+    Cost: 8
+    Image: {fileID: -1691934006974469841, guid: 9e3e0b83f01bcdc43badaf2ac7db08a9, type: 3}
+  - Title: Zombie
+    Description: A selected piece will heal back to 1 health after its health has
       been reduced to zero.
-    cost: 8
-    image: {fileID: -5089570426462481736, guid: 4e7428988d203c14297306fa16c9072a, type: 3}
-  - title: Skill Issue
-    description: Use this buff to reduce the attack power of all enemy pieces by
+    Cost: 8
+    Image: {fileID: -5089570426462481736, guid: 4e7428988d203c14297306fa16c9072a, type: 3}
+  - Title: Skill Issue
+    Description: Use this buff to reduce the attack power of all enemy pieces by
       1. Attack power cannot be lower to zero by this buff.
-    cost: 9
-    image: {fileID: -3632091375616087102, guid: afa2c4a71d83d004581e061dca9fcfad, type: 3}
-  - title: Snap
-    description: Using this buff will reduce the health of all pieces on the board
+    Cost: 9
+    Image: {fileID: -3632091375616087102, guid: afa2c4a71d83d004581e061dca9fcfad, type: 3}
+  - Title: Snap
+    Description: Using this buff will reduce the health of all pieces on the board
       by 50%.
-    cost: 8
-    image: {fileID: -7575284744764469784, guid: d88383b7bec182a4781cd68a7f737c4f, type: 3}
-  - title: Speedrun
-    description: Use this buff to permanently increase a pieces' reach by 1 distance
+    Cost: 8
+    Image: {fileID: -7575284744764469784, guid: d88383b7bec182a4781cd68a7f737c4f, type: 3}
+  - Title: Speedrun
+    Description: Use this buff to permanently increase a pieces' reach by 1 distance
       in all directions.
-    cost: 3
-    image: {fileID: -4554211191458919363, guid: d349bb440e8cea1468372a06f81ad132, type: 3}
-  - title: Stonks
-    description: After each round you gain 25% of your held gold additionally.
-    cost: 9
-    image: {fileID: -103552792185707809, guid: bafcf14cae80c2d41b8ecf633b068ab3, type: 3}
-  - title: Uno Reverse Card
-    description: After using this buff, the next time an enemy piece attack, it will
+    Cost: 3
+    Image: {fileID: -4554211191458919363, guid: d349bb440e8cea1468372a06f81ad132, type: 3}
+  - Title: Stonks
+    Description: After each round you gain 25% of your held gold additionally.
+    Cost: 9
+    Image: {fileID: -103552792185707809, guid: bafcf14cae80c2d41b8ecf633b068ab3, type: 3}
+  - Title: Uno Reverse Card
+    Description: After using this buff, the next time an enemy piece attack, it will
       have its own health reduced by its attack power.
-    cost: 8
-    image: {fileID: -1840722404021205925, guid: b64bdb6271377c942ab686a7c682853f, type: 3}
-  - title: Adolescence
-    description: Permanently upgrade a selected pawn to a queen.
-    cost: 13
-    image: {fileID: 2952564868547622667, guid: 0a6f116246cfbd946915cb1411308b02, type: 3}
-  - title: Lone Wolf
-    description: Permanently increases a pieces attack power by 2 if there is no
+    Cost: 8
+    Image: {fileID: -1840722404021205925, guid: b64bdb6271377c942ab686a7c682853f, type: 3}
+  - Title: Adolescence
+    Description: Permanently upgrade a selected pawn to a queen.
+    Cost: 13
+    Image: {fileID: 2952564868547622667, guid: 0a6f116246cfbd946915cb1411308b02, type: 3}
+  - Title: Lone Wolf
+    Description: Permanently increases a pieces attack power by 2 if there is no
       friendly piece nearby 1 distance away in any direction.
-    cost: 5
-    image: {fileID: -458185587419916677, guid: 8edb4e4fd192a6a46900666a6c5e4713, type: 3}
-  - title: Zoomies
-    description: Select any piece on the board to add the reach of a queen for this
+    Cost: 5
+    Image: {fileID: -458185587419916677, guid: 8edb4e4fd192a6a46900666a6c5e4713, type: 3}
+  - Title: Zoomies
+    Description: Select any piece on the board to add the reach of a queen for this
       round.
-    cost: 4
-    image: {fileID: 6984038022374861424, guid: 9c8e9c6248bd5fb42b09baebd6509699, type: 3}
+    Cost: 4
+    Image: {fileID: 6984038022374861424, guid: 9c8e9c6248bd5fb42b09baebd6509699, type: 3}
