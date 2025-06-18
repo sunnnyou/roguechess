@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf359a7acdab0504f98220260f44fc4f, type: 3}
   m_Name: BuffDatabase
   m_EditorClassIdentifier: 
-  availableBuffs:
+  allBuffs:
   - title: AI Shield
     description: Shields a selected piece from the evil AI and blocks all damage
       from the enemy's next attack.
@@ -79,7 +79,7 @@ MonoBehaviour:
     description: A selected piece will heal back to 1 health after its health has
       been reduced to zero.
     cost: 8
-    image: {fileID: -1691934006974469841, guid: 9e3e0b83f01bcdc43badaf2ac7db08a9, type: 3}
+    image: {fileID: -5089570426462481736, guid: 4e7428988d203c14297306fa16c9072a, type: 3}
   - title: Skill Issue
     description: Use this buff to reduce the attack power of all enemy pieces by
       1. Attack power cannot be lower to zero by this buff.
@@ -112,7 +112,7 @@ MonoBehaviour:
     description: Permanently increases a pieces attack power by 2 if there is no
       friendly piece nearby 1 distance away in any direction.
     cost: 5
-    image: {fileID: -1691934006974469841, guid: 9e3e0b83f01bcdc43badaf2ac7db08a9, type: 3}
+    image: {fileID: -458185587419916677, guid: 8edb4e4fd192a6a46900666a6c5e4713, type: 3}
   - title: Zoomies
     description: Select any piece on the board to add the reach of a queen for this
       round.
