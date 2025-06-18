@@ -2737,6 +2737,11 @@ MonoBehaviour:
   ScrollPanel: {fileID: 778247473}
   ScrollSoundOpen: {fileID: 701530872}
   ScrollSoundClose: {fileID: 1751812940}
+  titleText: {fileID: 1021536099}
+  descriptionText: {fileID: 1407608675}
+  costText: {fileID: 1842623736}
+  buffImage: {fileID: 1645856256}
+  buffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
 --- !u!114 &778247471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3186,49 +3191,49 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 778247469}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 778247470}
+        m_TargetAssemblyTypeName: Assets.Scripts.UI.Buffs.PaperScrollAnimator, Assembly-CSharp
+        m_MethodName: Reroll
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2058474197}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 2058474199}
+        m_TargetAssemblyTypeName: Assets.Scripts.UI.Buffs.PaperScrollAnimator, Assembly-CSharp
+        m_MethodName: Reroll
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2051804554}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 2051804556}
+        m_TargetAssemblyTypeName: Assets.Scripts.UI.Buffs.PaperScrollAnimator, Assembly-CSharp
+        m_MethodName: Reroll
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2010214279}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 2010214281}
+        m_TargetAssemblyTypeName: Assets.Scripts.UI.Buffs.PaperScrollAnimator, Assembly-CSharp
+        m_MethodName: Reroll
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -6553,6 +6558,11 @@ MonoBehaviour:
   ScrollPanel: {fileID: 2010214280}
   ScrollSoundOpen: {fileID: 701530872}
   ScrollSoundClose: {fileID: 1751812940}
+  titleText: {fileID: 385178861}
+  descriptionText: {fileID: 503639037}
+  costText: {fileID: 1369300940}
+  buffImage: {fileID: 1143347779}
+  buffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
 --- !u!114 &2010214282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6778,6 +6788,11 @@ MonoBehaviour:
   ScrollPanel: {fileID: 2051804555}
   ScrollSoundOpen: {fileID: 701530872}
   ScrollSoundClose: {fileID: 1751812940}
+  titleText: {fileID: 102627227}
+  descriptionText: {fileID: 1311967671}
+  costText: {fileID: 403917718}
+  buffImage: {fileID: 984872482}
+  buffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
 --- !u!114 &2051804557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6918,6 +6933,11 @@ MonoBehaviour:
   ScrollPanel: {fileID: 2058474198}
   ScrollSoundOpen: {fileID: 701530872}
   ScrollSoundClose: {fileID: 1751812940}
+  titleText: {fileID: 1611375365}
+  descriptionText: {fileID: 744803801}
+  costText: {fileID: 547055914}
+  buffImage: {fileID: 155397263}
+  buffDatabase: {fileID: 11400000, guid: 0d5daeceae3b3e745acacb73ed59f7ea, type: 2}
 --- !u!114 &2058474200
 MonoBehaviour:
   m_ObjectHideFlags: 0
