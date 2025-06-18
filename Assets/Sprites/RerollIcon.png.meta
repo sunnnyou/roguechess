@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: 75491f553cf250b48b14561116ab41b9
+guid: eaa781fea1945d747a8e0a852ba5d20d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2775066074072821328
-    second: ShopCord_0
+      213: -709751873497383346
+    second: RerollIcon_0
+  - first:
+      213: 3643101549530139724
+    second: RerollIcon_1
+  - first:
+      213: 8299024558520980114
+    second: RerollIcon_2
+  - first:
+      213: -363053031947010857
+    second: RerollIcon_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +55,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -113,13 +122,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ShopCord_0
+      name: RerollIcon_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 1
-        width: 86
-        height: 1092
+        x: 22
+        y: 101
+        width: 94
+        height: 52
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +137,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 05e295534e3038620800000000000000
-      internalID: 2775066074072821328
+      spriteID: e4e35857e647626f0800000000000000
+      internalID: -709751873497383346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RerollIcon_1
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 30
+        width: 80
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4c4b6cae85ee8230800000000000000
+      internalID: 3643101549530139724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RerollIcon_2
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 7
+        width: 59
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 292d2e8adde0c2370800000000000000
+      internalID: 8299024558520980114
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RerollIcon_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 78
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7dc7b24e03d26faf0800000000000000
+      internalID: -363053031947010857
       vertices: []
       indices: 
       edges: []
@@ -138,7 +213,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +223,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ShopCord_0: 2775066074072821328
+      RerollIcon_0: -709751873497383346
+      RerollIcon_1: 3643101549530139724
+      RerollIcon_2: 8299024558520980114
+      RerollIcon_3: -363053031947010857
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

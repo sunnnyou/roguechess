@@ -1,4 +1,5 @@
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
 public class PaperScrollAnimator : MonoBehaviour
@@ -6,12 +7,15 @@ public class PaperScrollAnimator : MonoBehaviour
     public RectTransform ScrollPanel;
     public AudioSource ScrollSoundOpen;
     public AudioSource ScrollSoundClose;
+    public TMP_Text Title;
+    public TMP_Text Description;
+    public TMP_Text Cost;
 
     private bool isOpen;
 
     public void Start()
     {
-        // Optional: hide initially
+        // hide initially
         this.ScrollPanel.localScale = new Vector3(1, 0, 1);
     }
 
@@ -56,6 +60,13 @@ public class PaperScrollAnimator : MonoBehaviour
         {
             this.ScrollSoundClose.Play();
         }
+    }
+
+    public void Reroll()
+    {
+        this.CloseScroll();
+
+        this.OpenScroll();
     }
 
     public void Wiggle()
