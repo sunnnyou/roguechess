@@ -60,7 +60,10 @@ namespace Assets.Scripts.Game.MoveRules
                     }
 
                     // If there's a piece on this tile
-                    if (targetTile.CurrentPiece != null)
+                    if (
+                        targetTile.CurrentPiece != null
+                        && targetTile.CurrentPiece.gameObject.activeSelf
+                    )
                     {
                         // If it's an enemy piece, we can capture it
                         if (targetTile.CurrentPiece.IsWhite != isWhite && !rule.CannotCapture)

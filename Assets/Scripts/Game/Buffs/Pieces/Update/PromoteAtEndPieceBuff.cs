@@ -22,8 +22,8 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
 
         public new bool WasUsed { get; set; }
 
-        public int? PromoteAtX { get; set; }
-        public int? PromoteAtY { get; set; }
+        private readonly int? promoteAtX;
+        private readonly int? promoteAtY;
 
         // Reference to the generic selection UI manager
         private static SelectionUIManager selectionUIManager;
@@ -39,8 +39,10 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
 
         public static string PromotionConfirmText { get; set; } = "Promote";
 
-        public PromoteAtEndPieceBuff()
+        public PromoteAtEndPieceBuff(int? promoteAtX, int? promoteAtY)
         {
+            this.promoteAtX = promoteAtX;
+            this.promoteAtY = promoteAtY;
             this.UpdateFunction = this.RoyalAscension;
         }
 
@@ -75,8 +77,8 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
             }
 
             if (
-                (this.PromoteAtX != null && piece.CurrentTile.Position.x != this.PromoteAtX)
-                || (this.PromoteAtY != null && piece.CurrentTile.Position.y != this.PromoteAtY)
+                (this.promoteAtX != null && piece.CurrentTile.Position.x != this.promoteAtX)
+                || (this.promoteAtY != null && piece.CurrentTile.Position.y != this.promoteAtY)
             )
             {
                 // Piece has not reached the promotion position

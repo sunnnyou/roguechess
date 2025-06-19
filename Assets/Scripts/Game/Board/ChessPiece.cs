@@ -100,12 +100,14 @@ namespace Assets.Scripts.Game.Board
 
             if (type == ChessPieceType.Pawn)
             {
-                this.Buffs.Add(ScriptableObject.CreateInstance<EnPassantPieceBuff>());
-                this.Buffs.Add(ScriptableObject.CreateInstance<ExtraReachPieceBuff>());
-                var promoteAtEndPieceBuff =
-                    ScriptableObject.CreateInstance<PromoteAtEndPieceBuff>();
-                promoteAtEndPieceBuff.PromoteAtX = null;
-                promoteAtEndPieceBuff.PromoteAtY = white ? this.Board.Height - 1 : 0;
+                var enPassantBuff = new EnPassantPieceBuff();
+                this.Buffs.Add(enPassantBuff);
+                var extraReachBuff = new ExtraReachPieceBuff();
+                this.Buffs.Add(extraReachBuff);
+                var promoteAtEndPieceBuff = new PromoteAtEndPieceBuff(
+                    null,
+                    white ? this.Board.Height - 1 : 0
+                );
                 this.Buffs.Add(promoteAtEndPieceBuff);
             }
         }

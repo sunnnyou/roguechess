@@ -70,6 +70,7 @@ namespace Assets.Scripts.Game.Buffs
             if (this.DurationMoves == 0 || this.DurationTurns == 0 || this.DurationRounds == 0)
             {
                 this.IsActive = false;
+                Debug.LogWarning($"Buff '{this.BuffName}' set to inactive.");
             }
 
             this.WasUsed = true;
