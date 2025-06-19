@@ -62,7 +62,15 @@ namespace Assets.Scripts.Game.Board
                 // Spawn starting piece if configured
                 if (data.SpawnPieceOnInitialize && data.StartingPiece != null && chessBoard != null)
                 {
-                    this.SpawnPiece(data.StartingPiece, chessBoard);
+                    chessBoard.SpawnPiece(
+                        data.StartingPiece.PieceType,
+                        data.StartingPiece.IsWhite,
+                        CoordinateHelper.VectorToString(this.Position),
+                        this,
+                        data.StartingPiece.Sprite,
+                        data.StartingPiece.Materials,
+                        data.StartingPiece.CustomMoveRules
+                    );
                 }
             }
             else

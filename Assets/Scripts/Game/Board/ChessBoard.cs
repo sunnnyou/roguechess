@@ -87,19 +87,14 @@ namespace Assets.Scripts.Game.Board
         // Start is called before the first frame update
         public void Start()
         {
+            if (this.BoardData == null)
+            {
+                Debug.LogError("Board setup is null!");
+                return;
+            }
+
             this.CalculateScaling();
-
-            // Use ScriptableObject setup if available, otherwise fall back to legacy
-            if (this.BoardData != null)
-            {
-                this.GenerateBoard();
-            }
-            else
-            {
-                this.GenerateBoardLegacy();
-                this.SetupTraditionalPieces();
-            }
-
+            this.GenerateBoard();
             this.SetupPromotion();
         }
 
@@ -108,17 +103,8 @@ namespace Assets.Scripts.Game.Board
             this.HandleInput();
         }
 
-        // New method: Generate board from ScriptableObject setup
         public void GenerateBoard()
         {
-            if (this.BoardData == null)
-            {
-                Debug.LogError("Board setup is null!");
-                this.GenerateBoardLegacy();
-                this.SetupTraditionalPieces();
-                return;
-            }
-
             // Clear existing tiles
             foreach (var tile in this.tiles.Values)
             {
@@ -260,91 +246,37 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        // Updated SpawnPiece method with ScriptableObject support
-        public ChessPiece SpawnPiece3(
-            ChessPieceType type,
-            bool isWhite,
-            string position,
-            Sprite customSprite = null,
-            List<Material> customMaterials = null,
-            List<MoveRule> customMoveRules = null
-        )
-        {
-            if (!this.GetTile(position, out ChessTile tile))
-            {
-                Debug.Log($"Tile {position} not found. Spawning piece without tile.");
-            }
-
-            var pieceObject = new GameObject($"{(isWhite ? "White" : "Black")}_{type}");
-            pieceObject.transform.parent = this.transform;
-
-            var piece = pieceObject.AddComponent<ChessPiece>();
-
-            // Try to get piece data from ScriptableObjects first
-            ChessPieceData pieceData = this.GetPieceData(type, isWhite);
-
-            if (
-                pieceData != null
-                && customSprite == null
-                && customMaterials == null
-                && customMoveRules == null
-            )
-            {
-                // Use ScriptableObject data
-                piece.Initialize(pieceData, this);
-            }
-            else
-            {
-                // Use legacy initialization or custom parameters
-                Sprite sprite = customSprite ?? this.GetPieceSprite(type, isWhite);
-                var pieceMaterials = new List<Material> { this.PieceMaterial };
-                if (customMaterials?.Count > 0)
-                {
-                    pieceMaterials.AddRange(customMaterials);
-                }
-
-                piece.Initialize(type, isWhite, sprite, this, pieceMaterials, customMoveRules);
-            }
-
-            // Scale to fit within the tile, centered
-            float scaleX = this.calculatedTileSize * 0.8f;
-            float scaleY = this.calculatedTileSize * 0.8f;
-            float scale = Mathf.Min(scaleX, scaleY);
-
-            pieceObject.transform.localScale = new Vector3(scale, scale, -2);
-
-            if (tile == null)
-            {
-                piece.gameObject.SetActive(false);
-            }
-            else
-            {
-                tile.UpdatePiece(piece, true, true);
-            }
-
-            return piece;
-        }
-
         // Spawn a chess piece on the board
         public ChessPiece SpawnPiece(
             ChessPieceType type,
             bool isWhite,
             string position,
+            ChessTile tile = null,
             Sprite customSprite = null,
             List<Material> customMaterials = null,
             List<MoveRule> customMoveRules = null
         )
         {
-            if (!this.GetTile(position, out ChessTile tile))
-            {
-                Debug.Log($"Tile {position} not found. Spawning piece without tile.");
-            }
-
             var pieceObject = new GameObject($"{(isWhite ? "White" : "Black")}_{type}");
             pieceObject.transform.parent = this.transform;
 
             var piece = pieceObject.AddComponent<ChessPiece>();
 
+            // // Try to get piece data from ScriptableObjects first
+            // ChessPieceData pieceData = this.GetPieceData(type, isWhite);
+
+            // if (
+            //     pieceData != null
+            //     && customSprite == null
+            //     && customMaterials == null
+            //     && customMoveRules == null
+            // )
+            // {
+            //     // Use ScriptableObject data
+            //     piece.Initialize(pieceData, this);
+            // }
+            // else
+            // {
             // Get the appropriate sprite based on piece type and color
             Sprite sprite =
                 customSprite != null ? customSprite : this.GetPieceSprite(type, isWhite);
@@ -358,6 +290,7 @@ namespace Assets.Scripts.Game.Board
 
             // Initialize the piece
             piece.Initialize(type, isWhite, sprite, this, pieceMaterials, customMoveRules);
+            // }
 
             // Scale to fit within the tile, centered
             float scaleX = this.calculatedTileSize * 0.8f; // Use 80% of tile width
@@ -368,7 +301,9 @@ namespace Assets.Scripts.Game.Board
 
             if (tile == null)
             {
-                // Piece spawned without tile, set inactive until piece is needed
+                Debug.Log(
+                    $"Tile {position} not found. Spawning piece without tile setting to inactive."
+                );
                 piece.gameObject.SetActive(false);
             }
             else
@@ -425,51 +360,6 @@ namespace Assets.Scripts.Game.Board
                 },
                 tooltips: new List<string> { "Queen", "Rook", "Bishop", "Knight" }
             );
-        }
-
-        // // Set up traditional chess piece layout
-        public void SetupTraditionalPieces()
-        {
-            // Make sure we have a standard board size
-            if (this.Width != 8 || this.Height != 8)
-            {
-                Debug.LogWarning("Standard chess setup requires an 8x8 board.");
-                return;
-            }
-
-            // Setup white pieces
-            this.SpawnPiece(ChessPieceType.Rook, true, "a1");
-            this.SpawnPiece(ChessPieceType.Knight, true, "b1");
-            this.SpawnPiece(ChessPieceType.Bishop, true, "c1");
-            this.SpawnPiece(ChessPieceType.Queen, true, "d1");
-            this.SpawnPiece(ChessPieceType.King, true, "e1");
-            this.SpawnPiece(ChessPieceType.Bishop, true, "f1");
-            this.SpawnPiece(ChessPieceType.Knight, true, "g1");
-            this.SpawnPiece(ChessPieceType.Rook, true, "h1");
-
-            // Setup white pawns
-            for (int i = 0; i < this.Width; i++)
-            {
-                string coord = CoordinateHelper.XYToString(i, 1);
-                this.SpawnPiece(ChessPieceType.Pawn, true, coord);
-            }
-
-            // Setup black pieces
-            this.SpawnPiece(ChessPieceType.Rook, false, "a8");
-            this.SpawnPiece(ChessPieceType.Knight, false, "b8");
-            this.SpawnPiece(ChessPieceType.Bishop, false, "c8");
-            this.SpawnPiece(ChessPieceType.Queen, false, "d8");
-            this.SpawnPiece(ChessPieceType.King, false, "e8");
-            this.SpawnPiece(ChessPieceType.Bishop, false, "f8");
-            this.SpawnPiece(ChessPieceType.Knight, false, "g8");
-            this.SpawnPiece(ChessPieceType.Rook, false, "h8");
-
-            // Setup black pawns
-            for (int i = 0; i < this.Width; i++)
-            {
-                string coord = CoordinateHelper.XYToString(i, 6);
-                this.SpawnPiece(ChessPieceType.Pawn, false, coord);
-            }
         }
 
         // Get all pieces from player
