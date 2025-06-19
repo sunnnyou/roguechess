@@ -11,19 +11,19 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
     )]
     public class PromoteAtEndPieceBuff : UpdateBuff
     {
-        public string BuffName { get; set; } = "Royal Ascension";
+        public new string BuffName { get; set; } = "Royal Ascension";
 
-        public string Description { get; set; } =
+        public new string Description { get; set; } =
             "Allows a piece to be switched to a new piece when it reaches the end of the board.";
 
-        public Sprite Icon { get; set; }
+        public new Sprite Icon { get; set; }
 
-        public int Cost { get; set; }
+        public new int Cost { get; set; }
 
-        public bool WasUsed { get; set; }
+        public new bool WasUsed { get; set; }
 
-        private readonly int? promoteAtX;
-        private readonly int? promoteAtY;
+        public int? PromoteAtX { get; set; }
+        public int? PromoteAtY { get; set; }
 
         // Reference to the generic selection UI manager
         private static SelectionUIManager selectionUIManager;
@@ -39,10 +39,8 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
 
         public static string PromotionConfirmText { get; set; } = "Promote";
 
-        public PromoteAtEndPieceBuff(int? promoteAtX, int? promoteAtY)
+        public PromoteAtEndPieceBuff()
         {
-            this.promoteAtX = promoteAtX;
-            this.promoteAtY = promoteAtY;
             this.UpdateFunction = this.RoyalAscension;
         }
 
@@ -77,8 +75,8 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
             }
 
             if (
-                (this.promoteAtX != null && piece.CurrentTile.Position.x != this.promoteAtX)
-                || (this.promoteAtY != null && piece.CurrentTile.Position.y != this.promoteAtY)
+                (this.PromoteAtX != null && piece.CurrentTile.Position.x != this.PromoteAtX)
+                || (this.PromoteAtY != null && piece.CurrentTile.Position.y != this.PromoteAtY)
             )
             {
                 // Piece has not reached the promotion position

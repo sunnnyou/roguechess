@@ -1,6 +1,6 @@
+// Represents a single chess tile on the board
 namespace Assets.Scripts.Game.Board
 {
-    using System;
     using System.Collections.Generic;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.MoveRules;
@@ -9,10 +9,11 @@ namespace Assets.Scripts.Game.Board
     // Represents a single chess tile on the board
     public class ChessTile : MonoBehaviour, IChessObject
     {
+        [SerializeField]
+        private ChessTileData tileData;
+
         public List<BuffBase> Buffs { get; } = new List<BuffBase>();
-
         public SpriteRenderer SpriteRenderer { get; set; }
-
         public Vector2Int Position;
         public Color OriginalColor;
         public bool IsWhite;
@@ -20,6 +21,61 @@ namespace Assets.Scripts.Game.Board
 
         private Color highlightColor = new(0.0f, 0.4f, 0.0f); // green
 
+        // Initialize from ScriptableObject data
+        public void Initialize(
+            ChessTileData data,
+            Vector2Int pos,
+            bool isWhiteTile,
+            ChessBoard chessBoard = null
+        )
+        {
+            this.tileData = data;
+            this.Position = pos;
+            this.IsWhite = isWhiteTile;
+
+            // Make sure we have a SpriteRenderer at this point
+            if (this.SpriteRenderer == null)
+            {
+                this.SpriteRenderer = this.GetComponent<SpriteRenderer>();
+                if (this.SpriteRenderer == null)
+                {
+                    this.SpriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
+                }
+            }
+
+            // Apply data from ScriptableObject
+            if (data != null)
+            {
+                this.SpriteRenderer.sprite = data.Sprite;
+                this.highlightColor = data.HighlightColor;
+                this.SpriteRenderer.sortingOrder = data.SortingOrder;
+
+                // Set color based on tile type
+                this.SpriteRenderer.color = isWhiteTile ? data.WhiteColor : data.BlackColor;
+
+                // Add initial buffs
+                if (data.InitialBuffs != null)
+                {
+                    this.Buffs.AddRange(data.InitialBuffs);
+                }
+
+                // Spawn starting piece if configured
+                if (data.SpawnPieceOnInitialize && data.StartingPiece != null && chessBoard != null)
+                {
+                    this.SpawnPiece(data.StartingPiece, chessBoard);
+                }
+            }
+            else
+            {
+                // Fallback to default colors if no data provided
+                this.SpriteRenderer.color = isWhiteTile ? Color.white : Color.black;
+                this.SpriteRenderer.sortingOrder = 2;
+            }
+
+            this.OriginalColor = this.SpriteRenderer.color;
+        }
+
+        // Keep your existing Initialize method for backward compatibility
         public void Initialize(Vector2Int pos, bool isWhiteTile)
         {
             this.Position = pos;
@@ -164,6 +220,54 @@ namespace Assets.Scripts.Game.Board
             }
 
             return destroyedPieces;
+        }
+
+        // Property to access tile data description for UI or debugging
+        public string GetDescription()
+        {
+            return this.tileData != null ? this.tileData.Description : null ?? string.Empty;
+        }
+
+        // Check if this tile has special properties
+        public bool HasSpecialProperties()
+        {
+            return this.tileData != null && this.tileData.HasSpecialProperties;
+        }
+
+        // Spawn a chess piece on this tile
+        public void SpawnPiece(ChessPieceData pieceData, ChessBoard chessBoard)
+        {
+            if (pieceData == null || chessBoard == null)
+            {
+                return;
+            }
+
+            // Create a new GameObject for the piece
+            GameObject pieceObject = new GameObject($"ChessPiece_{pieceData.PieceType}");
+            pieceObject.transform.position = new Vector3(
+                this.transform.position.x,
+                this.transform.position.y,
+                -2 // render in front of tiles
+            );
+
+            // Add ChessPiece component and initialize it
+            ChessPiece piece = pieceObject.AddComponent<ChessPiece>();
+            piece.Initialize(pieceData, chessBoard);
+
+            // Place the piece on this tile
+            this.UpdatePiece(piece, true, true); // ignore move history and fight for initial placement
+        }
+
+        // Get the starting piece data for this tile
+        public ChessPieceData GetStartingPiece()
+        {
+            return this.tileData != null ? this.tileData.StartingPiece : null;
+        }
+
+        // Check if this tile should spawn a piece on initialize
+        public bool ShouldSpawnPiece()
+        {
+            return this.tileData != null && this.tileData.SpawnPieceOnInitialize;
         }
     }
 }

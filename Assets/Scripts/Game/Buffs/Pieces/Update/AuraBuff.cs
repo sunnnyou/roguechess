@@ -6,15 +6,11 @@ namespace Assets.Scripts.Game.Buffs.Player
     [CreateAssetMenu(fileName = "AuraBuff", menuName = "Game/Buffs/AuraBuff")]
     public class AuraBuff : UpdateBuff
     {
-        public string BuffName { get; set; }
-
-        public string Description { get; set; }
-
-        public Sprite Icon { get; set; }
-
-        public int Cost { get; set; }
-
-        public bool WasUsed { get; set; }
+        public new string BuffName { get; set; }
+        public new string Description { get; set; }
+        public new Sprite Icon { get; set; }
+        public new int Cost { get; set; }
+        public new bool WasUsed { get; set; }
 
         public AuraBuff()
         {

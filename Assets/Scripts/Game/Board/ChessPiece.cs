@@ -10,25 +10,44 @@ namespace Assets.Scripts.Game.Board
 
     public class ChessPiece : MonoBehaviour, IChessObject
     {
+        [SerializeField]
+        private ChessPieceData pieceData;
+
+        // Runtime properties
         public List<BuffBase> Buffs { get; } = new();
-
         public SpriteRenderer SpriteRenderer { get; set; }
-
         public ChessPieceType PieceType { get; private set; }
-
         public bool IsWhite { get; set; }
-
         public ChessTile CurrentTile { get; set; }
-
         public List<MoveRule> MoveRules { get; private set; } = new();
-
-        public int Strength { get; private set; } = 1; // Strength of the piece, used for reducing lives in fights
-
-        public int Lives { get; private set; } = 1; // Number of hits before piece is destroyed
-
+        public int Strength { get; private set; } = 1;
+        public int Lives { get; private set; } = 1;
         internal ChessBoard Board { get; private set; }
-
         public bool HasMoved;
+
+        // Initialize from ScriptableObject data
+        public void Initialize(ChessPieceData data, ChessBoard chessBoard)
+        {
+            if (data != null)
+            {
+                this.pieceData = data;
+                this.Initialize(
+                    data.PieceType,
+                    data.IsWhite,
+                    data.Sprite,
+                    chessBoard,
+                    data.Materials,
+                    data.CustomMoveRules,
+                    data.InitialBuffs
+                );
+                this.Strength = data.Strength;
+                this.Lives = data.Lives;
+            }
+            else
+            {
+                Debug.LogWarning("ChessPieceData is null!");
+            }
+        }
 
         public void Initialize(
             ChessPieceType type,
@@ -66,7 +85,8 @@ namespace Assets.Scripts.Game.Board
                 }
             }
 
-            this.SpriteRenderer.sortingOrder = 10; // render above tiles
+            this.SpriteRenderer.sortingOrder =
+                this.pieceData != null ? this.pieceData.SortingOrder : 10; // render above tiles
             this.SpriteRenderer.sprite = sprite;
 
             // Set default move rules based on piece type
@@ -80,9 +100,13 @@ namespace Assets.Scripts.Game.Board
 
             if (type == ChessPieceType.Pawn)
             {
-                this.Buffs.Add(new EnPassantPieceBuff());
-                this.Buffs.Add(new ExtraReachPieceBuff());
-                this.Buffs.Add(new PromoteAtEndPieceBuff(null, white ? this.Board.Height - 1 : 0));
+                this.Buffs.Add(ScriptableObject.CreateInstance<EnPassantPieceBuff>());
+                this.Buffs.Add(ScriptableObject.CreateInstance<ExtraReachPieceBuff>());
+                var promoteAtEndPieceBuff =
+                    ScriptableObject.CreateInstance<PromoteAtEndPieceBuff>();
+                promoteAtEndPieceBuff.PromoteAtX = null;
+                promoteAtEndPieceBuff.PromoteAtY = white ? this.Board.Height - 1 : 0;
+                this.Buffs.Add(promoteAtEndPieceBuff);
             }
         }
 

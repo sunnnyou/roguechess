@@ -10,13 +10,13 @@ namespace Assets.Scripts.Game.Buffs
     {
         public Func<Vector2Int, ChessBoard, bool, List<ChessTile>> MoveFunction { get; set; } // Function that is applied when a condition is met
 
-        public bool IsActive { get; set; } = true;
+        public new bool IsActive { get; set; } = true;
 
-        public int DurationMoves { get; set; } = -1;
+        public new int DurationMoves { get; set; } = -1;
 
-        public int DurationTurns { get; set; } = -1;
+        public new int DurationTurns { get; set; } = -1;
 
-        public int DurationRounds { get; set; } = -1;
+        public new int DurationRounds { get; set; } = -1;
 
         public override object BuffFunction(IChessObject buffReceiver, ChessBoard board)
         {

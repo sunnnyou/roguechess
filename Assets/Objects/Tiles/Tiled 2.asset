@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74b9027511a39234a9a8eea85934093c, type: 3}
+  m_Name: Tiled 2
+  m_EditorClassIdentifier: 
+  Sprite: {fileID: 8149051649407981845, guid: 44a133846dc76274493b43b6124ce2b5, type: 3}
+  WhiteColor: {r: 1, g: 1, b: 1, a: 1}
+  BlackColor: {r: 1, g: 1, b: 1, a: 1}
+  InitialBuffs: []
+  Position: {x: 3, y: 1}
+  HighlightColor: {r: 0, g: 0.4, b: 0, a: 1}
+  SortingOrder: 2
+  StartingPiece: {fileID: 11400000, guid: 6598a0d5441f0014a97e0e30017b2089, type: 2}
+  SpawnPieceOnInitialize: 1
+  HasSpecialProperties: 0
+  Description: 

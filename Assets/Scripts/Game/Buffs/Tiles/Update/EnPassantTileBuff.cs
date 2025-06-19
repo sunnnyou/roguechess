@@ -6,15 +6,15 @@ namespace Assets.Scripts.Game.Buffs.Tiles.Update
     [CreateAssetMenu(fileName = "EnPassantTileBuff", menuName = "Game/Buffs/EnPassantTileBuff")]
     public class EnPassantTileBuff : UpdateBuff
     {
-        public string BuffName { get; set; } = "En Passant Debuff";
+        public new string BuffName { get; set; } = "En Passant Debuff";
 
-        public string Description { get; set; } = "Makes a piece susceptible to en passant";
+        public new string Description { get; set; } = "Makes a piece susceptible to en passant";
 
-        public Sprite Icon { get; set; }
+        public new Sprite Icon { get; set; }
 
-        public int Cost { get; set; }
+        public new int Cost { get; set; }
 
-        public bool WasUsed { get; set; }
+        public new bool WasUsed { get; set; }
 
         public EnPassantTileBuff()
         {

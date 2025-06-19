@@ -9,15 +9,16 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
     [CreateAssetMenu(fileName = "SpeedRunBuff", menuName = "Game/Buffs/SpeedRunBuff")]
     public class SpeedRunBuff : MoveBuff
     {
-        public string BuffName { get; set; } = "SpeedRun";
+        public new string BuffName { get; set; } = "SpeedRun";
 
-        public string Description { get; set; } = "Gives a piece the ability to use en passant.";
+        public new string Description { get; set; } =
+            "Gives a piece the ability to use en passant.";
 
-        public Sprite Icon { get; set; }
+        public new Sprite Icon { get; set; }
 
-        public int Cost { get; set; }
+        public new int Cost { get; set; }
 
-        public bool WasUsed { get; set; }
+        public new bool WasUsed { get; set; }
 
         public SpeedRunBuff()
         {

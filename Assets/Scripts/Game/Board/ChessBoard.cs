@@ -11,6 +11,8 @@ namespace Assets.Scripts.Game.Board
     public class ChessBoard : MonoBehaviour
     {
         // TODO: fix bug with disabled chess pieces being taking in for consideration of valid tiles
+        // TODO: fix tiles colors being switched
+        // TODO: fix queen and king sprite being switched
         // TODO: add custom piece with custom movement rules
         // TODO: add other chess functions (castling, check, checkmate, stalemate)
         // TODO: add buff for checkmate (can be used on an enemy piece and is always used on the king)
@@ -19,8 +21,9 @@ namespace Assets.Scripts.Game.Board
         // TODO: add shop (buffs, custom pieces, consumables)
         // TODO: add function to save and load game state (including board, pieces, move history, etc.)
         // TODO: add function to never have negative position values, when adding new tiles. The left bottom tile should always be (0, 0) and the top right tile should be (board.Width, board.Height)
-        // TODO: add function to display piece buffs when hovering over a piece
+        // TODO: add function to display piece buffs, hp, strength and other info when hovering over a piece
         // TODO: add function to add material to pieces or tiles when specific buffs are applied
+        public ChessBoardData BoardData; // New ScriptableObject for complete board configuration
 
         // Board dimensions and scaling
         public int Width = 8;
@@ -36,6 +39,22 @@ namespace Assets.Scripts.Game.Board
         public NotificationManager NotificationManager;
         public EnemySpriteManager EnemySpriteManager;
         public Font MainFont;
+
+        [Header("Default Piece Data")]
+        public ChessPieceData WhitePawnData;
+        public ChessPieceData WhiteRookData;
+        public ChessPieceData WhiteKnightData;
+        public ChessPieceData WhiteBishopData;
+        public ChessPieceData WhiteQueenData;
+        public ChessPieceData WhiteKingData;
+        public ChessPieceData BlackPawnData;
+        public ChessPieceData BlackRookData;
+        public ChessPieceData BlackKnightData;
+        public ChessPieceData BlackBishopData;
+        public ChessPieceData BlackQueenData;
+        public ChessPieceData BlackKingData;
+
+        [Header("Legacy Sprite Support (Optional)")]
         public Sprite WhiteTileSprite;
         public Sprite BlackTileSprite;
         public Sprite WhitePawnSprite;
@@ -63,46 +82,121 @@ namespace Assets.Scripts.Game.Board
         public List<ChessMoveHistory> MoveHistory = new();
 
         public int CurrentTurn { get; internal set; }
-
         public int CurrentRound { get; internal set; }
 
         // Start is called before the first frame update
         public void Start()
         {
             this.CalculateScaling();
-            this.GenerateBoard();
-            this.SetupTraditionalPieces();
+
+            // Use ScriptableObject setup if available, otherwise fall back to legacy
+            if (this.BoardData != null)
+            {
+                this.GenerateBoard();
+            }
+            else
+            {
+                this.GenerateBoardLegacy();
+                this.SetupTraditionalPieces();
+            }
+
             this.SetupPromotion();
         }
 
-        // Update is called once per frame
         public void Update()
         {
-            // Block input during Enemy turn
-            if (this.IsEnemyTurn || this.GameOver)
-            {
-                return;
-            }
-
             this.HandleInput();
         }
 
-        public void SetupPromotion()
+        // New method: Generate board from ScriptableObject setup
+        public void GenerateBoard()
         {
-            PromoteAtEndPieceBuff.InitializePromotionSystem(this.SelectionManager);
-            PromoteAtEndPieceBuff.ConfigurePromotionPieces(
-                pieces: new List<IChessObject>
+            if (this.BoardData == null)
+            {
+                Debug.LogError("Board setup is null!");
+                this.GenerateBoardLegacy();
+                this.SetupTraditionalPieces();
+                return;
+            }
+
+            // Clear existing tiles
+            foreach (var tile in this.tiles.Values)
+            {
+                if (tile == null)
                 {
-                    this.SpawnPiece(ChessPieceType.Queen, true, null),
-                    this.SpawnPiece(ChessPieceType.Rook, true, null),
-                    this.SpawnPiece(ChessPieceType.Bishop, true, null),
-                    this.SpawnPiece(ChessPieceType.Knight, true, null),
-                },
-                tooltips: new List<string> { "Queen", "Rook", "Bishop", "Knight" }
+                    continue;
+                }
+
+                tile.Destroy();
+            }
+            this.tiles.Clear();
+
+            // Use board dimensions from setup
+            int boardWidth = this.BoardData.BoardWidth;
+            int boardHeight = this.BoardData.BoardHeight;
+
+            // Calculate board positioning
+            float boardWidthWorld = boardWidth * this.calculatedTileSize;
+            float boardHeightWorld = boardHeight * this.calculatedTileSize;
+            var boardCenter = new Vector2(boardWidthWorld / 2, boardHeightWorld / 2);
+            var startPos = new Vector2(
+                -boardCenter.x + (this.calculatedTileSize / 2),
+                -boardCenter.y + (this.calculatedTileSize / 2)
             );
+
+            // Generate tiles using setup data
+            for (int x = 0; x < boardWidth; x++)
+            {
+                for (int y = 0; y < boardHeight; y++)
+                {
+                    ChessTileData tileData = this.BoardData.GetTileDataAt(x, y);
+
+                    this.CreateTileFromData(x, y, tileData, startPos);
+                }
+            }
         }
 
-        public void GenerateBoard()
+        // Helper method to create a tile from tile data
+        private void CreateTileFromData(int x, int y, ChessTileData tileData, Vector2 startPos)
+        {
+            // Create chess tile game object
+            var tileObject = new GameObject($"Tile_{CoordinateHelper.XYToString(x, y)}");
+            tileObject.transform.parent = this.transform;
+
+            // Calculate centered position
+            float posX = startPos.x + (x * this.calculatedTileSize);
+            float posY = startPos.y + (y * this.calculatedTileSize);
+            tileObject.transform.localPosition = new Vector3(posX, posY, -1);
+
+            // Setup collider for mouse interaction
+            BoxCollider2D collider = tileObject.AddComponent<BoxCollider2D>();
+            collider.size = new Vector2(this.TileSize, this.TileSize);
+
+            // Setup tile component
+            ChessTile tile = tileObject.AddComponent<ChessTile>();
+            bool isWhite = IsWhite(x, y);
+
+            // Setup sprite
+            if (tileData.Sprite == null)
+            {
+                tileData.Sprite = isWhite ? this.WhiteTileSprite : this.BlackTileSprite;
+            }
+
+            // Initialize with ScriptableObject data
+            tile.Initialize(tileData, new Vector2Int(x, y), isWhite, this);
+
+            // Set proper size for the tile
+            tileObject.transform.localScale = new Vector3(
+                1 / this.calculatedTileSize,
+                1 / this.calculatedTileSize,
+                -1
+            );
+
+            // Add to dictionary for easy lookup
+            this.tiles.Add(CoordinateHelper.XYToString(x, y), tile);
+        }
+
+        public void GenerateBoardLegacy()
         {
             // Clear existing tiles if board is regenerated
             foreach (var tile in this.tiles.Values)
@@ -114,7 +208,6 @@ namespace Assets.Scripts.Game.Board
 
                 tile.Destroy();
             }
-
             this.tiles.Clear();
 
             // Calculate board center offset for alignment
@@ -145,16 +238,13 @@ namespace Assets.Scripts.Game.Board
 
                     // Setup tile component
                     ChessTile tile = tileObject.AddComponent<ChessTile>();
+                    bool isWhite = IsWhite(x, y);
 
-                    bool isWhite = (x + y) % 2 == 0;
+                    // Legacy initialization
                     tile.Initialize(new Vector2Int(x, y), isWhite);
-
-                    // Set sprite
                     tile.SpriteRenderer.sprite = isWhite
                         ? this.WhiteTileSprite
                         : this.BlackTileSprite;
-
-                    // Set sorting order to be behind chess pieces
                     tile.SpriteRenderer.sortingOrder = 2;
 
                     // Set proper size for the tile
@@ -170,49 +260,69 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        // Set up traditional chess piece layout
-        public void SetupTraditionalPieces()
+        // Updated SpawnPiece method with ScriptableObject support
+        public ChessPiece SpawnPiece3(
+            ChessPieceType type,
+            bool isWhite,
+            string position,
+            Sprite customSprite = null,
+            List<Material> customMaterials = null,
+            List<MoveRule> customMoveRules = null
+        )
         {
-            // Make sure we have a standard board size
-            if (this.Width != 8 || this.Height != 8)
+            if (!this.GetTile(position, out ChessTile tile))
             {
-                Debug.LogWarning("Standard chess setup requires an 8x8 board.");
-                return;
+                Debug.Log($"Tile {position} not found. Spawning piece without tile.");
             }
 
-            // Setup white pieces
-            this.SpawnPiece(ChessPieceType.Rook, true, "a1");
-            this.SpawnPiece(ChessPieceType.Knight, true, "b1");
-            this.SpawnPiece(ChessPieceType.Bishop, true, "c1");
-            this.SpawnPiece(ChessPieceType.Queen, true, "d1");
-            this.SpawnPiece(ChessPieceType.King, true, "e1");
-            this.SpawnPiece(ChessPieceType.Bishop, true, "f1");
-            this.SpawnPiece(ChessPieceType.Knight, true, "g1");
-            this.SpawnPiece(ChessPieceType.Rook, true, "h1");
+            var pieceObject = new GameObject($"{(isWhite ? "White" : "Black")}_{type}");
+            pieceObject.transform.parent = this.transform;
 
-            // Setup white pawns
-            for (int i = 0; i < this.Width; i++)
+            var piece = pieceObject.AddComponent<ChessPiece>();
+
+            // Try to get piece data from ScriptableObjects first
+            ChessPieceData pieceData = this.GetPieceData(type, isWhite);
+
+            if (
+                pieceData != null
+                && customSprite == null
+                && customMaterials == null
+                && customMoveRules == null
+            )
             {
-                string coord = CoordinateHelper.XYToString(i, 1);
-                this.SpawnPiece(ChessPieceType.Pawn, true, coord);
+                // Use ScriptableObject data
+                piece.Initialize(pieceData, this);
+            }
+            else
+            {
+                // Use legacy initialization or custom parameters
+                Sprite sprite = customSprite ?? this.GetPieceSprite(type, isWhite);
+                var pieceMaterials = new List<Material> { this.PieceMaterial };
+                if (customMaterials?.Count > 0)
+                {
+                    pieceMaterials.AddRange(customMaterials);
+                }
+
+                piece.Initialize(type, isWhite, sprite, this, pieceMaterials, customMoveRules);
             }
 
-            // Setup black pieces
-            this.SpawnPiece(ChessPieceType.Rook, false, "a8");
-            this.SpawnPiece(ChessPieceType.Knight, false, "b8");
-            this.SpawnPiece(ChessPieceType.Bishop, false, "c8");
-            this.SpawnPiece(ChessPieceType.Queen, false, "d8");
-            this.SpawnPiece(ChessPieceType.King, false, "e8");
-            this.SpawnPiece(ChessPieceType.Bishop, false, "f8");
-            this.SpawnPiece(ChessPieceType.Knight, false, "g8");
-            this.SpawnPiece(ChessPieceType.Rook, false, "h8");
+            // Scale to fit within the tile, centered
+            float scaleX = this.calculatedTileSize * 0.8f;
+            float scaleY = this.calculatedTileSize * 0.8f;
+            float scale = Mathf.Min(scaleX, scaleY);
 
-            // Setup black pawns
-            for (int i = 0; i < this.Width; i++)
+            pieceObject.transform.localScale = new Vector3(scale, scale, -2);
+
+            if (tile == null)
             {
-                string coord = CoordinateHelper.XYToString(i, 6);
-                this.SpawnPiece(ChessPieceType.Pawn, false, coord);
+                piece.gameObject.SetActive(false);
             }
+            else
+            {
+                tile.UpdatePiece(piece, true, true);
+            }
+
+            return piece;
         }
 
         // Spawn a chess piece on the board
@@ -270,6 +380,98 @@ namespace Assets.Scripts.Game.Board
             return piece;
         }
 
+        // Helper method to get piece data from ScriptableObjects
+        private ChessPieceData GetPieceData(ChessPieceType type, bool isWhite)
+        {
+            if (isWhite)
+            {
+                return type switch
+                {
+                    ChessPieceType.Pawn => this.WhitePawnData,
+                    ChessPieceType.Rook => this.WhiteRookData,
+                    ChessPieceType.Knight => this.WhiteKnightData,
+                    ChessPieceType.Bishop => this.WhiteBishopData,
+                    ChessPieceType.Queen => this.WhiteQueenData,
+                    ChessPieceType.King => this.WhiteKingData,
+                    _ => null,
+                };
+            }
+            else
+            {
+                return type switch
+                {
+                    ChessPieceType.Pawn => this.BlackPawnData,
+                    ChessPieceType.Rook => this.BlackRookData,
+                    ChessPieceType.Knight => this.BlackKnightData,
+                    ChessPieceType.Bishop => this.BlackBishopData,
+                    ChessPieceType.Queen => this.BlackQueenData,
+                    ChessPieceType.King => this.BlackKingData,
+                    _ => null,
+                };
+            }
+        }
+
+        // Keep existing methods for backward compatibility
+        public void SetupPromotion()
+        {
+            PromoteAtEndPieceBuff.InitializePromotionSystem(this.SelectionManager);
+            PromoteAtEndPieceBuff.ConfigurePromotionPieces(
+                pieces: new List<IChessObject>
+                {
+                    this.SpawnPiece(ChessPieceType.Queen, true, null),
+                    this.SpawnPiece(ChessPieceType.Rook, true, null),
+                    this.SpawnPiece(ChessPieceType.Bishop, true, null),
+                    this.SpawnPiece(ChessPieceType.Knight, true, null),
+                },
+                tooltips: new List<string> { "Queen", "Rook", "Bishop", "Knight" }
+            );
+        }
+
+        // // Set up traditional chess piece layout
+        public void SetupTraditionalPieces()
+        {
+            // Make sure we have a standard board size
+            if (this.Width != 8 || this.Height != 8)
+            {
+                Debug.LogWarning("Standard chess setup requires an 8x8 board.");
+                return;
+            }
+
+            // Setup white pieces
+            this.SpawnPiece(ChessPieceType.Rook, true, "a1");
+            this.SpawnPiece(ChessPieceType.Knight, true, "b1");
+            this.SpawnPiece(ChessPieceType.Bishop, true, "c1");
+            this.SpawnPiece(ChessPieceType.Queen, true, "d1");
+            this.SpawnPiece(ChessPieceType.King, true, "e1");
+            this.SpawnPiece(ChessPieceType.Bishop, true, "f1");
+            this.SpawnPiece(ChessPieceType.Knight, true, "g1");
+            this.SpawnPiece(ChessPieceType.Rook, true, "h1");
+
+            // Setup white pawns
+            for (int i = 0; i < this.Width; i++)
+            {
+                string coord = CoordinateHelper.XYToString(i, 1);
+                this.SpawnPiece(ChessPieceType.Pawn, true, coord);
+            }
+
+            // Setup black pieces
+            this.SpawnPiece(ChessPieceType.Rook, false, "a8");
+            this.SpawnPiece(ChessPieceType.Knight, false, "b8");
+            this.SpawnPiece(ChessPieceType.Bishop, false, "c8");
+            this.SpawnPiece(ChessPieceType.Queen, false, "d8");
+            this.SpawnPiece(ChessPieceType.King, false, "e8");
+            this.SpawnPiece(ChessPieceType.Bishop, false, "f8");
+            this.SpawnPiece(ChessPieceType.Knight, false, "g8");
+            this.SpawnPiece(ChessPieceType.Rook, false, "h8");
+
+            // Setup black pawns
+            for (int i = 0; i < this.Width; i++)
+            {
+                string coord = CoordinateHelper.XYToString(i, 6);
+                this.SpawnPiece(ChessPieceType.Pawn, false, coord);
+            }
+        }
+
         // Get all pieces from player
         public List<ChessPiece> GetAllPieces(bool isWhite)
         {
@@ -281,11 +483,10 @@ namespace Assets.Scripts.Game.Board
                     pieces.Add(tile.CurrentPiece);
                 }
             }
-
             return pieces;
         }
 
-        // Helper to get the proper sprite based on piece type and color
+        // Helper to get the proper sprite based on piece type and color (legacy support)
         public Sprite GetPieceSprite(ChessPieceType type, bool isWhite)
         {
             if (isWhite)
@@ -297,7 +498,7 @@ namespace Assets.Scripts.Game.Board
                     ChessPieceType.Bishop => this.WhiteBishopSprite,
                     ChessPieceType.Queen => this.WhiteQueenSprite,
                     ChessPieceType.King => this.WhiteKingSprite,
-                    _ => this.WhitePawnSprite, // Default
+                    _ => this.WhitePawnSprite,
                 };
             }
             else
@@ -309,7 +510,7 @@ namespace Assets.Scripts.Game.Board
                     ChessPieceType.Bishop => this.BlackBishopSprite,
                     ChessPieceType.Queen => this.BlackQueenSprite,
                     ChessPieceType.King => this.BlackKingSprite,
-                    _ => this.BlackPawnSprite, // Default
+                    _ => this.BlackPawnSprite,
                 };
             }
         }
@@ -830,6 +1031,11 @@ namespace Assets.Scripts.Game.Board
             }
 
             // TODO:
+        }
+
+        public static bool IsWhite(int x, int y)
+        {
+            return (x + y) % 2 == 1;
         }
     }
 }
