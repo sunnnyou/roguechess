@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23a137ac88e4af743a84bbcea7179244, type: 3}
   m_Name: RookBlack
   m_EditorClassIdentifier: 
-  PieceType: 0
+  PieceType: 1
   IsWhite: 0
   Sprite: {fileID: 21300000, guid: 86d6996cf5d0fd84f9fcb4b16ff64f5d, type: 3}
   Materials: []
