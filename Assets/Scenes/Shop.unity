@@ -4614,7 +4614,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1927384413}
   m_Direction: 0
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.64285725
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7276,6 +7276,94 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1685, y: 200}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!1 &1691934834
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1691934836}
+  - component: {fileID: 1691934835}
+  m_Layer: 0
+  m_Name: ChessBoard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1691934835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1691934834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f99d36c6212ddd46a9a0827078f146e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BoardData: {fileID: 11400000, guid: 575b0a5205ed7204da904d730023f66c, type: 2}
+  Width: 8
+  Height: 8
+  TileSize: 1
+  AutoScale: 1
+  ScalePadding: 0.058
+  SelectionManager: {fileID: 0}
+  NotificationManager: {fileID: 0}
+  EnemySpriteManager: {fileID: 0}
+  MainFont: {fileID: 12800000, guid: 5902badc2752d8547921dc9e9695aa18, type: 3}
+  WhitePawnData: {fileID: 11400000, guid: 6598a0d5441f0014a97e0e30017b2089, type: 2}
+  WhiteRookData: {fileID: 11400000, guid: 1dd2f1f950add8c418331762ef691ecc, type: 2}
+  WhiteKnightData: {fileID: 11400000, guid: 665ae7b5a2dca834db999cc3461140fe, type: 2}
+  WhiteBishopData: {fileID: 11400000, guid: ae61f9580a5a70d4fabae70baae66fd6, type: 2}
+  WhiteQueenData: {fileID: 11400000, guid: 1a1216c41d319d44093beaf9637a13ab, type: 2}
+  WhiteKingData: {fileID: 11400000, guid: ade565fc49af967439c2edbcdca697e8, type: 2}
+  BlackPawnData: {fileID: 11400000, guid: f2306a6d46a28404d80e24d14ef05e8c, type: 2}
+  BlackRookData: {fileID: 11400000, guid: 09b47c6955d363f4599a7a87a4f46c9b, type: 2}
+  BlackKnightData: {fileID: 11400000, guid: a33fb2f33dbb7a64f833e489c95f587b, type: 2}
+  BlackBishopData: {fileID: 11400000, guid: 10f23b1e2b2752c4c987df055663328a, type: 2}
+  BlackQueenData: {fileID: 11400000, guid: e38c25c13b2f0a147bac6113e3942dad, type: 2}
+  BlackKingData: {fileID: 11400000, guid: 1693996cbaa481849a64904ad91472aa, type: 2}
+  WhiteTileSprite: {fileID: -9163426285224168042, guid: 246c28b0d81d26f43bb3fed30d0a13f1, type: 3}
+  BlackTileSprite: {fileID: 8149051649407981845, guid: 44a133846dc76274493b43b6124ce2b5, type: 3}
+  WhitePawnSprite: {fileID: 21300000, guid: 3c58e929b6e078a4db85e153a0ddb531, type: 3}
+  WhiteRookSprite: {fileID: 21300000, guid: 2f07434ff0f161e47a99866b315bcd53, type: 3}
+  WhiteKnightSprite: {fileID: 21300000, guid: 88717443773bd34478db033093229786, type: 3}
+  WhiteBishopSprite: {fileID: 21300000, guid: 319457352a5e89f44a42e6ffe016ea6e, type: 3}
+  WhiteQueenSprite: {fileID: 21300000, guid: 03beb0a103f842d46b6698de983930d9, type: 3}
+  WhiteKingSprite: {fileID: 21300000, guid: 038dab76b634a7847b4040c3667ef860, type: 3}
+  BlackPawnSprite: {fileID: 21300000, guid: c154050c80e79234c935c67167fbf8c9, type: 3}
+  BlackRookSprite: {fileID: 21300000, guid: 86d6996cf5d0fd84f9fcb4b16ff64f5d, type: 3}
+  BlackKnightSprite: {fileID: 21300000, guid: ee11e7cddb617294a85bb3e288f4dde7, type: 3}
+  BlackBishopSprite: {fileID: 21300000, guid: 657c3a86f926fc4478e533e531c04210, type: 3}
+  BlackQueenSprite: {fileID: 21300000, guid: 7ac4dbac9d990c348aca20b7c9901ccf, type: 3}
+  BlackKingSprite: {fileID: 21300000, guid: a972034451271314386eb02fa86aefaf, type: 3}
+  PieceMaterial: {fileID: 2100000, guid: 2894155b5494d254dac34254dac7ebe7, type: 2}
+  IsWhiteTurn: 1
+  GameOver: 0
+  IsEnemyTurn: 0
+--- !u!224 &1691934836
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1691934834}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.3}
+  m_LocalScale: {x: 0.92, y: 0.92, z: 0.3588}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.6, y: -0.8}
+  m_SizeDelta: {x: 10, y: 10}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1747156706
 GameObject:
   m_ObjectHideFlags: 0
@@ -8725,7 +8813,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -4806497203186987019, guid: 0525c50d78022074f83c6d281459691e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0525c50d78022074f83c6d281459691e, type: 3}
   m_Type: 2
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8734,7 +8822,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 0.2
 --- !u!222 &2040451943
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9460,3 +9548,4 @@ SceneRoots:
   - {fileID: 1751812941}
   - {fileID: 2134266298}
   - {fileID: 510611127}
+  - {fileID: 1691934836}
