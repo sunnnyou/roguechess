@@ -1,5 +1,6 @@
 namespace Assets.Scripts.UI.Buffs
 {
+    using Assets.Scripts.Game.Player;
     using DG.Tweening;
     using TMPro;
     using UnityEngine;
@@ -14,6 +15,11 @@ namespace Assets.Scripts.UI.Buffs
         public float PullDuration = 0.3f;
         public float ReturnDuration = 0.5f;
 
+        public PaperScrollAnimator PaperScrollAnimator1;
+        public PaperScrollAnimator PaperScrollAnimator2;
+        public PaperScrollAnimator PaperScrollAnimator3;
+        public PaperScrollAnimator PaperScrollAnimator4;
+
         [Header("Easing")]
         public Ease PullEase = Ease.OutQuart;
         public Ease ReturnEase = Ease.OutQuart;
@@ -24,6 +30,7 @@ namespace Assets.Scripts.UI.Buffs
         private bool isAnimating;
         private int rerollCost = 3;
         private int rerollAddCost = 2;
+        private bool inactive;
 
         public void Start()
         {
@@ -35,10 +42,19 @@ namespace Assets.Scripts.UI.Buffs
             {
                 this.CordButton = this.GetComponent<Button>();
             }
-            this.UpdateCost();
-
+            if (this.RerollCostTMP != null)
+            {
+                this.RerollCostTMP.text = this.rerollCost.ToString();
+            }
             // Store original transform values
             this.originalPosition = this.CordRect.anchoredPosition;
+
+            this.CordButton.onClick.AddListener(this.PaperScrollAnimator1.Reroll);
+            this.CordButton.onClick.AddListener(this.PaperScrollAnimator2.Reroll);
+            this.CordButton.onClick.AddListener(this.PaperScrollAnimator3.Reroll);
+            this.CordButton.onClick.AddListener(this.PaperScrollAnimator4.Reroll);
+
+            this.checkGoldRequirement();
         }
 
         // Simple one-liner for quick use
@@ -53,7 +69,6 @@ namespace Assets.Scripts.UI.Buffs
 
             this.CordButton.interactable = false;
 
-            this.rerollCost += this.rerollAddCost;
             this.UpdateCost();
 
             this.CordRect.DOAnchorPosY(
@@ -75,9 +90,26 @@ namespace Assets.Scripts.UI.Buffs
 
         private void UpdateCost()
         {
-            if (this.RerollCostTMP != null)
+            if (!this.inactive)
             {
-                this.RerollCostTMP.text = this.rerollCost.ToString();
+                InventoryManager.Instance.SpendGold(this.rerollCost);
+                this.rerollCost += this.rerollAddCost;
+                if (this.RerollCostTMP != null)
+                {
+                    this.RerollCostTMP.text = this.rerollCost.ToString();
+                }
+
+                this.checkGoldRequirement();
+            }
+        }
+
+        private void checkGoldRequirement()
+        {
+            if (!InventoryManager.Instance.HasEnoughGold(this.rerollCost))
+            {
+                Debug.Log("Not enough gold for reroll anymore!");
+                this.CordButton.onClick.RemoveAllListeners();
+                this.inactive = true;
             }
         }
     }

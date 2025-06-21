@@ -242,30 +242,6 @@ namespace Assets.Scripts.Game.Board
             return this.tileData != null && this.tileData.HasSpecialProperties;
         }
 
-        // Spawn a chess piece on this tile
-        public void SpawnPiece(ChessPieceData pieceData, ChessBoard chessBoard)
-        {
-            if (pieceData == null || chessBoard == null)
-            {
-                return;
-            }
-
-            // Create a new GameObject for the piece
-            GameObject pieceObject = new GameObject($"ChessPiece_{pieceData.PieceType}");
-            pieceObject.transform.position = new Vector3(
-                this.transform.position.x,
-                this.transform.position.y,
-                -2 // render in front of tiles
-            );
-
-            // Add ChessPiece component and initialize it
-            ChessPiece piece = pieceObject.AddComponent<ChessPiece>();
-            piece.Initialize(pieceData, chessBoard);
-
-            // Place the piece on this tile
-            this.UpdatePiece(piece, true, true); // ignore move history and fight for initial placement
-        }
-
         // Get the starting piece data for this tile
         public ChessPieceData GetStartingPiece()
         {

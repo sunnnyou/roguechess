@@ -58,218 +58,237 @@ namespace Assets.Scripts.UI
         public int SlotIndex { get; private set; }
         public SlotType Type { get; private set; }
         public bool IsEmpty { get; private set; } = true;
-        public bool IsSelected { get; private set; } = false;
+        public bool IsSelected { get; private set; }
 
         private object currentItem;
         private Color originalColor;
 
         public void Initialize(int slotIndex, SlotType slotType)
         {
-            SlotIndex = slotIndex;
-            Type = slotType;
-            IsEmpty = true;
+            this.SlotIndex = slotIndex;
+            this.Type = slotType;
+            this.IsEmpty = true;
 
             // Setup UI components
-            SetupComponents();
+            this.SetupComponents();
 
             // Set initial appearance
-            UpdateVisualState();
+            this.UpdateVisualState();
         }
 
         private void SetupComponents()
         {
             // Find components if not assigned
-            if (itemIcon == null)
-                itemIcon = transform.Find("ItemIcon")?.GetComponent<Image>();
+            if (this.itemIcon == null)
+            {
+                this.itemIcon = this.transform.Find("ItemIcon")?.GetComponent<Image>();
+            }
 
-            if (backgroundImage == null)
-                backgroundImage = GetComponent<Image>();
+            if (this.backgroundImage == null)
+            {
+                this.backgroundImage = this.GetComponent<Image>();
+            }
 
-            if (quantityText == null)
-                quantityText = transform
-                    .Find("QuantityPanel/QuantityText")
+            if (this.quantityText == null)
+            {
+                this.quantityText = this
+                    .transform.Find("QuantityPanel/QuantityText")
                     ?.GetComponent<TextMeshProUGUI>();
+            }
 
-            if (quantityPanel == null)
-                quantityPanel = transform.Find("QuantityPanel")?.gameObject;
+            if (this.quantityPanel == null)
+            {
+                this.quantityPanel = this.transform.Find("QuantityPanel")?.gameObject;
+            }
 
-            if (slotButton == null)
-                slotButton = GetComponent<Button>();
+            if (this.slotButton == null)
+            {
+                this.slotButton = this.GetComponent<Button>();
+            }
 
             // Store original color
-            if (backgroundImage != null)
-                originalColor = backgroundImage.color;
+            if (this.backgroundImage != null)
+            {
+                this.originalColor = this.backgroundImage.color;
+            }
 
             // Setup button if available
-            if (slotButton != null)
+            if (this.slotButton != null)
             {
-                slotButton.onClick.AddListener(() => OnSlotClicked?.Invoke(SlotIndex));
+                this.slotButton.onClick.AddListener(() => this.OnSlotClicked?.Invoke(this.SlotIndex)
+                );
             }
         }
 
         public void SetItem(object item)
         {
-            currentItem = item;
-            IsEmpty = false;
+            this.currentItem = item;
+            this.IsEmpty = false;
 
             if (item is ChessPiece chessPiece)
             {
-                SetChessPieceItem(chessPiece);
+                this.SetChessPieceItem(chessPiece);
             }
             else if (item is BuffBase consumable)
             {
-                SetConsumableItem(consumable);
+                this.SetConsumableItem(consumable);
             }
 
-            UpdateVisualState();
+            this.UpdateVisualState();
         }
 
         private void SetChessPieceItem(ChessPiece chessPiece)
         {
             // Set icon based on chess piece type
-            if (itemIcon != null)
+            if (this.itemIcon != null)
             {
                 // You'll need to assign appropriate sprites for each piece type
-                Sprite pieceSprite = GetChessPieceSprite(chessPiece.PieceType);
+                Sprite pieceSprite = GetChessPieceSprite(chessPiece);
                 if (pieceSprite != null)
                 {
-                    itemIcon.sprite = pieceSprite;
-                    itemIcon.color = Color.white;
-                    itemIcon.enabled = true;
+                    this.itemIcon.sprite = pieceSprite;
+                    this.itemIcon.color = Color.white;
+                    this.itemIcon.enabled = true;
                 }
                 else
                 {
                     // Fallback: show text representation
-                    itemIcon.enabled = false;
+                    this.itemIcon.enabled = false;
                 }
             }
 
             // Chess pieces typically don't have quantity
-            if (quantityPanel != null)
-                quantityPanel.SetActive(false);
+            if (this.quantityPanel != null)
+            {
+                this.quantityPanel.SetActive(false);
+            }
         }
 
         private void SetConsumableItem(BuffBase consumable)
         {
             // Set icon for consumable
-            if (itemIcon != null)
+            if (this.itemIcon != null)
             {
                 // You'll need to assign appropriate sprites for consumables
-                Sprite consumableSprite = GetConsumableSprite(consumable);
+                Sprite consumableSprite = this.GetConsumableSprite(consumable);
                 if (consumableSprite != null)
                 {
-                    itemIcon.sprite = consumableSprite;
-                    itemIcon.color = Color.white;
-                    itemIcon.enabled = true;
+                    this.itemIcon.sprite = consumableSprite;
+                    this.itemIcon.color = Color.white;
+                    this.itemIcon.enabled = true;
                 }
                 else
                 {
                     // Fallback: show default consumable icon
-                    itemIcon.enabled = false;
+                    this.itemIcon.enabled = false;
                 }
             }
 
             // Show quantity if applicable
-            if (quantityPanel != null && quantityText != null)
+            if (this.quantityPanel != null && this.quantityText != null)
             {
                 // If your consumables have quantity, show it here
                 // For now, we'll hide it
-                quantityPanel.SetActive(false);
+                this.quantityPanel.SetActive(false);
             }
         }
 
         public void ClearItem()
         {
-            currentItem = null;
-            IsEmpty = true;
+            this.currentItem = null;
+            this.IsEmpty = true;
 
-            if (itemIcon != null)
+            if (this.itemIcon != null)
             {
-                itemIcon.sprite = null;
-                itemIcon.enabled = false;
+                this.itemIcon.sprite = null;
+                this.itemIcon.enabled = false;
             }
 
-            if (quantityPanel != null)
-                quantityPanel.SetActive(false);
+            if (this.quantityPanel != null)
+            {
+                this.quantityPanel.SetActive(false);
+            }
 
-            UpdateVisualState();
+            this.UpdateVisualState();
         }
 
         private void UpdateVisualState()
         {
-            if (backgroundImage == null)
+            if (this.backgroundImage == null)
+            {
                 return;
+            }
 
             Color targetColor;
 
-            if (IsSelected)
+            if (this.IsSelected)
             {
-                targetColor = selectedColor;
+                targetColor = this.selectedColor;
             }
-            else if (IsEmpty)
+            else if (this.IsEmpty)
             {
-                targetColor = emptySlotColor;
+                targetColor = this.emptySlotColor;
             }
             else
             {
-                targetColor = filledSlotColor;
+                targetColor = this.filledSlotColor;
             }
 
-            backgroundImage.color = targetColor;
+            this.backgroundImage.color = targetColor;
         }
 
         public void SetSelected(bool selected)
         {
-            IsSelected = selected;
-            UpdateVisualState();
+            this.IsSelected = selected;
+            this.UpdateVisualState();
         }
 
-        #region Event Handlers
+        // Event Handlers
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            OnSlotClicked?.Invoke(SlotIndex);
+            this.OnSlotClicked?.Invoke(this.SlotIndex);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (backgroundImage != null && !IsSelected)
+            if (this.backgroundImage != null && !this.IsSelected)
             {
-                backgroundImage.color = hoverColor;
+                this.backgroundImage.color = this.hoverColor;
             }
 
-            OnSlotHovered?.Invoke(SlotIndex);
+            this.OnSlotHovered?.Invoke(this.SlotIndex);
 
             // Show tooltip if item exists
-            if (!IsEmpty)
+            if (!this.IsEmpty)
             {
-                ShowTooltip();
+                this.ShowTooltip();
             }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (!IsSelected)
+            if (!this.IsSelected)
             {
-                UpdateVisualState();
+                this.UpdateVisualState();
             }
 
-            OnSlotExited?.Invoke(SlotIndex);
+            this.OnSlotExited?.Invoke(this.SlotIndex);
 
             // Hide tooltip
-            HideTooltip();
+            this.HideTooltip();
         }
 
-        #endregion
-
-        #region Tooltip Methods
+        // Tooltip Methods
 
         private void ShowTooltip()
         {
-            if (currentItem == null)
+            if (this.currentItem == null)
+            {
                 return;
+            }
 
-            string tooltipText = GetTooltipText();
+            string tooltipText = this.GetTooltipText();
 
             // You can implement a tooltip system here
             // For now, we'll just log it
@@ -287,13 +306,13 @@ namespace Assets.Scripts.UI
 
         private string GetTooltipText()
         {
-            if (currentItem is ChessPiece chessPiece)
+            if (this.currentItem is ChessPiece chessPiece)
             {
                 return $"{chessPiece.PieceType}\n"
                     + $"IsWhite: {chessPiece.IsWhite}\n"
                     + $"Click to view details";
             }
-            else if (currentItem is BuffBase consumable)
+            else if (this.currentItem is BuffBase consumable)
             {
                 return $"Consumable Item\n" + $"Click to use";
             }
@@ -301,20 +320,11 @@ namespace Assets.Scripts.UI
             return "Unknown Item";
         }
 
-        #endregion
+        // Sprite Helpers
 
-        #region Sprite Helpers
-
-        private Sprite GetChessPieceSprite(ChessPieceType pieceType)
+        private static Sprite GetChessPieceSprite(ChessPiece chessPiece)
         {
-            // You'll need to implement this based on your sprite system
-            // This is a placeholder - replace with your actual sprite loading logic
-
-            // Example implementation:
-            // return Resources.Load<Sprite>($"ChessPieces/{pieceType}");
-
-            // For now, return null and let the system handle it
-            return null;
+            return chessPiece.SpriteRenderer.sprite;
         }
 
         private Sprite GetConsumableSprite(BuffBase consumable)
@@ -329,26 +339,22 @@ namespace Assets.Scripts.UI
             return null;
         }
 
-        #endregion
-
-        #region Public Utility Methods
+        // Public Utility Methods
 
         public T GetItem<T>()
             where T : class
         {
-            return currentItem as T;
+            return this.currentItem as T;
         }
 
         public bool HasItem()
         {
-            return !IsEmpty && currentItem != null;
+            return !this.IsEmpty && this.currentItem != null;
         }
 
         public Type GetItemType()
         {
-            return currentItem?.GetType();
+            return this.currentItem?.GetType();
         }
-
-        #endregion
     }
 }

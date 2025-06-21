@@ -2,6 +2,7 @@ namespace Assets.Scripts.UI.Buffs
 {
     using System.Threading.Tasks;
     using Assets.Scripts.Game.Buffs;
+    using Assets.Scripts.Game.Player;
     using DG.Tweening;
     using TMPro;
     using UnityEngine;
@@ -19,7 +20,7 @@ namespace Assets.Scripts.UI.Buffs
         public Image BuffImage;
 
         [Header("Data Source - Choose One")]
-        public BuffDatabase BuffDatabase; // For ScriptableObject approach
+        public BuffDatabase BuffDatabase;
 
         private BuffBase currentBuff;
 
@@ -116,28 +117,35 @@ namespace Assets.Scripts.UI.Buffs
 
             // Open scroll and wait for it to complete
             await this.OpenScrollAsync(false);
+
+            if (!InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost))
+            {
+                Button button = this.GetComponent<Button>();
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(this.Wiggle);
+
+                var image = this.GetComponent<Image>();
+                image.color = new Color(0.7f, 0.7f, 0.7f, 1);
+            }
         }
 
-        public async Task WiggleAsync()
+        public void Wiggle()
         {
             if (this.isAnimating)
             {
                 return;
             }
 
-            await this
-                .ScrollPanel.DORotate(new Vector3(0, 0, -1f), 0.1f)
+            this.ScrollPanel.rotation = Quaternion.identity;
+
+            this.ScrollPanel.DORotate(new Vector3(0, 0, -1f), 0.1f)
                 .SetLoops(2, LoopType.Yoyo)
                 .SetEase(Ease.InOutSine)
-                .AsyncWaitForCompletion();
-
-            this.isAnimating = false;
-        }
-
-        // Synchronous version for backward compatibility
-        public void Wiggle()
-        {
-            _ = this.WiggleAsync();
+                .OnComplete(() =>
+                {
+                    this.isAnimating = false;
+                    this.ScrollPanel.rotation = Quaternion.identity;
+                });
         }
 
         public void DisplayRandomBuff()

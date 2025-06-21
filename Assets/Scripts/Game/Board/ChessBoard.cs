@@ -10,9 +10,7 @@ namespace Assets.Scripts.Game.Board
 
     public class ChessBoard : MonoBehaviour
     {
-        // TODO: fix bug with disabled chess pieces being taking in for consideration of valid tiles
-        // TODO: fix tiles colors being switched
-        // TODO: fix queen and king sprite being switched
+        // TODO: add tile positions to border of chessboard
         // TODO: add custom piece with custom movement rules
         // TODO: add other chess functions (castling, check, checkmate, stalemate)
         // TODO: add buff for checkmate (can be used on an enemy piece and is always used on the king)
@@ -40,21 +38,7 @@ namespace Assets.Scripts.Game.Board
         public EnemySpriteManager EnemySpriteManager;
         public Font MainFont;
 
-        [Header("Default Piece Data")]
-        public ChessPieceData WhitePawnData;
-        public ChessPieceData WhiteRookData;
-        public ChessPieceData WhiteKnightData;
-        public ChessPieceData WhiteBishopData;
-        public ChessPieceData WhiteQueenData;
-        public ChessPieceData WhiteKingData;
-        public ChessPieceData BlackPawnData;
-        public ChessPieceData BlackRookData;
-        public ChessPieceData BlackKnightData;
-        public ChessPieceData BlackBishopData;
-        public ChessPieceData BlackQueenData;
-        public ChessPieceData BlackKingData;
-
-        [Header("Legacy Sprite Support (Optional)")]
+        [Header("Sprites for Tiles and Pieces")]
         public Sprite WhiteTileSprite;
         public Sprite BlackTileSprite;
         public Sprite WhitePawnSprite;
@@ -75,17 +59,16 @@ namespace Assets.Scripts.Game.Board
         private ChessPiece selectedPiece;
         private readonly List<ChessTile> highlightedTiles = new();
 
-        // Game variables
+        [Header("Game variables")]
         public bool IsWhiteTurn = true;
-        public bool GameOver;
-        public bool IsEnemyTurn;
+        private bool gameOver;
+        private bool isEnemyTurn;
         public List<ChessMoveHistory> MoveHistory = new();
 
         public int CurrentTurn { get; internal set; }
         public int CurrentRound { get; internal set; }
 
-        // Start is called before the first frame update
-        public void Start()
+        public void StartGame()
         {
             if (this.BoardData == null)
             {
@@ -182,70 +165,6 @@ namespace Assets.Scripts.Game.Board
             this.tiles.Add(CoordinateHelper.XYToString(x, y), tile);
         }
 
-        public void GenerateBoardLegacy()
-        {
-            // Clear existing tiles if board is regenerated
-            foreach (var tile in this.tiles.Values)
-            {
-                if (tile == null)
-                {
-                    continue;
-                }
-
-                tile.Destroy();
-            }
-            this.tiles.Clear();
-
-            // Calculate board center offset for alignment
-            float boardWidth = this.Width * this.calculatedTileSize;
-            float boardHeight = this.Height * this.calculatedTileSize;
-            var boardCenter = new Vector2(boardWidth / 2, boardHeight / 2);
-            var startPos = new Vector2(
-                -boardCenter.x + (this.calculatedTileSize / 2),
-                -boardCenter.y + (this.calculatedTileSize / 2)
-            );
-
-            for (int x = 0; x < this.Width; x++)
-            {
-                for (int y = 0; y < this.Height; y++)
-                {
-                    // Create chess tile game object
-                    var tileObject = new GameObject($"Tile_{CoordinateHelper.XYToString(x, y)}");
-                    tileObject.transform.parent = this.transform;
-
-                    // Calculate centered position
-                    float posX = startPos.x + (x * this.calculatedTileSize);
-                    float posY = startPos.y + (y * this.calculatedTileSize);
-                    tileObject.transform.localPosition = new Vector3(posX, posY, -1);
-
-                    // Setup collider for mouse interaction
-                    BoxCollider2D collider = tileObject.AddComponent<BoxCollider2D>();
-                    collider.size = new Vector2(this.TileSize, this.TileSize);
-
-                    // Setup tile component
-                    ChessTile tile = tileObject.AddComponent<ChessTile>();
-                    bool isWhite = IsWhite(x, y);
-
-                    // Legacy initialization
-                    tile.Initialize(new Vector2Int(x, y), isWhite);
-                    tile.SpriteRenderer.sprite = isWhite
-                        ? this.WhiteTileSprite
-                        : this.BlackTileSprite;
-                    tile.SpriteRenderer.sortingOrder = 2;
-
-                    // Set proper size for the tile
-                    tileObject.transform.localScale = new Vector3(
-                        1 / this.calculatedTileSize,
-                        1 / this.calculatedTileSize,
-                        -1 // be in front of background but behind chess pieces
-                    );
-
-                    // Add to dictionary for easy lookup
-                    this.tiles.Add(CoordinateHelper.XYToString(x, y), tile);
-                }
-            }
-        }
-
         // Spawn a chess piece on the board
         public ChessPiece SpawnPiece(
             ChessPieceType type,
@@ -262,21 +181,6 @@ namespace Assets.Scripts.Game.Board
 
             var piece = pieceObject.AddComponent<ChessPiece>();
 
-            // // Try to get piece data from ScriptableObjects first
-            // ChessPieceData pieceData = this.GetPieceData(type, isWhite);
-
-            // if (
-            //     pieceData != null
-            //     && customSprite == null
-            //     && customMaterials == null
-            //     && customMoveRules == null
-            // )
-            // {
-            //     // Use ScriptableObject data
-            //     piece.Initialize(pieceData, this);
-            // }
-            // else
-            // {
             // Get the appropriate sprite based on piece type and color
             Sprite sprite =
                 customSprite != null ? customSprite : this.GetPieceSprite(type, isWhite);
@@ -290,7 +194,6 @@ namespace Assets.Scripts.Game.Board
 
             // Initialize the piece
             piece.Initialize(type, isWhite, sprite, this, pieceMaterials, customMoveRules);
-            // }
 
             // Scale to fit within the tile, centered
             float scaleX = this.calculatedTileSize * 0.8f; // Use 80% of tile width
@@ -313,37 +216,6 @@ namespace Assets.Scripts.Game.Board
             }
 
             return piece;
-        }
-
-        // Helper method to get piece data from ScriptableObjects
-        private ChessPieceData GetPieceData(ChessPieceType type, bool isWhite)
-        {
-            if (isWhite)
-            {
-                return type switch
-                {
-                    ChessPieceType.Pawn => this.WhitePawnData,
-                    ChessPieceType.Rook => this.WhiteRookData,
-                    ChessPieceType.Knight => this.WhiteKnightData,
-                    ChessPieceType.Bishop => this.WhiteBishopData,
-                    ChessPieceType.Queen => this.WhiteQueenData,
-                    ChessPieceType.King => this.WhiteKingData,
-                    _ => null,
-                };
-            }
-            else
-            {
-                return type switch
-                {
-                    ChessPieceType.Pawn => this.BlackPawnData,
-                    ChessPieceType.Rook => this.BlackRookData,
-                    ChessPieceType.Knight => this.BlackKnightData,
-                    ChessPieceType.Bishop => this.BlackBishopData,
-                    ChessPieceType.Queen => this.BlackQueenData,
-                    ChessPieceType.King => this.BlackKingData,
-                    _ => null,
-                };
-            }
         }
 
         // Keep existing methods for backward compatibility
@@ -371,6 +243,21 @@ namespace Assets.Scripts.Game.Board
                 if (tile.CurrentPiece != null && tile.CurrentPiece.IsWhite == isWhite)
                 {
                     pieces.Add(tile.CurrentPiece);
+                }
+            }
+            return pieces;
+        }
+
+        public ChessPiece[] GetAllPiecesArray(bool isWhite)
+        {
+            var pieces = new ChessPiece[this.Width * this.Height];
+
+            foreach (var tile in this.tiles.Values)
+            {
+                if (tile.CurrentPiece != null && tile.CurrentPiece.IsWhite == isWhite)
+                {
+                    int index = (tile.Position.y * this.Width) + tile.Position.x;
+                    pieces[index] = tile.CurrentPiece;
                 }
             }
             return pieces;
@@ -408,18 +295,18 @@ namespace Assets.Scripts.Game.Board
         public static void DestroyObjectsByType<T>(
             FindObjectsSortMode sortMode = FindObjectsSortMode.None
         )
-            where T : Object
+            where T : UnityEngine.Object
         {
-            T[] objects = Object.FindObjectsByType<T>(sortMode);
+            T[] objects = UnityEngine.Object.FindObjectsByType<T>(sortMode);
             foreach (T obj in objects)
             {
                 if (Application.isPlaying)
                 {
-                    Object.Destroy(obj);
+                    UnityEngine.Object.Destroy(obj);
                 }
                 else
                 {
-                    Object.DestroyImmediate(obj);
+                    UnityEngine.Object.DestroyImmediate(obj);
                 }
             }
         }
@@ -517,16 +404,16 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        // Handler for scaling from UI
-        public void OnRectTransformDimensionsChange()
-        {
-            if (!this.AutoScale || !this.gameObject.activeInHierarchy)
-            {
-                return;
-            }
+        // // Handler for scaling from UI
+        // public void OnRectTransformDimensionsChange()
+        // {
+        //     if (!this.AutoScale || !this.gameObject.activeInHierarchy)
+        //     {
+        //         return;
+        //     }
 
-            this.Start();
-        }
+        //     this.Start();
+        // }
 
         // Handle player input for selecting and moving pieces
         public void HandleInput()
@@ -772,7 +659,7 @@ namespace Assets.Scripts.Game.Board
 
         public void SetEnemyTurn(bool enemyTurn)
         {
-            this.IsEnemyTurn = enemyTurn;
+            this.isEnemyTurn = enemyTurn;
             if (this.EnemySpriteManager != null)
             {
                 this.EnemySpriteManager.ShowLoading(enemyTurn);
@@ -926,6 +813,60 @@ namespace Assets.Scripts.Game.Board
         public static bool IsWhite(int x, int y)
         {
             return (x + y) % 2 == 1;
+        }
+
+        public bool AddChessPiece(ChessPiece piece, int x, int y, bool replaceExisting)
+        {
+            if (piece == null)
+            {
+                Debug.LogWarning("ChessPiece is null!");
+                return false;
+            }
+
+            string position = CoordinateHelper.XYToString(x, y);
+
+            if (!this.GetTile(position, out ChessTile tile))
+            {
+                Debug.LogWarning($"ChessTile for position {position} does not exist!");
+                return false;
+            }
+
+            if (tile.CurrentPiece != null || !replaceExisting)
+            {
+                Debug.LogWarning(
+                    "Current piece of chessTile is not null, but replaceExisting is set to false!"
+                );
+                return false;
+            }
+
+            this.SpawnPiece(
+                piece.PieceType,
+                piece.IsWhite,
+                position,
+                tile,
+                piece.SpriteRenderer.sprite,
+                new List<Material>(piece.SpriteRenderer.materials),
+                piece.MoveRules
+            );
+            return true;
+        }
+
+        public static bool RemoveChessPiece(ChessPiece piece)
+        {
+            if (piece == null)
+            {
+                Debug.LogWarning("ChessPiece is null!");
+                return false;
+            }
+
+            if (piece.CurrentTile == null)
+            {
+                Debug.LogWarning("Current tile of ChessPiece is null!");
+                return false;
+            }
+
+            piece.CurrentTile.UpdatePiece(null, true, false);
+            return true;
         }
     }
 }

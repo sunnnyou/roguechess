@@ -23,7 +23,10 @@ namespace Assets.Scripts.UI
 
         [Header("Gold Display")]
         [SerializeField]
-        private TextMeshProUGUI goldText;
+        private TextMeshProUGUI goldTextInventory;
+
+        [SerializeField]
+        private TextMeshProUGUI goldTextMenu;
 
         [Header("Chess Pieces")]
         [SerializeField]
@@ -112,6 +115,7 @@ namespace Assets.Scripts.UI
             }
 
             int maxSlots = InventoryManager.Instance.MaxChessPieceSlots;
+            var chessPieceList = InventoryManager.Instance.GetAllChessPieces();
 
             for (int i = 0; i < maxSlots; i++)
             {
@@ -119,14 +123,45 @@ namespace Assets.Scripts.UI
                     this.chessPieceSlotPrefab,
                     this.chessPieceContainer
                 );
-
                 if (!slotObj.TryGetComponent<InventorySlot>(out var slot))
                 {
                     slot = slotObj.AddComponent<InventorySlot>();
                 }
-
                 slot.Initialize(i, InventorySlot.SlotType.ChessPiece);
                 slot.OnSlotClicked += this.OnChessPieceSlotClicked;
+
+                // Make slots darker in a chessboard pattern
+                int row = i / 8;
+                int col = i % 8;
+                if ((row + col) % 2 == 0)
+                {
+                    var backgroundChild = slotObj.transform.Find("Background");
+                    if (backgroundChild != null)
+                    {
+                        if (backgroundChild.TryGetComponent<Image>(out var image))
+                        {
+                            image.color = new Color(
+                                image.color.r * 0.5525606f,
+                                image.color.g * 0.4851331f,
+                                image.color.b * 0.3209617f,
+                                image.color.a
+                            );
+                        }
+                    }
+                }
+
+                // var iconChild = slotObj.transform.Find("ItemIcon");
+                // ChessPiece chessPiece = chessPieceList.ElementAtOrDefault(i);
+
+                // if (iconChild != null && chessPiece != null)
+                // {
+                //     if (iconChild.TryGetComponent<Image>(out var image))
+                //     {
+                //         image.sprite = chessPiece.SpriteRenderer.sprite;
+                //         image.gameObject.SetActive(true);
+                //     }
+                // }
+
                 this.chessPieceSlots.Add(slot);
             }
         }
@@ -246,20 +281,25 @@ namespace Assets.Scripts.UI
 
         private void UpdateGoldDisplay()
         {
-            if (this.goldText != null)
+            if (this.goldTextInventory != null)
             {
-                this.goldText.text = $"Gold: {InventoryManager.Instance.Gold}";
+                this.goldTextInventory.text = $"Gold: {InventoryManager.Instance.Gold}";
+            }
+            if (this.goldTextMenu != null)
+            {
+                this.goldTextMenu.text = $"Gold: {InventoryManager.Instance.Gold}";
             }
         }
 
         private void RefreshChessPieceDisplay()
         {
             var chessPieces = InventoryManager.Instance.GetAllChessPieces();
+            int chessPieceCount = InventoryManager.Instance.GetChessPieceCount();
 
             // Update slots
             for (int i = 0; i < this.chessPieceSlots.Count; i++)
             {
-                if (i < chessPieces.Count)
+                if (i < chessPieceCount)
                 {
                     this.chessPieceSlots[i].SetItem(chessPieces[i]);
                 }
@@ -273,7 +313,7 @@ namespace Assets.Scripts.UI
             if (this.chessPieceCountText != null)
             {
                 this.chessPieceCountText.text =
-                    $"Chess Pieces: {chessPieces.Count}/{InventoryManager.Instance.MaxChessPieceSlots}";
+                    $"Chess Pieces: {chessPieceCount}/{InventoryManager.Instance.MaxChessPieceSlots}";
             }
         }
 

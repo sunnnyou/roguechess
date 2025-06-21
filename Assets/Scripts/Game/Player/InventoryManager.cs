@@ -11,7 +11,8 @@ namespace Assets.Scripts.Game.Player
         public static InventoryManager Instance { get; private set; }
 
         [Header("Inventory Settings")]
-        public int MaxChessPieceSlots = 20;
+        public int Rows = 8;
+        public int Columns = 8;
         public int MaxConsumableSlots = 5;
         public int Gold;
 
@@ -19,7 +20,12 @@ namespace Assets.Scripts.Game.Player
         private List<BuffBase> consumables = new List<BuffBase>();
 
         [SerializeField]
-        private List<ChessPiece> chessPieces = new List<ChessPiece>();
+        private ChessBoard chessBoard;
+
+        private ChessPiece[] chessPieces;
+
+        [NonSerialized]
+        public int MaxChessPieceSlots;
 
         // Events for UI updates
         public static event Action<ChessPiece> OnChessPieceAdded;
@@ -30,7 +36,7 @@ namespace Assets.Scripts.Game.Player
         public static event Action<int> OnGoldChanged;
         public static event Action OnInventoryChanged;
 
-        private void Awake()
+        private void Start()
         {
             // Singleton pattern - ensure only one instance exists
             if (Instance == null)
@@ -44,9 +50,32 @@ namespace Assets.Scripts.Game.Player
                 Debug.Log("InventoryManager: Duplicate instance destroyed");
                 Destroy(this.gameObject);
             }
+
+            this.MaxChessPieceSlots = this.Rows * this.Columns;
+
+            if (this.chessBoard != null)
+            {
+                this.chessBoard.StartGame();
+                this.chessPieces = this.chessBoard.GetAllPiecesArray(true);
+            }
+            else
+            {
+                Debug.LogError("ChessBoard for InventoryManager is null!");
+                this.chessPieces = new ChessPiece[this.MaxChessPieceSlots];
+            }
         }
 
-        public bool AddChessPiece(ChessPiece piece)
+        public int? GetArrayIndex(int x, int y)
+        {
+            if (x < 0 || x >= this.Columns || y < 0 || y >= this.Rows)
+            {
+                return null;
+            }
+
+            return (y * this.Columns) + x;
+        }
+
+        public bool AddChessPiece(ChessPiece piece, int x, int y, bool replaceExisting)
         {
             if (piece == null)
             {
@@ -60,7 +89,18 @@ namespace Assets.Scripts.Game.Player
                 return false;
             }
 
-            this.chessPieces.Add(piece);
+            if (!this.chessBoard.AddChessPiece(piece, x, y, replaceExisting))
+            {
+                return false;
+            }
+
+            var index = this.GetArrayIndex(x, y);
+            if (index == null)
+            {
+                return false;
+            }
+
+            this.chessPieces[(int)index] = piece;
             OnChessPieceAdded?.Invoke(piece);
             OnInventoryChanged?.Invoke();
             Debug.Log($"Added {piece.PieceType} to inventory");
@@ -75,62 +115,79 @@ namespace Assets.Scripts.Game.Player
                 return false;
             }
 
-            if (this.chessPieces.Remove(piece))
+            if (!ChessBoard.RemoveChessPiece(piece))
             {
-                OnChessPieceRemoved?.Invoke(piece);
-                OnInventoryChanged?.Invoke();
-                Debug.Log($"Removed {piece.PieceType} from inventory");
-                return true;
-            }
-
-            Debug.LogWarning($"ChessPiece {piece.PieceType} not found in inventory");
-            return false;
-        }
-
-        public bool RemoveChessPieceAt(int index)
-        {
-            if (index < 0 || index >= this.chessPieces.Count)
-            {
-                Debug.LogWarning($"Invalid chess piece index: {index}");
                 return false;
             }
 
-            ChessPiece piece = this.chessPieces[index];
-            this.chessPieces.RemoveAt(index);
+            int? index = this.GetArrayIndex(
+                piece.CurrentTile.Position.x,
+                piece.CurrentTile.Position.y
+            );
+            if (index == null)
+            {
+                return false;
+            }
+
+            this.chessPieces[(int)index] = null;
+
             OnChessPieceRemoved?.Invoke(piece);
             OnInventoryChanged?.Invoke();
-            Debug.Log($"Removed {piece.PieceType} from inventory at index {index}");
+            Debug.Log($"Removed {piece.PieceType} from inventory");
             return true;
         }
 
-        public List<ChessPiece> GetAllChessPieces()
+        public bool RemoveChessPieceAt(int x, int y)
         {
-            return new List<ChessPiece>(this.chessPieces);
+            var piece = this.GetChessPieceAt(x, y);
+
+            return this.RemoveChessPiece(piece);
         }
 
         public ChessPiece GetChessPieceAt(int index)
         {
-            if (index < 0 || index >= this.chessPieces.Count)
+            return this.chessPieces[index];
+        }
+
+        public ChessPiece GetChessPieceAt(int x, int y)
+        {
+            int? index = this.GetArrayIndex(x, y);
+            if (index == null)
             {
                 return null;
             }
 
-            return this.chessPieces[index];
+            return this.chessPieces[(int)index];
+        }
+
+        public ChessPiece[] GetAllChessPieces()
+        {
+            return this.chessPieces;
         }
 
         public int GetChessPieceCount()
         {
-            return this.chessPieces.Count;
+            int count = 0;
+            foreach (var element in this.chessPieces)
+            {
+                if (element == null)
+                {
+                    continue;
+                }
+
+                count++;
+            }
+            return count;
         }
 
         public bool IsChessInventoryFull()
         {
-            return this.chessPieces.Count >= this.MaxChessPieceSlots;
+            return this.GetChessPieceCount() >= (this.MaxChessPieceSlots);
         }
 
         public int GetAvailableChessPieceSlots()
         {
-            return this.MaxChessPieceSlots - this.chessPieces.Count;
+            return (this.MaxChessPieceSlots) - this.GetChessPieceCount();
         }
 
         public bool AddConsumable(BuffBase consumable)
@@ -281,7 +338,7 @@ namespace Assets.Scripts.Game.Player
 
         public void ClearInventory()
         {
-            this.chessPieces.Clear();
+            Array.Fill(this.chessPieces, null);
             this.consumables.Clear();
             this.Gold = 0;
             OnInventoryChanged?.Invoke();
@@ -291,7 +348,7 @@ namespace Assets.Scripts.Game.Player
 
         public void ClearChessPieces()
         {
-            this.chessPieces.Clear();
+            Array.Fill(this.chessPieces, null);
             OnInventoryChanged?.Invoke();
             Debug.Log("Chess pieces cleared");
         }
@@ -305,12 +362,12 @@ namespace Assets.Scripts.Game.Player
 
         public bool IsInventoryEmpty()
         {
-            return this.chessPieces.Count == 0 && this.consumables.Count == 0;
+            return this.GetChessPieceCount() == 0 && this.consumables.Count == 0;
         }
 
         public string GetInventoryInfo()
         {
-            return $"Chess Pieces: {this.chessPieces.Count}/{this.MaxChessPieceSlots}, "
+            return $"Chess Pieces: {this.GetChessPieceCount()}/{this.MaxChessPieceSlots}, "
                 + $"Consumables: {this.consumables.Count}/{this.MaxConsumableSlots}, "
                 + $"Gold: {this.Gold}";
         }
@@ -318,19 +375,24 @@ namespace Assets.Scripts.Game.Player
         [ContextMenu("Debug Print Inventory")]
         public void DebugPrintInventory()
         {
+            var chessPieceCount = this.GetChessPieceCount();
             Debug.Log("=== INVENTORY DEBUG ===");
             Debug.Log($"Gold: {this.Gold}");
-            Debug.Log($"Chess Pieces ({this.chessPieces.Count}/{this.MaxChessPieceSlots}):");
+            Debug.Log($"Chess Pieces ({chessPieceCount}/{this.MaxChessPieceSlots}):");
 
-            for (int i = 0; i < this.chessPieces.Count; i++)
+            for (int i = 0; i < this.MaxChessPieceSlots; i++)
             {
-                Debug.Log($"  [{i}] {this.chessPieces[i].PieceType}");
+                var chessPiece = this.chessPieces[i];
+                if (chessPiece != null)
+                {
+                    Debug.Log($"  [{i}] {chessPiece.PieceType}");
+                }
             }
 
             Debug.Log($"Consumables ({this.consumables.Count}/{this.MaxConsumableSlots}):");
             for (int i = 0; i < this.consumables.Count; i++)
             {
-                Debug.Log($"  [{i}] Consumable");
+                Debug.Log($"  [{i}] {this.consumables[i].BuffName}");
             }
             Debug.Log("======================");
         }
