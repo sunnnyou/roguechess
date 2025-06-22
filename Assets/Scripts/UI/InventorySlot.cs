@@ -32,16 +32,16 @@ namespace Assets.Scripts.UI
 
         [Header("Visual Settings")]
         [SerializeField]
-        private Color emptySlotColor = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        private Color emptySlotColor = new(0.3f, 0.3f, 0.3f, 0.5f);
 
         [SerializeField]
-        private Color filledSlotColor = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+        private Color filledSlotColor = new(0.2f, 0.2f, 0.2f, 0.8f);
 
         [SerializeField]
-        private Color hoverColor = new Color(0.4f, 0.4f, 0.4f, 0.8f);
+        private Color hoverColor = new(0.4f, 0.4f, 0.4f, 0.8f);
 
         [SerializeField]
-        private Color selectedColor = new Color(0.6f, 0.4f, 0.2f, 0.8f);
+        private Color selectedColor = new(0.6f, 0.4f, 0.2f, 0.8f);
 
         public enum SlotType
         {
@@ -81,7 +81,11 @@ namespace Assets.Scripts.UI
             // Find components if not assigned
             if (this.itemIcon == null)
             {
-                this.itemIcon = this.transform.Find("ItemIcon")?.GetComponent<Image>();
+                var icon = this.transform.Find("ItemIcon");
+                if (icon != null)
+                {
+                    this.itemIcon = icon.GetComponent<Image>();
+                }
             }
 
             if (this.backgroundImage == null)
@@ -142,8 +146,8 @@ namespace Assets.Scripts.UI
             // Set icon based on chess piece type
             if (this.itemIcon != null)
             {
-                // You'll need to assign appropriate sprites for each piece type
-                Sprite pieceSprite = GetChessPieceSprite(chessPiece);
+                // Try to assign sprite
+                Sprite pieceSprite = chessPiece.SpriteRenderer.sprite;
                 if (pieceSprite != null)
                 {
                     this.itemIcon.sprite = pieceSprite;
@@ -152,12 +156,12 @@ namespace Assets.Scripts.UI
                 }
                 else
                 {
-                    // Fallback: show text representation
+                    // No sprite set for chess piece
                     this.itemIcon.enabled = false;
                 }
             }
 
-            // Chess pieces typically don't have quantity
+            // No quantity panel needed here
             if (this.quantityPanel != null)
             {
                 this.quantityPanel.SetActive(false);
@@ -169,8 +173,8 @@ namespace Assets.Scripts.UI
             // Set icon for consumable
             if (this.itemIcon != null)
             {
-                // You'll need to assign appropriate sprites for consumables
-                Sprite consumableSprite = this.GetConsumableSprite(consumable);
+                // Try to assign consumable sprite
+                Sprite consumableSprite = consumable.Icon;
                 if (consumableSprite != null)
                 {
                     this.itemIcon.sprite = consumableSprite;
@@ -187,8 +191,7 @@ namespace Assets.Scripts.UI
             // Show quantity if applicable
             if (this.quantityPanel != null && this.quantityText != null)
             {
-                // If your consumables have quantity, show it here
-                // For now, we'll hide it
+                // TODO: add quantity panel function
                 this.quantityPanel.SetActive(false);
             }
         }
@@ -258,12 +261,6 @@ namespace Assets.Scripts.UI
             }
 
             this.OnSlotHovered?.Invoke(this.SlotIndex);
-
-            // Show tooltip if item exists
-            if (!this.IsEmpty)
-            {
-                this.ShowTooltip();
-            }
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -274,69 +271,6 @@ namespace Assets.Scripts.UI
             }
 
             this.OnSlotExited?.Invoke(this.SlotIndex);
-
-            // Hide tooltip
-            this.HideTooltip();
-        }
-
-        // Tooltip Methods
-
-        private void ShowTooltip()
-        {
-            if (this.currentItem == null)
-            {
-                return;
-            }
-
-            string tooltipText = this.GetTooltipText();
-
-            // You can implement a tooltip system here
-            // For now, we'll just log it
-            Debug.Log($"Tooltip: {tooltipText}");
-
-            // If you have a tooltip manager, call it here:
-            // TooltipManager.Instance.ShowTooltip(tooltipText, transform.position);
-        }
-
-        private void HideTooltip()
-        {
-            // Hide tooltip
-            // TooltipManager.Instance.HideTooltip();
-        }
-
-        private string GetTooltipText()
-        {
-            if (this.currentItem is ChessPiece chessPiece)
-            {
-                return $"{chessPiece.PieceType}\n"
-                    + $"IsWhite: {chessPiece.IsWhite}\n"
-                    + $"Click to view details";
-            }
-            else if (this.currentItem is BuffBase consumable)
-            {
-                return $"Consumable Item\n" + $"Click to use";
-            }
-
-            return "Unknown Item";
-        }
-
-        // Sprite Helpers
-
-        private static Sprite GetChessPieceSprite(ChessPiece chessPiece)
-        {
-            return chessPiece.SpriteRenderer.sprite;
-        }
-
-        private Sprite GetConsumableSprite(BuffBase consumable)
-        {
-            // You'll need to implement this based on your sprite system
-            // This is a placeholder - replace with your actual sprite loading logic
-
-            // Example implementation:
-            // return Resources.Load<Sprite>("Consumables/DefaultConsumable");
-
-            // For now, return null and let the system handle it
-            return null;
         }
 
         // Public Utility Methods

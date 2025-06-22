@@ -17,7 +17,7 @@ namespace Assets.Scripts.Game.Player
         public int Gold;
 
         [SerializeField]
-        private List<BuffBase> consumables = new List<BuffBase>();
+        private List<BuffBase> consumables = new();
 
         [SerializeField]
         private ChessBoard chessBoard;
@@ -27,16 +27,19 @@ namespace Assets.Scripts.Game.Player
         [NonSerialized]
         public int MaxChessPieceSlots;
 
+        [NonSerialized]
+        public bool InGame;
+
         // Events for UI updates
         public static event Action<ChessPiece> OnChessPieceAdded;
         public static event Action<ChessPiece> OnChessPieceRemoved;
-        public static event Action<ChessPiece> OnChessPieceQuantityChanged;
         public static event Action<BuffBase> OnConsumableAdded;
         public static event Action<BuffBase> OnConsumableRemoved;
         public static event Action<int> OnGoldChanged;
         public static event Action OnInventoryChanged;
 
-        private void Start()
+        // Awake instead of Start to make sure its always instantiated when used by other scripts
+        private void Awake()
         {
             // Singleton pattern - ensure only one instance exists
             if (Instance == null)
@@ -53,6 +56,7 @@ namespace Assets.Scripts.Game.Player
 
             this.MaxChessPieceSlots = this.Rows * this.Columns;
 
+            // Try to create chessboard with all chess pieces
             if (this.chessBoard != null)
             {
                 this.chessBoard.StartGame();
@@ -182,12 +186,12 @@ namespace Assets.Scripts.Game.Player
 
         public bool IsChessInventoryFull()
         {
-            return this.GetChessPieceCount() >= (this.MaxChessPieceSlots);
+            return this.GetChessPieceCount() >= this.MaxChessPieceSlots;
         }
 
         public int GetAvailableChessPieceSlots()
         {
-            return (this.MaxChessPieceSlots) - this.GetChessPieceCount();
+            return this.MaxChessPieceSlots - this.GetChessPieceCount();
         }
 
         public bool AddConsumable(BuffBase consumable)
@@ -257,8 +261,7 @@ namespace Assets.Scripts.Game.Player
 
             var consumable = this.consumables[index];
 
-            // Apply the consumable effect here
-            // This would depend on your ConsumableBuffBases implementation
+            // TODO: use consumable function
             Debug.Log($"Used consumable at index {index}");
 
             // Remove the consumable after use

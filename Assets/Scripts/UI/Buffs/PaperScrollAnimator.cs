@@ -26,12 +26,61 @@ namespace Assets.Scripts.UI.Buffs
 
         private bool isOpen;
         private bool isAnimating; // Prevent multiple simultaneous animations
+        private Color enabledColor;
+        private Color disabledColor;
+        private bool enoughGold;
+        private bool enoughSpace;
+        private bool changed;
 
         public void Start()
         {
             // hide initially
             this.ScrollPanel.localScale = new Vector3(1, 0, 1);
+
+            // Setup colors
+            var image = this.GetComponent<Image>();
+            this.enabledColor = image.color;
+            this.disabledColor = new Color(
+                image.color.r * 0.7f,
+                image.color.g * 0.7f,
+                image.color.b * 0.7f
+            ); // Slightly darker
+
+            // Setup Event listener
+            this.SetupEventListeners();
+
+            // Display new buff content
+            this.DisplayRandomBuff();
+
+            // Open scroll and wait for it to complete
+            this.OpenScrollAsync(false);
+
+            this.enoughGold = InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost);
+            this.enoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
+            this.changed = true;
+
+            this.EnableBuying();
         }
+
+        private void OnDestroy()
+        {
+            this.RemoveEventListeners();
+        }
+
+        // Event Listeners
+        private void SetupEventListeners()
+        {
+            InventoryManager.OnGoldChanged += this.OnGoldChanged;
+            InventoryManager.OnInventoryChanged += this.OnInventoryChanged;
+        }
+
+        private void RemoveEventListeners()
+        {
+            InventoryManager.OnGoldChanged -= this.OnGoldChanged;
+            InventoryManager.OnInventoryChanged -= this.OnInventoryChanged;
+        }
+
+        // Event Handlers
 
         public async Task OpenScrollAsync(bool playSound = true)
         {
@@ -104,6 +153,9 @@ namespace Assets.Scripts.UI.Buffs
                 return; // Prevent overlapping rerolls
             }
 
+            Button button = this.GetComponent<Button>();
+            button.interactable = true;
+
             if (this.ScrollSoundOpen)
             {
                 this.ScrollSoundOpen.Play();
@@ -117,16 +169,6 @@ namespace Assets.Scripts.UI.Buffs
 
             // Open scroll and wait for it to complete
             await this.OpenScrollAsync(false);
-
-            if (!InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost))
-            {
-                Button button = this.GetComponent<Button>();
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(this.Wiggle);
-
-                var image = this.GetComponent<Image>();
-                image.color = new Color(0.7f, 0.7f, 0.7f, 1);
-            }
         }
 
         public void Wiggle()
@@ -208,6 +250,86 @@ namespace Assets.Scripts.UI.Buffs
             {
                 Debug.Log($"Applied buff: {this.currentBuff.BuffName}");
                 // Add your buff application logic here
+            }
+        }
+
+        private void BuyBuff()
+        {
+            InventoryManager.Instance.SpendGold(this.currentBuff.Cost);
+            InventoryManager.Instance.AddConsumable(this.currentBuff);
+            this.CloseScroll();
+            Button button = this.GetComponent<Button>();
+            button.interactable = false;
+        }
+
+        private void DisableBuying()
+        {
+            if ((!this.enoughGold || !this.enoughSpace) && this.changed)
+            {
+                Button button = this.GetComponent<Button>();
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(this.Wiggle);
+
+                var image = this.GetComponent<Image>();
+                image.color = this.disabledColor;
+                this.changed = false;
+            }
+        }
+
+        private void EnableBuying()
+        {
+            if (this.enoughGold && this.enoughSpace && this.changed)
+            {
+                Button button = this.GetComponent<Button>();
+                button.onClick.AddListener(this.BuyBuff);
+
+                var image = this.GetComponent<Image>();
+                image.color = this.enabledColor;
+                this.changed = false;
+            }
+        }
+
+        private void OnGoldChanged(int newGoldAmount)
+        {
+            Debug.LogWarning($"OnGoldChanged Current Buff {this.currentBuff?.BuffName}");
+            if (this.currentBuff == null)
+            {
+                return;
+            }
+
+            var uptEnoughGold = InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost);
+            this.changed = uptEnoughGold != this.enoughGold;
+            this.enoughGold = uptEnoughGold;
+
+            if (this.enoughGold)
+            {
+                Debug.LogWarning(
+                    $"Enough Gold for {this.currentBuff.BuffName}. CurrentGold: {newGoldAmount}. BufCost: {this.currentBuff.Cost}"
+                );
+                this.EnableBuying();
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"Not enough Gold for {this.currentBuff.BuffName}. CurrentGold: {newGoldAmount}. BufCost: {this.currentBuff.Cost}"
+                );
+                this.DisableBuying();
+            }
+        }
+
+        private void OnInventoryChanged()
+        {
+            Debug.LogWarning($"OnInventoryChanged Current Buff {this.currentBuff?.BuffName}");
+            var uptEnoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
+            this.changed = uptEnoughSpace != this.enoughSpace;
+            this.enoughSpace = uptEnoughSpace;
+            if (this.enoughSpace)
+            {
+                this.EnableBuying();
+            }
+            else
+            {
+                this.DisableBuying();
             }
         }
     }

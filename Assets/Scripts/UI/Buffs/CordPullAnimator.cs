@@ -54,7 +54,25 @@ namespace Assets.Scripts.UI.Buffs
             this.CordButton.onClick.AddListener(this.PaperScrollAnimator3.Reroll);
             this.CordButton.onClick.AddListener(this.PaperScrollAnimator4.Reroll);
 
-            this.checkGoldRequirement();
+            this.SetupEventListeners();
+
+            this.CheckGoldRequirement();
+        }
+
+        private void OnDestroy()
+        {
+            this.RemoveEventListeners();
+        }
+
+        // Event Listeners
+        private void SetupEventListeners()
+        {
+            InventoryManager.OnGoldChanged += this.OnGoldChanged;
+        }
+
+        private void RemoveEventListeners()
+        {
+            InventoryManager.OnGoldChanged -= this.OnGoldChanged;
         }
 
         // Simple one-liner for quick use
@@ -98,12 +116,10 @@ namespace Assets.Scripts.UI.Buffs
                 {
                     this.RerollCostTMP.text = this.rerollCost.ToString();
                 }
-
-                this.checkGoldRequirement();
             }
         }
 
-        private void checkGoldRequirement()
+        private void CheckGoldRequirement()
         {
             if (!InventoryManager.Instance.HasEnoughGold(this.rerollCost))
             {
@@ -111,6 +127,11 @@ namespace Assets.Scripts.UI.Buffs
                 this.CordButton.onClick.RemoveAllListeners();
                 this.inactive = true;
             }
+        }
+
+        private void OnGoldChanged(int newGoldAmount)
+        {
+            this.CheckGoldRequirement();
         }
     }
 }

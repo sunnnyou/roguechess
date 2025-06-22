@@ -38,6 +38,12 @@ namespace Assets.Scripts.UI
         [SerializeField]
         private TextMeshProUGUI chessPieceCountText;
 
+        [SerializeField]
+        private Sprite tileBlack;
+
+        [SerializeField]
+        private Sprite tileWhite;
+
         [Header("Consumables")]
         [SerializeField]
         private Transform consumableContainer;
@@ -130,37 +136,24 @@ namespace Assets.Scripts.UI
                 slot.Initialize(i, InventorySlot.SlotType.ChessPiece);
                 slot.OnSlotClicked += this.OnChessPieceSlotClicked;
 
-                // Make slots darker in a chessboard pattern
-                int row = i / 8;
-                int col = i % 8;
-                if ((row + col) % 2 == 0)
+                // Chess board pattern
+                var backgroundChild = slotObj.transform.Find("Background");
+                if (backgroundChild != null)
                 {
-                    var backgroundChild = slotObj.transform.Find("Background");
-                    if (backgroundChild != null)
+                    if (backgroundChild.TryGetComponent<Image>(out var image))
                     {
-                        if (backgroundChild.TryGetComponent<Image>(out var image))
+                        int row = i / 8;
+                        int col = i % 8;
+                        if ((row + col) % 2 == 0)
                         {
-                            image.color = new Color(
-                                image.color.r * 0.5525606f,
-                                image.color.g * 0.4851331f,
-                                image.color.b * 0.3209617f,
-                                image.color.a
-                            );
+                            image.sprite = this.tileBlack;
+                        }
+                        else
+                        {
+                            image.sprite = this.tileWhite;
                         }
                     }
                 }
-
-                // var iconChild = slotObj.transform.Find("ItemIcon");
-                // ChessPiece chessPiece = chessPieceList.ElementAtOrDefault(i);
-
-                // if (iconChild != null && chessPiece != null)
-                // {
-                //     if (iconChild.TryGetComponent<Image>(out var image))
-                //     {
-                //         image.sprite = chessPiece.SpriteRenderer.sprite;
-                //         image.gameObject.SetActive(true);
-                //     }
-                // }
 
                 this.chessPieceSlots.Add(slot);
             }
@@ -254,8 +247,7 @@ namespace Assets.Scripts.UI
             if (piece != null)
             {
                 Debug.Log($"Clicked on chess piece: {piece.PieceType} at slot {slotIndex}");
-                // Add your chess piece interaction logic here
-                // For example: show details, equip, or use the piece
+                // TODO: add drag and drop feature
             }
         }
 
@@ -283,11 +275,11 @@ namespace Assets.Scripts.UI
         {
             if (this.goldTextInventory != null)
             {
-                this.goldTextInventory.text = $"Gold: {InventoryManager.Instance.Gold}";
+                this.goldTextInventory.text = InventoryManager.Instance.Gold.ToString();
             }
             if (this.goldTextMenu != null)
             {
-                this.goldTextMenu.text = $"Gold: {InventoryManager.Instance.Gold}";
+                this.goldTextMenu.text = InventoryManager.Instance.Gold.ToString();
             }
         }
 
