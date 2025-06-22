@@ -291,7 +291,6 @@ namespace Assets.Scripts.UI.Buffs
 
         private void OnGoldChanged(int newGoldAmount)
         {
-            Debug.LogWarning($"OnGoldChanged Current Buff {this.currentBuff?.BuffName}");
             if (this.currentBuff == null)
             {
                 return;
@@ -303,23 +302,16 @@ namespace Assets.Scripts.UI.Buffs
 
             if (this.enoughGold)
             {
-                Debug.LogWarning(
-                    $"Enough Gold for {this.currentBuff.BuffName}. CurrentGold: {newGoldAmount}. BufCost: {this.currentBuff.Cost}"
-                );
                 this.EnableBuying();
             }
             else
             {
-                Debug.LogWarning(
-                    $"Not enough Gold for {this.currentBuff.BuffName}. CurrentGold: {newGoldAmount}. BufCost: {this.currentBuff.Cost}"
-                );
                 this.DisableBuying();
             }
         }
 
         private void OnInventoryChanged()
         {
-            Debug.LogWarning($"OnInventoryChanged Current Buff {this.currentBuff?.BuffName}");
             var uptEnoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
             this.changed = uptEnoughSpace != this.enoughSpace;
             this.enoughSpace = uptEnoughSpace;

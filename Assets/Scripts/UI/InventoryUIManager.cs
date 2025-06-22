@@ -291,14 +291,7 @@ namespace Assets.Scripts.UI
             // Update slots
             for (int i = 0; i < this.chessPieceSlots.Count; i++)
             {
-                if (i < chessPieceCount)
-                {
-                    this.chessPieceSlots[i].SetItem(chessPieces[i]);
-                }
-                else
-                {
-                    this.chessPieceSlots[i].ClearItem();
-                }
+                this.chessPieceSlots[i].SetItem(chessPieces[i]);
             }
 
             // Update count text

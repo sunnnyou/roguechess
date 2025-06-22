@@ -3,16 +3,13 @@ namespace Assets.Scripts.UI
     using System;
     using Assets.Scripts.Game.Board;
     using Assets.Scripts.Game.Buffs;
+    using Assets.Scripts.Game.Player;
     using TMPro;
     using UnityEngine;
     using UnityEngine.EventSystems;
     using UnityEngine.UI;
 
-    public class InventorySlot
-        : MonoBehaviour,
-            IPointerClickHandler,
-            IPointerEnterHandler,
-            IPointerExitHandler
+    public class InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         [Header("UI Components")]
         [SerializeField]
@@ -42,6 +39,9 @@ namespace Assets.Scripts.UI
 
         [SerializeField]
         private Color selectedColor = new(0.6f, 0.4f, 0.2f, 0.8f);
+        private static GameObject draggedIcon;
+        private static InventorySlot sourceSlot;
+        private Canvas canvas;
 
         public enum SlotType
         {
@@ -68,6 +68,8 @@ namespace Assets.Scripts.UI
             this.SlotIndex = slotIndex;
             this.Type = slotType;
             this.IsEmpty = true;
+
+            this.canvas = GetComponentInParent<Canvas>();
 
             // Setup UI components
             this.SetupComponents();
@@ -126,8 +128,15 @@ namespace Assets.Scripts.UI
 
         public void SetItem(object item)
         {
+            if (item == null)
+            {
+                this.ClearItem();
+            }
+            else
+            {
+                this.IsEmpty = false;
+            }
             this.currentItem = item;
-            this.IsEmpty = false;
 
             if (item is ChessPiece chessPiece)
             {
@@ -200,12 +209,8 @@ namespace Assets.Scripts.UI
         {
             this.currentItem = null;
             this.IsEmpty = true;
-
-            if (this.itemIcon != null)
-            {
-                this.itemIcon.sprite = null;
-                this.itemIcon.enabled = false;
-            }
+            this.itemIcon.sprite = null;
+            this.itemIcon.enabled = false;
 
             if (this.quantityPanel != null)
             {
@@ -244,6 +249,78 @@ namespace Assets.Scripts.UI
         {
             this.IsSelected = selected;
             this.UpdateVisualState();
+        }
+
+        // Dragging functions
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            if (this.IsEmpty || this.currentItem is not ChessPiece chessPiece)
+            {
+                return;
+            }
+
+            // Set the source slot
+            sourceSlot = this;
+
+            // Create dragged icon
+            draggedIcon = new GameObject(
+                "DraggedIcon",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image)
+            );
+            draggedIcon.transform.SetParent(canvas.transform, false);
+            draggedIcon.transform.SetAsLastSibling();
+
+            var image = draggedIcon.GetComponent<Image>();
+            image.sprite = this.itemIcon.sprite;
+            image.raycastTarget = false;
+            image.SetNativeSize();
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (draggedIcon != null)
+            {
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvas.transform as RectTransform,
+                    eventData.position,
+                    eventData.pressEventCamera,
+                    out Vector2 pos
+                );
+
+                ((RectTransform)draggedIcon.transform).anchoredPosition = pos;
+            }
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            if (draggedIcon != null)
+            {
+                Destroy(draggedIcon);
+                draggedIcon = null;
+            }
+
+            GameObject targetObj = eventData.pointerCurrentRaycast.gameObject;
+            if (targetObj == null)
+            {
+                return;
+            }
+
+            InventorySlot targetSlot = targetObj.GetComponentInParent<InventorySlot>();
+
+            // Update InventoryManager
+            if (
+                targetSlot == null
+                || targetSlot == sourceSlot
+                || targetSlot.Type != SlotType.ChessPiece
+                || sourceSlot.Type != SlotType.ChessPiece
+            )
+            {
+                return;
+            }
+
+            InventoryManager.Instance.SwapChessPiece(this, targetSlot);
         }
 
         // Event Handlers

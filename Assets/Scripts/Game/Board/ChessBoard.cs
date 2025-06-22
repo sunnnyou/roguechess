@@ -868,5 +868,18 @@ namespace Assets.Scripts.Game.Board
             piece.CurrentTile.UpdatePiece(null, true, false);
             return true;
         }
+
+        public void SwitchChessPieces(string fromPos, string toPos)
+        {
+            if (
+                this.GetTile(fromPos, out ChessTile fromTile)
+                && this.GetTile(toPos, out ChessTile toTile)
+            )
+            {
+                var fromPiece = fromTile.CurrentPiece;
+                fromTile.UpdatePiece(toTile.CurrentPiece, true, true);
+                toTile.UpdatePiece(fromPiece, true, true);
+            }
+        }
     }
 }

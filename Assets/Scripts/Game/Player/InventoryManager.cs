@@ -4,6 +4,7 @@ namespace Assets.Scripts.Game.Player
     using System.Collections.Generic;
     using Assets.Scripts.Game.Board;
     using Assets.Scripts.Game.Buffs;
+    using Assets.Scripts.UI;
     using UnityEngine;
 
     public class InventoryManager : MonoBehaviour
@@ -77,6 +78,62 @@ namespace Assets.Scripts.Game.Player
             }
 
             return (y * this.Columns) + x;
+        }
+
+        public (int x, int y) GetCoordinatesFromIndex(int index)
+        {
+            int x = index % this.Columns;
+            int y = index / this.Columns;
+            return (x, y);
+        }
+
+        public void SwapChessPiece(InventorySlot fromSlot, InventorySlot toSlot)
+        {
+            if (fromSlot == null || toSlot == null)
+            {
+                return;
+            }
+
+            int fromIndex = fromSlot.SlotIndex;
+            int toIndex = toSlot.SlotIndex;
+            if (fromIndex < 0 || toIndex < 0 || fromIndex == toIndex)
+            {
+                return;
+            }
+
+            var pieces = this.GetAllChessPieces();
+            var pieceCount = this.GetChessPieceCount();
+            if (toIndex >= this.MaxChessPieceSlots)
+            {
+                return;
+            }
+
+            var pieceFrom = pieces[fromIndex];
+            var pieceTo = pieces[toIndex];
+
+            // Swap items
+            toSlot.SetItem(pieceFrom);
+            if (pieceTo == null)
+            {
+                fromSlot.ClearItem();
+            }
+            else
+            {
+                fromSlot.SetItem(pieceTo);
+            }
+
+            var (xFrom, yFrom) = this.GetCoordinatesFromIndex(fromIndex);
+            var (xTo, yTo) = this.GetCoordinatesFromIndex(toIndex);
+
+            this.chessPieces[fromIndex] = pieceTo;
+            this.chessPieces[toIndex] = pieceFrom;
+
+            this.chessBoard.SwitchChessPieces(
+                CoordinateHelper.XYToString(xFrom, yFrom),
+                CoordinateHelper.XYToString(xTo, yTo)
+            );
+
+            OnInventoryChanged?.Invoke();
         }
 
         public bool AddChessPiece(ChessPiece piece, int x, int y, bool replaceExisting)

@@ -123,7 +123,6 @@ namespace Assets.Scripts.UI.Buffs
         {
             if (!InventoryManager.Instance.HasEnoughGold(this.rerollCost))
             {
-                Debug.Log("Not enough gold for reroll anymore!");
                 this.CordButton.onClick.RemoveAllListeners();
                 this.inactive = true;
             }
