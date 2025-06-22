@@ -250,7 +250,7 @@ namespace Assets.Scripts.UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            this.OnSlotClicked?.Invoke(this.SlotIndex);
+            // maybe add something
         }
 
         public void OnPointerEnter(PointerEventData eventData)
