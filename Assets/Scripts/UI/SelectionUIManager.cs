@@ -31,7 +31,6 @@ namespace Assets.Scripts.UI
 
         // Shows selection UI with customizable options.
         public void ShowSelectionUI(
-            ChessBoard board,
             List<IChessObject> selectableObjects,
             Action<IChessObject> callback,
             string title = null,
@@ -60,7 +59,6 @@ namespace Assets.Scripts.UI
             this.selectedObject = null;
 
             this.CreateSelectionPanel(
-                board,
                 selectableObjects,
                 title,
                 description,
@@ -77,7 +75,6 @@ namespace Assets.Scripts.UI
         }
 
         private void CreateSelectionPanel(
-            ChessBoard board,
             List<IChessObject> selectableObjects,
             string title,
             string description,
@@ -114,30 +111,30 @@ namespace Assets.Scripts.UI
             // Add title if provided
             if (!string.IsNullOrEmpty(title))
             {
-                this.CreateTitleText(title, board);
+                this.CreateTitleText(title);
             }
 
             // Add description if provided
             if (!string.IsNullOrEmpty(description))
             {
-                this.CreateDescriptionText(description, board);
+                this.CreateDescriptionText(description);
             }
 
             // Create button container
             this.CreateButtonContainer(selectableObjects, tooltips);
 
             // Create confirm button
-            this.CreateConfirmButton(confirmButtonText, board);
+            this.CreateConfirmButton(confirmButtonText);
         }
 
-        private void CreateTitleText(string title, ChessBoard board)
+        private void CreateTitleText(string title)
         {
             var titleGO = new GameObject("Title");
             titleGO.transform.SetParent(this.selectionPanel.transform, false);
 
             this.titleText = titleGO.AddComponent<UnityEngine.UI.Text>();
             this.titleText.text = title;
-            this.titleText.font = board.MainFont;
+            this.titleText.font = ChessBoard.Instance.MainFont;
             this.titleText.fontSize = 40;
             this.titleText.fontStyle = FontStyle.Bold;
             this.titleText.color = Color.white;
@@ -147,14 +144,14 @@ namespace Assets.Scripts.UI
             titleRT.sizeDelta = new Vector2(0, 40);
         }
 
-        private void CreateDescriptionText(string description, ChessBoard board)
+        private void CreateDescriptionText(string description)
         {
             var descGO = new GameObject("Description");
             descGO.transform.SetParent(this.selectionPanel.transform, false);
 
             this.descriptionText = descGO.AddComponent<UnityEngine.UI.Text>();
             this.descriptionText.text = description;
-            this.descriptionText.font = board.MainFont;
+            this.descriptionText.font = ChessBoard.Instance.MainFont;
             this.descriptionText.fontSize = 25;
             this.descriptionText.color = Color.gray;
             this.descriptionText.alignment = TextAnchor.MiddleCenter;
@@ -270,7 +267,7 @@ namespace Assets.Scripts.UI
             this.selectionButtons.Add(button);
         }
 
-        private void CreateConfirmButton(string confirmButtonText, ChessBoard board)
+        private void CreateConfirmButton(string confirmButtonText)
         {
             var confirmGO = new GameObject("ConfirmButton");
             confirmGO.transform.SetParent(this.selectionPanel.transform, false);
@@ -287,7 +284,7 @@ namespace Assets.Scripts.UI
 
             var buttonText = textGO.AddComponent<UnityEngine.UI.Text>();
             buttonText.text = confirmButtonText;
-            buttonText.font = board.MainFont;
+            buttonText.font = ChessBoard.Instance.MainFont;
             buttonText.fontSize = 30;
             buttonText.color = Color.white;
             buttonText.alignment = TextAnchor.MiddleCenter;

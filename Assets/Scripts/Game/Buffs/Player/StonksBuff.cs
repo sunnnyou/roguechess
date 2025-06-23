@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.StonksFnc;
         }
 
-        public IChessObject StonksFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject StonksFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for Stonks buff.");
                 return null;

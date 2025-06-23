@@ -25,22 +25,21 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
             this.MoveFunction = GetEnPassantTiles;
         }
 
-        public static List<ChessTile> GetEnPassantTiles(
-            Vector2Int currentPos,
-            ChessBoard board,
-            bool isWhite
-        )
+        public static List<ChessTile> GetEnPassantTiles(Vector2Int currentPos, bool isWhite)
         {
             var validTiles = new List<ChessTile>();
 
             // Check if there are any moves in history
-            if (board == null || board.MoveHistory == null || board.MoveHistory.Count == 0)
+            if (
+                ChessBoard.Instance.MoveHistory == null
+                || ChessBoard.Instance.MoveHistory.Count == 0
+            )
             {
                 return validTiles;
             }
 
             // Get last move
-            var lastMove = board.MoveHistory[board.MoveHistory.Count - 1];
+            var lastMove = ChessBoard.Instance.MoveHistory[^1];
 
             // Check if last move was a pawn move
             if (lastMove.MovedPiece.PieceType != ChessPieceType.Pawn)
@@ -69,7 +68,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
             }
 
             // Calculate correct rank for en passant capture
-            int correctRank = isWhite ? board.Height - 4 : 3;
+            int correctRank = isWhite ? ChessBoard.Instance.Height - 4 : 3;
 
             // Check if capturing pawn is in correct position
             if (currentPos.y != correctRank)
@@ -86,7 +85,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
                 int targetY = isWhite ? correctRank + 1 : correctRank - 1;
                 string targetCoord = CoordinateHelper.XYToString(lastMovedPawnX, targetY);
 
-                if (board.GetTile(targetCoord, out ChessTile targetTile))
+                if (ChessBoard.Instance.GetTile(targetCoord, out ChessTile targetTile))
                 {
                     validTiles.Add(targetTile);
                     targetTile.AddBuff(new EnPassantTileBuff());

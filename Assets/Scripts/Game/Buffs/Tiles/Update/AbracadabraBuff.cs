@@ -21,9 +21,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.AbracadabraFnc;
         }
 
-        public IChessObject AbracadabraFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject AbracadabraFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for Abracadabra buff.");
                 return null;

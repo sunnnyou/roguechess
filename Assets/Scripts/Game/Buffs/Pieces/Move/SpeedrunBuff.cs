@@ -25,18 +25,12 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
             this.MoveFunction = SpeedRunFnc;
         }
 
-        public static List<ChessTile> SpeedRunFnc(
-            Vector2Int currentPos,
-            ChessBoard board,
-            bool isWhite
-        )
+        public static List<ChessTile> SpeedRunFnc(Vector2Int currentPos, bool isWhite)
         {
             var validMoves = new List<ChessTile>();
             if (
-                board == null
-                || (
-                    (!isWhite || currentPos.y != 1) && (isWhite || currentPos.y != board.Height - 2)
-                )
+                (!isWhite || currentPos.y != 1)
+                && (isWhite || currentPos.y != ChessBoard.Instance.Height - 2)
             )
             {
                 return validMoves;
@@ -46,7 +40,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
 
             int forwardDirection = isWhite ? 1 : -1;
             int twoForward = currentPos.y + (forwardDirection * 2);
-            if (twoForward < 0 || twoForward >= board.Height)
+            if (twoForward < 0 || twoForward >= ChessBoard.Instance.Height)
             {
                 return validMoves;
             }
@@ -57,12 +51,12 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
             );
             Vector2Int twoStepCoord = CoordinateHelper.XYToVector(currentPos.x, twoForward);
 
-            if (!board.GetTile(oneStepCoord, out ChessTile oneStepTile))
+            if (!ChessBoard.Instance.GetTile(oneStepCoord, out ChessTile oneStepTile))
             {
                 return validMoves;
             }
 
-            if (!board.GetTile(twoStepCoord, out ChessTile twoStepTile))
+            if (!ChessBoard.Instance.GetTile(twoStepCoord, out ChessTile twoStepTile))
             {
                 return validMoves;
             }

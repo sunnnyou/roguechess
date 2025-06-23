@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.GoldenGooseFnc;
         }
 
-        public IChessObject GoldenGooseFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject GoldenGooseFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for GoldenGoose buff.");
                 return null;

@@ -7,7 +7,7 @@ namespace Assets.Scripts.Game.Buffs
     // Update buffs update a piece or tile (disable/enable, sprite change, ...)
     public abstract class UpdateBuff : BuffBase
     {
-        public Func<IChessObject, ChessBoard, IChessObject> UpdateFunction { get; set; } // Function that is applied when a condition is met
+        public Func<IChessObject, IChessObject> UpdateFunction { get; set; } // Function that is applied when a condition is met
 
         public new bool IsActive { get; set; } = true;
 
@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs
 
         public new int DurationRounds { get; set; } = -1;
 
-        public override object BuffFunction(IChessObject buffReceiver, ChessBoard board)
+        public override object BuffFunction(IChessObject buffReceiver)
         {
-            return this.UpdateFunction(buffReceiver, board);
+            return this.UpdateFunction(buffReceiver);
         }
     }
 }

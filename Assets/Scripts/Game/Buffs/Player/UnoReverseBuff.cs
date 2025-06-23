@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.UnoReverseFnc;
         }
 
-        public IChessObject UnoReverseFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject UnoReverseFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for UnoReverse buff.");
                 return null;

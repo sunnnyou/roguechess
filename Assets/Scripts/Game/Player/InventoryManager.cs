@@ -44,30 +44,27 @@ namespace Assets.Scripts.Game.Player
         // Awake instead of Start to make sure its always instantiated when used by other scripts
         private void Awake()
         {
+            ChessBoard.InitializeBoard(this.chessBoard);
+
             // Singleton pattern - ensure only one instance exists
             if (Instance == null)
             {
                 Instance = this;
                 DontDestroyOnLoad(this.gameObject);
                 Debug.Log("InventoryManager: Created and marked as DontDestroyOnLoad");
-            }
-            else
-            {
-                Debug.Log("InventoryManager: Duplicate instance destroyed");
-                Destroy(this.gameObject);
-            }
 
-            this.MaxChessPieceSlots = this.Rows * this.Columns;
+                this.MaxChessPieceSlots = this.Rows * this.Columns;
 
-            // Try to create chessboard with all chess pieces
-            if (this.chessBoard != null)
-            {
-                this.chessPieces = this.chessBoard.GetAllPiecesArray(true);
-            }
-            else
-            {
-                Debug.LogError("ChessBoard for InventoryManager is null!");
-                this.chessPieces = new ChessPiece[this.MaxChessPieceSlots];
+                // Try to create chessboard with all chess pieces
+                if (ChessBoard.Instance != null)
+                {
+                    this.chessPieces = ChessBoard.Instance.GetAllPiecesArray(true);
+                }
+                else
+                {
+                    Debug.LogError("ChessBoard for InventoryManager is null!");
+                    this.chessPieces = new ChessPiece[this.MaxChessPieceSlots];
+                }
             }
         }
 
@@ -129,7 +126,7 @@ namespace Assets.Scripts.Game.Player
             this.chessPieces[fromIndex] = pieceTo;
             this.chessPieces[toIndex] = pieceFrom;
 
-            this.chessBoard.SwitchChessPieces(
+            ChessBoard.Instance.SwitchChessPieces(
                 CoordinateHelper.XYToString(xFrom, yFrom),
                 CoordinateHelper.XYToString(xTo, yTo)
             );
@@ -151,7 +148,7 @@ namespace Assets.Scripts.Game.Player
                 return false;
             }
 
-            if (!this.chessBoard.AddChessPiece(piece, x, y, replaceExisting))
+            if (!ChessBoard.Instance.AddChessPiece(piece, x, y, replaceExisting))
             {
                 return false;
             }

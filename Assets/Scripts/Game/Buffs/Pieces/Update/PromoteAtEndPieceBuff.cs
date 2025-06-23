@@ -68,9 +68,9 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
             PromotionConfirmText = confirmText;
         }
 
-        public IChessObject RoyalAscension(IChessObject chessObject, ChessBoard board)
+        public IChessObject RoyalAscension(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for Royal Ascension buff.");
                 return null;
@@ -86,14 +86,14 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
             }
 
             // Check if piece has reached the end of the board
-            if (HasReachedEndOfBoard(piece, board))
+            if (HasReachedEndOfBoard(piece))
             {
                 Debug.Log(
                     $"Piece {piece.name} reached the end of the board and is eligible for promotion."
                 );
 
                 // Trigger promotion UI using the selection manager
-                RequestPromotion(piece, board);
+                RequestPromotion(piece);
 
                 return null; // piece update and promotion will happen via callback
             }
@@ -102,13 +102,13 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
         }
 
         // Checks if the piece has reached the end of the board based on its color and position
-        private static bool HasReachedEndOfBoard(ChessPiece piece, ChessBoard board)
+        private static bool HasReachedEndOfBoard(ChessPiece piece)
         {
             // For white pieces, end of board is typically rank 8 (y = 7 in 0-indexed)
             // For black pieces, end of board is typically rank 1 (y = 0 in 0-indexed)
             if (piece.IsWhite)
             {
-                return piece.CurrentTile.Position.y == board.Height - 1; // Top of board for white
+                return piece.CurrentTile.Position.y == ChessBoard.Instance.Height - 1; // Top of board for white
             }
             else
             {
@@ -117,7 +117,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
         }
 
         // Requests promotion using the generic selection UI
-        private static void RequestPromotion(ChessPiece piece, ChessBoard board)
+        private static void RequestPromotion(ChessPiece piece)
         {
             if (selectionUIManager == null)
             {
@@ -137,7 +137,6 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
 
             // Show the generic selection UI for promotion
             selectionUIManager.ShowSelectionUI(
-                board,
                 PromotionPieces,
                 (selectedPiece) => OnPromotionSelected(piece, selectedPiece),
                 PromotionTitle,

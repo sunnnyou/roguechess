@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.AuraBuffFnc;
         }
 
-        public IChessObject AuraBuffFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject AuraBuffFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for Aura buff.");
                 return null;

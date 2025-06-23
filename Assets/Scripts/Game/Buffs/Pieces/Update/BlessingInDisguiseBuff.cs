@@ -20,9 +20,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.BlessingInDisguiseFnc;
         }
 
-        public IChessObject BlessingInDisguiseFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject BlessingInDisguiseFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for BlessingInDisguise buff.");
                 return null;

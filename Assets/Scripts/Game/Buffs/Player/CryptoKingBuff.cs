@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.CryptoKingFnc;
         }
 
-        public IChessObject CryptoKingFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject CryptoKingFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for CryptoKing buff.");
                 return null;

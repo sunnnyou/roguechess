@@ -22,11 +22,10 @@ namespace Assets.Scripts.Game.Board
         public List<MoveRule> MoveRules { get; private set; } = new();
         public int Strength { get; private set; } = 1;
         public int Lives { get; private set; } = 1;
-        internal ChessBoard Board { get; private set; }
         public bool HasMoved;
 
         // Initialize from ScriptableObject data
-        public void Initialize(ChessPieceData data, ChessBoard chessBoard)
+        public void Initialize(ChessPieceData data)
         {
             if (data != null)
             {
@@ -35,7 +34,6 @@ namespace Assets.Scripts.Game.Board
                     data.PieceType,
                     data.IsWhite,
                     data.Sprite,
-                    chessBoard,
                     data.Materials,
                     data.CustomMoveRules,
                     data.InitialBuffs
@@ -53,7 +51,6 @@ namespace Assets.Scripts.Game.Board
             ChessPieceType type,
             bool white,
             Sprite sprite,
-            ChessBoard chessBoard,
             List<Material> materials,
             List<MoveRule> customRules = null,
             List<BuffBase> buffs = null
@@ -61,7 +58,6 @@ namespace Assets.Scripts.Game.Board
         {
             this.PieceType = type;
             this.IsWhite = white;
-            this.Board = chessBoard;
 
             // Check if we already have a SpriteRenderer
             this.SpriteRenderer = this.GetComponent<SpriteRenderer>();
@@ -106,7 +102,7 @@ namespace Assets.Scripts.Game.Board
                 this.Buffs.Add(extraReachBuff);
                 var promoteAtEndPieceBuff = new PromoteAtEndPieceBuff(
                     null,
-                    white ? this.Board.Height - 1 : 0
+                    white ? ChessBoard.Instance.Height - 1 : 0
                 );
                 this.Buffs.Add(promoteAtEndPieceBuff);
             }
@@ -146,7 +142,7 @@ namespace Assets.Scripts.Game.Board
         {
             var validMoves = new List<ChessTile>();
 
-            if (this.CurrentTile == null || this.Board == null)
+            if (this.CurrentTile == null)
             {
                 return validMoves;
             }
@@ -154,7 +150,6 @@ namespace Assets.Scripts.Game.Board
             validMoves = MoveRule.GetValidTiles(
                 this.MoveRules,
                 this.CurrentTile.Position,
-                this.Board,
                 this.IsWhite
             );
 
@@ -166,10 +161,7 @@ namespace Assets.Scripts.Game.Board
                     continue;
                 }
 
-                if (
-                    buff.ApplyBuff(this, this.Board) is List<ChessTile> buffedTiles
-                    && buffedTiles.Count > 0
-                )
+                if (buff.ApplyBuff(this) is List<ChessTile> buffedTiles && buffedTiles.Count > 0)
                 {
                     validMoves.AddRange(buffedTiles);
                 }
@@ -244,7 +236,7 @@ namespace Assets.Scripts.Game.Board
                     buff != null
                     && buff.IsActive
                     && buff is UpdateBuff
-                    && buff.ApplyBuff(this, this.Board) is ChessPiece updatedPiece
+                    && buff.ApplyBuff(this) is ChessPiece updatedPiece
                     && updatedPiece != null
                 )
                 {

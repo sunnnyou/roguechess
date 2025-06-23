@@ -23,13 +23,12 @@ namespace Assets.Scripts.Game.MoveRules
         public static List<ChessTile> GetValidTiles(
             List<MoveRule> moveRules,
             Vector2Int currentPosition,
-            ChessBoard board,
             bool isWhite
         )
         {
             var validTiles = new List<ChessTile>();
 
-            if (board == null || moveRules == null || moveRules.Count == 0)
+            if (moveRules == null || moveRules.Count == 0)
             {
                 return validTiles;
             }
@@ -44,9 +43,9 @@ namespace Assets.Scripts.Game.MoveRules
                     // Check if target is within board bounds
                     if (
                         targetX < 0
-                        || targetX >= board.Width
+                        || targetX >= ChessBoard.Instance.Width
                         || targetY < 0
-                        || targetY >= board.Height
+                        || targetY >= ChessBoard.Instance.Height
                     )
                     {
                         break;
@@ -54,7 +53,7 @@ namespace Assets.Scripts.Game.MoveRules
 
                     string targetCoord = CoordinateHelper.XYToString(targetX, targetY);
 
-                    if (!board.GetTile(targetCoord, out ChessTile targetTile))
+                    if (!ChessBoard.Instance.GetTile(targetCoord, out ChessTile targetTile))
                     {
                         break;
                     }

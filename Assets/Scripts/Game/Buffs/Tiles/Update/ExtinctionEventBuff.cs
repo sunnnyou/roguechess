@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.ExtinctionEventFnc;
         }
 
-        public IChessObject ExtinctionEventFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject ExtinctionEventFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for ExtinctionEvent buff.");
                 return null;

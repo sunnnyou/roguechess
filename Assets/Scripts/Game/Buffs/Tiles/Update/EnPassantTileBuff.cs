@@ -21,9 +21,9 @@ namespace Assets.Scripts.Game.Buffs.Tiles.Update
             this.UpdateFunction = EnPassantDebuff;
         }
 
-        public static IChessObject EnPassantDebuff(IChessObject chessObject, ChessBoard board)
+        public static IChessObject EnPassantDebuff(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for Royal Ascension buff.");
                 return null;
@@ -34,7 +34,7 @@ namespace Assets.Scripts.Game.Buffs.Tiles.Update
             var behindPos = new Vector2Int(currentPos.x, behindY);
 
             if (
-                board.GetTile(behindPos, out ChessTile behindTile)
+                ChessBoard.Instance.GetTile(behindPos, out ChessTile behindTile)
                 && behindTile.CurrentPiece is ChessPiece behindPiece
                 && ChessPiece.FightPiece(behindPiece, piece)
             )

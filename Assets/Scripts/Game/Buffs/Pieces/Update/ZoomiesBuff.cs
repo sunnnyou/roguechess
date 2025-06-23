@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.ZoomiesFnc;
         }
 
-        public IChessObject ZoomiesFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject ZoomiesFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for Zoomies buff.");
                 return null;

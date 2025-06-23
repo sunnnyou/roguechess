@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.AIShieldFnc;
         }
 
-        public IChessObject AIShieldFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject AIShieldFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for AIShield buff.");
                 return null;

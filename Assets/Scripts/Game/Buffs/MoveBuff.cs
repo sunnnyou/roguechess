@@ -8,7 +8,7 @@ namespace Assets.Scripts.Game.Buffs
     // Move buffs add valid moves to a chess piece
     public abstract class MoveBuff : BuffBase
     {
-        public Func<Vector2Int, ChessBoard, bool, List<ChessTile>> MoveFunction { get; set; } // Function that is applied when a condition is met
+        public Func<Vector2Int, bool, List<ChessTile>> MoveFunction { get; set; } // Function that is applied when a condition is met
 
         public new bool IsActive { get; set; } = true;
 
@@ -18,7 +18,7 @@ namespace Assets.Scripts.Game.Buffs
 
         public new int DurationRounds { get; set; } = -1;
 
-        public override object BuffFunction(IChessObject buffReceiver, ChessBoard board)
+        public override object BuffFunction(IChessObject buffReceiver)
         {
             if (buffReceiver is not ChessPiece piece)
             {
@@ -28,7 +28,7 @@ namespace Assets.Scripts.Game.Buffs
                 return null;
             }
 
-            return this.MoveFunction(piece.CurrentTile.Position, board, piece.IsWhite);
+            return this.MoveFunction(piece.CurrentTile.Position, piece.IsWhite);
         }
     }
 }

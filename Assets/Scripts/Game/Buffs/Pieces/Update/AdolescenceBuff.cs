@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.AdolescenceBuffFnc;
         }
 
-        public IChessObject AdolescenceBuffFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject AdolescenceBuffFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for Adolescence buff.");
                 return null;

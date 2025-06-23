@@ -24,12 +24,7 @@ namespace Assets.Scripts.Game.Board
         private Color checkColor = new(0.4f, 0.0f, 0.0f); // red
 
         // Initialize from ScriptableObject data
-        public void Initialize(
-            ChessTileData data,
-            Vector2Int pos,
-            bool isWhiteTile,
-            ChessBoard chessBoard = null
-        )
+        public void Initialize(ChessTileData data, Vector2Int pos, bool isWhiteTile)
         {
             this.tileData = data;
             this.Position = pos;
@@ -62,9 +57,9 @@ namespace Assets.Scripts.Game.Board
                 }
 
                 // Spawn starting piece if configured
-                if (data.SpawnPieceOnInitialize && data.StartingPiece != null && chessBoard != null)
+                if (data.SpawnPieceOnInitialize && data.StartingPiece != null)
                 {
-                    chessBoard.SpawnPiece(
+                    ChessBoard.Instance.SpawnPiece(
                         data.StartingPiece.PieceType,
                         data.StartingPiece.IsWhite,
                         CoordinateHelper.VectorToString(this.Position),
@@ -154,7 +149,7 @@ namespace Assets.Scripts.Game.Board
                         enemyTargetPos = enemyPos;
                     }
 
-                    newPiece.Board.AddMove(
+                    ChessBoard.Instance.AddMove(
                         newPiece,
                         enemyPos,
                         enemyTargetPos,
@@ -165,7 +160,7 @@ namespace Assets.Scripts.Game.Board
             }
             else if (this.CurrentPiece != null && !ignoreMoveHistory)
             {
-                this.CurrentPiece.Board.AddMove(null, null, this.Position, this.CurrentPiece, null);
+                ChessBoard.Instance.AddMove(null, null, this.Position, this.CurrentPiece, null);
             }
 
             this.CurrentPiece = newPiece;
@@ -203,7 +198,7 @@ namespace Assets.Scripts.Game.Board
                 if (buff is MoveBuff)
                 {
                     if (
-                        buff.ApplyBuff(piece, piece.Board) is List<MoveRule> additionalMoves
+                        buff.ApplyBuff(piece) is List<MoveRule> additionalMoves
                         && additionalMoves.Count > 0
                     )
                     {
@@ -212,10 +207,7 @@ namespace Assets.Scripts.Game.Board
                 }
                 else if (buff is UpdateBuff)
                 {
-                    if (
-                        buff.ApplyBuff(piece, piece.Board) is ChessPiece updatedPiece
-                        && updatedPiece != null
-                    )
+                    if (buff.ApplyBuff(piece) is ChessPiece updatedPiece && updatedPiece != null)
                     {
                         if (updatedPiece.IsWhite == piece.IsWhite)
                         {

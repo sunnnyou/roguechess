@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.SkillIssueFnc;
         }
 
-        public IChessObject SkillIssueFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject SkillIssueFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for SkillIssue buff.");
                 return null;

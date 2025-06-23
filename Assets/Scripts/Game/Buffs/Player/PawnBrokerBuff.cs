@@ -17,9 +17,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.PawnBrokerFnc;
         }
 
-        public IChessObject PawnBrokerFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject PawnBrokerFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for PawnBroker buff.");
                 return null;

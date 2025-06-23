@@ -22,6 +22,7 @@ namespace Assets.Scripts.Game.Board
         // TODO: add function to never have negative position values, when adding new tiles. The left bottom tile should always be (0, 0) and the top right tile should be (board.Width, board.Height)
         // TODO: add function to display piece buffs, hp, strength and other info when hovering over a piece
         // TODO: add function to add material to pieces or tiles when specific buffs are applied
+        public static ChessBoard Instance { get; private set; }
         public ChessBoardData BoardData; // New ScriptableObject for complete board configuration
 
         [Header("Board dimensions and scaling")]
@@ -63,25 +64,26 @@ namespace Assets.Scripts.Game.Board
 
         [Header("Game variables")]
         public bool IsWhiteTurn = true;
-        private bool gameOver;
-        private bool isEnemyTurn;
         public List<ChessMoveHistory> MoveHistory = new();
 
         public int CurrentTurn { get; internal set; }
         public int CurrentRound { get; internal set; }
 
-        private void Awake()
+        public static void InitializeBoard(ChessBoard board)
         {
-            // Make this object persist across scene changes
-            DontDestroyOnLoad(this.gameObject);
-
-            // Optional: Implement singleton pattern to prevent duplicates
-            if (FindObjectsByType<ChessBoard>(FindObjectsSortMode.None).Length > 1)
+            if (board == null)
             {
-                Destroy(this.gameObject);
                 return;
             }
-            this.StartGame();
+
+            // Singleton pattern - ensure only one instance exists
+            if (Instance == null)
+            {
+                Instance = board;
+                DontDestroyOnLoad(board.gameObject);
+                Debug.Log("ChessBoard: Created and marked as DontDestroyOnLoad");
+                board.StartGame();
+            }
         }
 
         public void StartGame()
@@ -115,6 +117,8 @@ namespace Assets.Scripts.Game.Board
                 tile.Destroy();
             }
             this.tiles.Clear();
+            this.MoveHistory.Clear();
+            this.ClearHighlights();
 
             // Use board dimensions from setup
             int boardWidth = this.BoardData.BoardWidth;
@@ -168,7 +172,7 @@ namespace Assets.Scripts.Game.Board
             }
 
             // Initialize with ScriptableObject data
-            tile.Initialize(tileData, new Vector2Int(x, y), isWhite, this);
+            tile.Initialize(tileData, new Vector2Int(x, y), isWhite);
 
             // Set proper size for the tile
             tileObject.transform.localScale = new Vector3(
@@ -209,7 +213,7 @@ namespace Assets.Scripts.Game.Board
             }
 
             // Initialize the piece
-            piece.Initialize(type, isWhite, sprite, this, pieceMaterials, customMoveRules);
+            piece.Initialize(type, isWhite, sprite, pieceMaterials, customMoveRules);
 
             // Scale to fit within the tile, centered
             float scaleX = this.calculatedTileSize * 0.8f; // Use 80% of tile width
@@ -403,22 +407,22 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        // handle board resizing
-        public void Resize(int newWidth, int newHeight, bool regenerate = true)
-        {
-            this.Width = newWidth;
-            this.Height = newHeight;
+        // // handle board resizing
+        // public void Resize(int newWidth, int newHeight, bool regenerate = true)
+        // {
+        //     this.Width = newWidth;
+        //     this.Height = newHeight;
 
-            if (this.AutoScale)
-            {
-                this.CalculateScaling();
-            }
+        //     if (this.AutoScale)
+        //     {
+        //         this.CalculateScaling();
+        //     }
 
-            if (regenerate)
-            {
-                this.GenerateBoard();
-            }
-        }
+        //     if (regenerate)
+        //     {
+        //         this.GenerateBoard();
+        //     }
+        // }
 
         // // Handler for scaling from UI
         // public void OnRectTransformDimensionsChange()
@@ -461,13 +465,6 @@ namespace Assets.Scripts.Game.Board
             {
                 // Move the piece
                 this.MovePiece(this.selectedPiece, clickedTile);
-                this.ClearHighlights();
-                this.selectedPiece.UseUpdateBuffs(); // Apply buffs after move
-                this.selectedPiece = null;
-
-                this.CheckGameState(!this.IsWhiteTurn); // Check game state for enemy
-
-                this.IsWhiteTurn = !this.IsWhiteTurn; // Switch turns after move
             }
             else if (clickedTile.CurrentPiece != null) // If we clicked on a piece
             {
@@ -510,6 +507,14 @@ namespace Assets.Scripts.Game.Board
             {
                 this.EnemySpriteManager.OnPlayerMove();
             }
+
+            this.ClearHighlights();
+            this.selectedPiece.UseUpdateBuffs(); // Apply buffs after move
+            this.selectedPiece = null;
+
+            this.CheckGameState(!this.IsWhiteTurn); // Check game state for enemy
+
+            this.IsWhiteTurn = !this.IsWhiteTurn; // Switch turns after move
         }
 
         public void AddMove(
@@ -675,7 +680,6 @@ namespace Assets.Scripts.Game.Board
 
         public void SetEnemyTurn(bool enemyTurn)
         {
-            this.isEnemyTurn = enemyTurn;
             if (this.EnemySpriteManager != null)
             {
                 this.EnemySpriteManager.ShowLoading(enemyTurn);
@@ -696,7 +700,6 @@ namespace Assets.Scripts.Game.Board
             {
                 // Use the same MovePiece method so it gets recorded
                 this.MovePiece(piece, targetTile);
-                this.IsWhiteTurn = !this.IsWhiteTurn;
             }
         }
 
@@ -885,6 +888,8 @@ namespace Assets.Scripts.Game.Board
             {
                 Debug.Log("Round lost");
 
+                this.RefreshBoard(true);
+
                 // TODO: add other function for round end
                 this.RoundEndManager.ShowRoundEndPanel(
                     false,
@@ -895,6 +900,7 @@ namespace Assets.Scripts.Game.Board
             }
             else
             {
+                this.RefreshBoard(false);
                 Debug.Log("Round won");
                 this.RoundEndManager.ShowRoundEndPanel(
                     true,
@@ -902,6 +908,36 @@ namespace Assets.Scripts.Game.Board
                     InventoryManager.Instance.Income,
                     InventoryManager.Instance.PlayerBuffs
                 );
+            }
+        }
+
+        private void RefreshBoard(bool fullRefresh)
+        {
+            if (fullRefresh)
+            {
+                this.GenerateBoard();
+            }
+            else
+            {
+                var originalPlayerPieces = InventoryManager.Instance.GetAllChessPieces();
+                foreach (ChessPiece playerPiece in originalPlayerPieces)
+                {
+                    if (playerPiece == null)
+                    {
+                        continue;
+                    }
+                    string position = CoordinateHelper.XYToString(
+                        playerPiece.CurrentTile.Position.x,
+                        playerPiece.CurrentTile.Position.y
+                    );
+                    if (this.tiles.TryGetValue(position, out ChessTile tile))
+                    {
+                        tile.UpdatePiece(playerPiece, true, true);
+                    }
+                }
+                this.MoveHistory.Clear();
+                this.ClearHighlights();
+                // TODO: update buffs that end after x rounds
             }
         }
     }

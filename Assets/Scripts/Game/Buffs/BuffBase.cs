@@ -27,11 +27,11 @@ namespace Assets.Scripts.Game.Buffs
         public int Round;
 
         /// <summary> Override this to define what the buff does. </summary>
-        public abstract object BuffFunction(IChessObject buffReceiver, ChessBoard board);
+        public abstract object BuffFunction(IChessObject buffReceiver);
 
-        public object ApplyBuff(IChessObject buffReceiver, ChessBoard board)
+        public object ApplyBuff(IChessObject buffReceiver)
         {
-            if (buffReceiver == null || board == null)
+            if (buffReceiver == null)
             {
                 Debug.LogError($"Invalid arguments for buff '{this.BuffName}'.");
                 return null;
@@ -43,26 +43,29 @@ namespace Assets.Scripts.Game.Buffs
                 return null;
             }
 
-            var result = this.BuffFunction(buffReceiver, board);
-            this.UpdateDuration(board.CurrentTurn, board.CurrentRound);
+            var result = this.BuffFunction(buffReceiver);
+            this.UpdateDuration();
             return result;
         }
 
-        private void UpdateDuration(int currentTurn, int currentRound)
+        private void UpdateDuration()
         {
-            if (this.Turn < currentTurn)
+            if (this.Turn < ChessBoard.Instance.CurrentRound)
             {
-                this.DurationTurns = Mathf.Max(-1, this.DurationTurns - (currentTurn - this.Turn));
-                this.Turn = currentTurn;
+                this.DurationTurns = Mathf.Max(
+                    -1,
+                    this.DurationTurns - (ChessBoard.Instance.CurrentTurn - this.Turn)
+                );
+                this.Turn = ChessBoard.Instance.CurrentTurn;
             }
 
-            if (this.Round < currentRound)
+            if (this.Round < ChessBoard.Instance.CurrentRound)
             {
                 this.DurationRounds = Mathf.Max(
                     -1,
-                    this.DurationRounds - (currentRound - this.Round)
+                    this.DurationRounds - (ChessBoard.Instance.CurrentRound - this.Round)
                 );
-                this.Round = currentRound;
+                this.Round = ChessBoard.Instance.CurrentRound;
             }
 
             this.DurationMoves = Mathf.Max(-1, this.DurationMoves - 1);

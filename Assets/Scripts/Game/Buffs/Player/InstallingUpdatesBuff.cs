@@ -20,9 +20,9 @@ namespace Assets.Scripts.Game.Buffs.Player
             this.UpdateFunction = this.InstallingUpdatesFnc;
         }
 
-        public IChessObject InstallingUpdatesFnc(IChessObject chessObject, ChessBoard board)
+        public IChessObject InstallingUpdatesFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null || board == null)
+            if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for InstallingUpdates buff.");
                 return null;
