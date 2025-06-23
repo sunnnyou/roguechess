@@ -28,7 +28,7 @@ namespace Assets.Scripts.Game.Enemy
         private Coroutine idleCheckCoroutine;
         private Vector3 originalPlayerMoveScale;
 
-        private void Awake()
+        public void Awake()
         {
             if (this.LoadingSprite != null)
             {
@@ -53,7 +53,9 @@ namespace Assets.Scripts.Game.Enemy
             ApplyMaterial(this.LoadingSprite, this.LoadingSpriteMaterial);
 
             this.lastMoveTime = Time.time;
-            this.StartIdleCheck();
+            // LoadGameState();
+
+            Debug.Log("EnemySprite initialized");
         }
 
         private static void ApplyMaterial(SpriteRenderer sprite, Material material)
@@ -137,6 +139,16 @@ namespace Assets.Scripts.Game.Enemy
             }
 
             this.idleCheckCoroutine = this.StartCoroutine(this.CheckIdleTime());
+        }
+
+        private void StopIdleCheck()
+        {
+            if (this.idleCheckCoroutine != null)
+            {
+                this.StopCoroutine(this.idleCheckCoroutine);
+            }
+
+            this.idleCheckCoroutine = null;
         }
 
         // Coroutine to check idle time so that idle icon is shown every x seconds when its the players turn and no moves are made

@@ -2,11 +2,11 @@ namespace Assets.Scripts.UI
 {
     using System.Collections;
     using System.Collections.Generic;
+    using Assets.Scripts.Game;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.Player;
     using TMPro;
     using UnityEngine;
-    using UnityEngine.Events;
     using UnityEngine.UI;
 
     public class RoundEndUIManager : MonoBehaviour
@@ -74,9 +74,6 @@ namespace Assets.Scripts.UI
         [SerializeField]
         private AnimationCurve incrementCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-        [Header("Misc")]
-        public SceneChange SceneChanger;
-
         private int currentIncomeTime;
         private int currentIncomePieces;
         private int currentIncomeBase;
@@ -137,7 +134,7 @@ namespace Assets.Scripts.UI
                 this.nextButton.onClick.AddListener(() =>
                 {
                     InventoryManager.Instance.Gold += this.currentIncomeTotal;
-                    this.SceneChanger.LoadSceneWithFade("Shop");
+                    GameManager.LoadScene("Shop");
                 });
             }
             else
@@ -145,8 +142,9 @@ namespace Assets.Scripts.UI
                 this.nextButtonText.text = "Back to Main Menu";
                 this.goldIconNext.gameObject.SetActive(false);
                 this.nextButton.onClick.AddListener(() =>
-                    this.SceneChanger.LoadSceneWithFade("MainMenu")
-                );
+                {
+                    GameManager.LoadScene("MainMenu");
+                });
             }
 
             // Reset all income displays

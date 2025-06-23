@@ -327,6 +327,77 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 174192408}
   m_CullTransparentMesh: 0
+--- !u!1 &252973414
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 252973416}
+  - component: {fileID: 252973415}
+  m_Layer: 0
+  m_Name: ChessBoard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &252973415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252973414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f99d36c6212ddd46a9a0827078f146e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BoardData: {fileID: 11400000, guid: 575b0a5205ed7204da904d730023f66c, type: 2}
+  Width: 8
+  Height: 8
+  TileSize: 1
+  AutoScale: 1
+  ScalePadding: 0.058
+  MainFont: {fileID: 12800000, guid: 5902badc2752d8547921dc9e9695aa18, type: 3}
+  WhiteTileSprite: {fileID: -9163426285224168042, guid: 246c28b0d81d26f43bb3fed30d0a13f1, type: 3}
+  BlackTileSprite: {fileID: 8149051649407981845, guid: 44a133846dc76274493b43b6124ce2b5, type: 3}
+  WhitePawnSprite: {fileID: 21300000, guid: 3c58e929b6e078a4db85e153a0ddb531, type: 3}
+  WhiteRookSprite: {fileID: 21300000, guid: 2f07434ff0f161e47a99866b315bcd53, type: 3}
+  WhiteKnightSprite: {fileID: 21300000, guid: 88717443773bd34478db033093229786, type: 3}
+  WhiteBishopSprite: {fileID: 21300000, guid: 319457352a5e89f44a42e6ffe016ea6e, type: 3}
+  WhiteQueenSprite: {fileID: 21300000, guid: 03beb0a103f842d46b6698de983930d9, type: 3}
+  WhiteKingSprite: {fileID: 21300000, guid: 038dab76b634a7847b4040c3667ef860, type: 3}
+  BlackPawnSprite: {fileID: 21300000, guid: c154050c80e79234c935c67167fbf8c9, type: 3}
+  BlackRookSprite: {fileID: 21300000, guid: 86d6996cf5d0fd84f9fcb4b16ff64f5d, type: 3}
+  BlackKnightSprite: {fileID: 21300000, guid: ee11e7cddb617294a85bb3e288f4dde7, type: 3}
+  BlackBishopSprite: {fileID: 21300000, guid: 657c3a86f926fc4478e533e531c04210, type: 3}
+  BlackQueenSprite: {fileID: 21300000, guid: 7ac4dbac9d990c348aca20b7c9901ccf, type: 3}
+  BlackKingSprite: {fileID: 21300000, guid: a972034451271314386eb02fa86aefaf, type: 3}
+  PieceMaterial: {fileID: 2100000, guid: 2894155b5494d254dac34254dac7ebe7, type: 2}
+  IsWhiteTurn: 1
+--- !u!224 &252973416
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252973414}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.3}
+  m_LocalScale: {x: 0.92, y: 0.92, z: 0.3588}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.6, y: -0.8}
+  m_SizeDelta: {x: 10, y: 10}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &444886844
 GameObject:
   m_ObjectHideFlags: 0
@@ -498,6 +569,52 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &629340722
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 629340724}
+  - component: {fileID: 629340723}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &629340723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629340722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2001f0f25ee4cd48baa2b07a07b5f1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsPaused: 0
+  GameTime: 0
+--- !u!4 &629340724
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629340722}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 969.5255, y: 1831.1871, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &642022882
 GameObject:
   m_ObjectHideFlags: 0
@@ -801,7 +918,6 @@ GameObject:
   - component: {fileID: 2079142427}
   - component: {fileID: 2079142426}
   - component: {fileID: 2079142425}
-  - component: {fileID: 2079142428}
   m_Layer: 5
   m_Name: StartButton
   m_TagString: Untagged
@@ -873,9 +989,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2079142428}
-        m_TargetAssemblyTypeName: SceneChange, Assembly-CSharp
-        m_MethodName: LoadSceneWithFade
+      - m_Target: {fileID: 629340723}
+        m_TargetAssemblyTypeName: Assets.Scripts.Game.GameManager, Assembly-CSharp
+        m_MethodName: LoadScene
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -923,20 +1039,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2079142423}
   m_CullTransparentMesh: 1
---- !u!114 &2079142428
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079142423}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3980ebef95959d2448ee7bb759c8f08a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fadeImage: {fileID: 0}
-  fadeDuration: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -944,3 +1046,5 @@ SceneRoots:
   - {fileID: 677291191}
   - {fileID: 484438037}
   - {fileID: 1747156709}
+  - {fileID: 629340724}
+  - {fileID: 252973416}

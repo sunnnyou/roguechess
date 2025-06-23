@@ -9,7 +9,7 @@ namespace Assets.Scripts.Game.Board
     using UnityEngine;
     using UnityEngine.InputSystem;
 
-    public class ChessBoard : MonoBehaviour
+    public class ChessBoard : BaseManager
     {
         // TODO: add tile positions to border of chessboard
         // TODO: add custom piece with custom movement rules
@@ -23,7 +23,7 @@ namespace Assets.Scripts.Game.Board
         // TODO: add function to display piece buffs, hp, strength and other info when hovering over a piece
         // TODO: add function to add material to pieces or tiles when specific buffs are applied
         public static ChessBoard Instance { get; private set; }
-        public ChessBoardData BoardData; // New ScriptableObject for complete board configuration
+        public ChessBoardData BoardData;
 
         [Header("Board dimensions and scaling")]
         public int Width = 8;
@@ -35,10 +35,6 @@ namespace Assets.Scripts.Game.Board
         private float calculatedTileSize;
 
         [Header("Sprites, fonts and materials")]
-        public SelectionUIManager SelectionManager;
-        public NotificationManager NotificationManager;
-        public EnemySpriteManager EnemySpriteManager;
-        public RoundEndUIManager RoundEndManager;
         public Font MainFont;
 
         [Header("Sprites for Tiles and Pieces")]
@@ -69,21 +65,38 @@ namespace Assets.Scripts.Game.Board
         public int CurrentTurn { get; internal set; }
         public int CurrentRound { get; internal set; }
 
-        public static void InitializeBoard(ChessBoard board)
-        {
-            if (board == null)
-            {
-                return;
-            }
+        private NotificationManager notificationManager;
+        private EnemySpriteManager enemySpriteManager;
+        private RoundEndUIManager roundEndManager;
 
-            // Singleton pattern - ensure only one instance exists
+        protected override void Awake()
+        {
+            // Singleton pattern for ChessBoard
             if (Instance == null)
             {
-                Instance = board;
-                DontDestroyOnLoad(board.gameObject);
-                Debug.Log("ChessBoard: Created and marked as DontDestroyOnLoad");
-                board.StartGame();
+                Instance = this;
+                base.Awake(); // Call parent Awake
             }
+            else if (Instance != this)
+            {
+                Destroy(this.gameObject);
+                return;
+            }
+        }
+
+        public override void Initialize()
+        {
+            if (IsInitialized)
+            {
+                return; // Prevent multiple initialization
+            }
+
+            this.StartGame();
+            SetActiveAll(false);
+            // LoadGameState();
+
+            base.Initialize(); // Mark as initialized
+            Debug.Log("ChessBoard initialized");
         }
 
         public void StartGame()
@@ -241,7 +254,7 @@ namespace Assets.Scripts.Game.Board
         // Keep existing methods for backward compatibility
         public void SetupPromotion()
         {
-            PromoteAtEndPieceBuff.InitializePromotionSystem(this.SelectionManager);
+            PromoteAtEndPieceBuff.InitializePromotionSystem(SelectionUIManager.Instance);
             PromoteAtEndPieceBuff.ConfigurePromotionPieces(
                 pieces: new List<IChessObject>
                 {
@@ -407,34 +420,6 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        // // handle board resizing
-        // public void Resize(int newWidth, int newHeight, bool regenerate = true)
-        // {
-        //     this.Width = newWidth;
-        //     this.Height = newHeight;
-
-        //     if (this.AutoScale)
-        //     {
-        //         this.CalculateScaling();
-        //     }
-
-        //     if (regenerate)
-        //     {
-        //         this.GenerateBoard();
-        //     }
-        // }
-
-        // // Handler for scaling from UI
-        // public void OnRectTransformDimensionsChange()
-        // {
-        //     if (!this.AutoScale || !this.gameObject.activeInHierarchy)
-        //     {
-        //         return;
-        //     }
-
-        //     this.Start();
-        // }
-
         // Handle player input for selecting and moving pieces
         public void HandleInput()
         {
@@ -503,9 +488,9 @@ namespace Assets.Scripts.Game.Board
             targetTile.UpdatePiece(piece, false, false);
 
             // Update Enemy icons
-            if (this.EnemySpriteManager != null)
+            if (this.enemySpriteManager != null)
             {
-                this.EnemySpriteManager.OnPlayerMove();
+                this.enemySpriteManager.OnPlayerMove();
             }
 
             this.ClearHighlights();
@@ -543,7 +528,7 @@ namespace Assets.Scripts.Game.Board
                     CoordinateHelper.VectorToString((Vector2Int)currentPos)
                     + " to "
                     + CoordinateHelper.VectorToString((Vector2Int)targetPos);
-                this.NotificationManager.CreateSlideUpUI(notification);
+                this.notificationManager.CreateSlideUpUI(notification);
             }
         }
 
@@ -638,7 +623,7 @@ namespace Assets.Scripts.Game.Board
             this.ClearHighlights();
             this.selectedPiece = null;
 
-            this.NotificationManager.PopNewestUI();
+            this.notificationManager.PopNewestUI();
         }
 
         public void UndoMoves(int numberOfMoves)
@@ -680,9 +665,9 @@ namespace Assets.Scripts.Game.Board
 
         public void SetEnemyTurn(bool enemyTurn)
         {
-            if (this.EnemySpriteManager != null)
+            if (this.enemySpriteManager != null)
             {
-                this.EnemySpriteManager.ShowLoading(enemyTurn);
+                this.enemySpriteManager.ShowLoading(enemyTurn);
             }
         }
 
@@ -887,11 +872,8 @@ namespace Assets.Scripts.Game.Board
             if (isWhiteTurn)
             {
                 Debug.Log("Round lost");
-
-                this.RefreshBoard(true);
-
-                // TODO: add other function for round end
-                this.RoundEndManager.ShowRoundEndPanel(
+                RefreshBoard(true);
+                this.roundEndManager.ShowRoundEndPanel(
                     false,
                     countPiecesWhite,
                     InventoryManager.Instance.Income,
@@ -900,9 +882,9 @@ namespace Assets.Scripts.Game.Board
             }
             else
             {
-                this.RefreshBoard(false);
+                RefreshBoard(false);
                 Debug.Log("Round won");
-                this.RoundEndManager.ShowRoundEndPanel(
+                this.roundEndManager.ShowRoundEndPanel(
                     true,
                     countPiecesWhite,
                     InventoryManager.Instance.Income,
@@ -911,33 +893,51 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        private void RefreshBoard(bool fullRefresh)
+        private static void RefreshBoard(bool fullRefresh)
         {
             if (fullRefresh)
             {
-                this.GenerateBoard();
+                Instance.GenerateBoard();
             }
             else
             {
-                var originalPlayerPieces = InventoryManager.Instance.GetAllChessPieces();
-                foreach (ChessPiece playerPiece in originalPlayerPieces)
+                while (Instance.CanUndo())
                 {
-                    if (playerPiece == null)
-                    {
-                        continue;
-                    }
-                    string position = CoordinateHelper.XYToString(
-                        playerPiece.CurrentTile.Position.x,
-                        playerPiece.CurrentTile.Position.y
-                    );
-                    if (this.tiles.TryGetValue(position, out ChessTile tile))
-                    {
-                        tile.UpdatePiece(playerPiece, true, true);
-                    }
+                    Instance.UndoLastMove();
                 }
-                this.MoveHistory.Clear();
-                this.ClearHighlights();
+                Instance.MoveHistory.Clear();
+                Instance.ClearHighlights();
                 // TODO: update buffs that end after x rounds
+            }
+            Instance.IsWhiteTurn = true;
+            // TODO: fix selection manager being triggered on end
+        }
+
+        public static void SetActiveAll(bool active)
+        {
+            foreach (ChessTile tile in Instance.tiles.Values)
+            {
+                if (tile.CurrentPiece != null)
+                {
+                    tile.CurrentPiece.gameObject.SetActive(active);
+                }
+                tile.gameObject.SetActive(active);
+            }
+        }
+
+        public override void OnSceneChanged(string sceneName)
+        {
+            if (sceneName == "Game")
+            {
+                SetActiveAll(true);
+                this.enemySpriteManager = FindFirstObjectByType<EnemySpriteManager>();
+                this.notificationManager = FindFirstObjectByType<NotificationManager>();
+                this.roundEndManager = FindFirstObjectByType<RoundEndUIManager>();
+                Instance.IsWhiteTurn = true;
+            }
+            else
+            {
+                SetActiveAll(false);
             }
         }
     }

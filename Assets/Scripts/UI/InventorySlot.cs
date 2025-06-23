@@ -42,6 +42,7 @@ namespace Assets.Scripts.UI
         private static GameObject draggedIcon;
         private static InventorySlot sourceSlot;
         private Canvas canvas;
+        private bool draggable;
 
         public enum SlotType
         {
@@ -63,13 +64,14 @@ namespace Assets.Scripts.UI
         private object currentItem;
         private Color originalColor;
 
-        public void Initialize(int slotIndex, SlotType slotType)
+        public void Initialize(int slotIndex, SlotType slotType, bool draggable)
         {
             this.SlotIndex = slotIndex;
             this.Type = slotType;
             this.IsEmpty = true;
+            this.draggable = draggable;
 
-            this.canvas = GetComponentInParent<Canvas>();
+            this.canvas = this.GetComponentInParent<Canvas>();
 
             // Setup UI components
             this.SetupComponents();
@@ -254,7 +256,7 @@ namespace Assets.Scripts.UI
         // Dragging functions
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (this.IsEmpty || this.currentItem is not ChessPiece chessPiece)
+            if (!this.draggable || this.IsEmpty || this.currentItem is not ChessPiece chessPiece)
             {
                 return;
             }
@@ -269,7 +271,7 @@ namespace Assets.Scripts.UI
                 typeof(CanvasRenderer),
                 typeof(Image)
             );
-            draggedIcon.transform.SetParent(canvas.transform, false);
+            draggedIcon.transform.SetParent(this.canvas.transform, false);
             draggedIcon.transform.SetAsLastSibling();
 
             var image = draggedIcon.GetComponent<Image>();
@@ -280,17 +282,19 @@ namespace Assets.Scripts.UI
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (draggedIcon != null)
+            if (!this.draggable || draggedIcon == null)
             {
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    canvas.transform as RectTransform,
-                    eventData.position,
-                    eventData.pressEventCamera,
-                    out Vector2 pos
-                );
-
-                ((RectTransform)draggedIcon.transform).anchoredPosition = pos;
+                return;
             }
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                this.canvas.transform as RectTransform,
+                eventData.position,
+                eventData.pressEventCamera,
+                out Vector2 pos
+            );
+
+            ((RectTransform)draggedIcon.transform).anchoredPosition = pos;
         }
 
         public void OnEndDrag(PointerEventData eventData)
@@ -299,6 +303,11 @@ namespace Assets.Scripts.UI
             {
                 Destroy(draggedIcon);
                 draggedIcon = null;
+            }
+
+            if (!this.draggable || eventData == null)
+            {
+                return;
             }
 
             GameObject targetObj = eventData.pointerCurrentRaycast.gameObject;

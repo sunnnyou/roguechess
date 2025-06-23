@@ -2,6 +2,7 @@ namespace Assets.Scripts.UI
 {
     using System;
     using System.Collections.Generic;
+    using Assets.Scripts.Game;
     using Assets.Scripts.Game.Board;
     using Assets.Scripts.UI.Tooltip;
     using UnityEngine;
@@ -9,6 +10,7 @@ namespace Assets.Scripts.UI
     // UI Manager for handling object selection
     public class SelectionUIManager : MonoBehaviour
     {
+        public static SelectionUIManager Instance { get; private set; }
         private GameObject selectionPanel;
         private IChessObject selectedObject;
         private Action<IChessObject> selectionCallback;
@@ -24,9 +26,18 @@ namespace Assets.Scripts.UI
         private Color buttonSelectedColor = new(0.3f, 0.7f, 1f, 1f);
         private Color buttonHoverColor = new(1f, 1f, 1f, 0.8f);
 
-        private void Start()
+        public void Awake()
         {
-            // empty for now
+            // Singleton pattern for ChessBoard
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else if (Instance != this)
+            {
+                Destroy(this.gameObject);
+                return;
+            }
         }
 
         // Shows selection UI with customizable options.

@@ -2,6 +2,7 @@ namespace Assets.Scripts.UI
 {
     using System.Collections;
     using System.Collections.Generic;
+    using Assets.Scripts.Game;
     using DG.Tweening;
     using TMPro;
     using UnityEngine;
@@ -14,7 +15,7 @@ namespace Assets.Scripts.UI
         private GameObject uiPrefab;
 
         [SerializeField]
-        private GameObject scrollContainer; // Reference to existing container in scene
+        private GameObject scrollContainer;
 
         [Header("Animation Settings")]
         [SerializeField]
@@ -35,7 +36,7 @@ namespace Assets.Scripts.UI
         private VerticalLayoutGroup layoutGroup;
         private readonly List<GameObject> uiObjectStack = new();
 
-        public void Start()
+        public void Awake()
         {
             this.InitializeComponents();
             this.SetupScrollContainer();

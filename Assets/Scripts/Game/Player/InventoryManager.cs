@@ -22,9 +22,6 @@ namespace Assets.Scripts.Game.Player
         private List<BuffBase> consumables = new();
         public List<BuffBase> PlayerBuffs;
 
-        [SerializeField]
-        private ChessBoard chessBoard;
-
         private ChessPiece[] chessPieces;
 
         [NonSerialized]
@@ -40,31 +37,28 @@ namespace Assets.Scripts.Game.Player
         public static event Action<BuffBase> OnConsumableRemoved;
         public static event Action<int> OnGoldChanged;
         public static event Action OnInventoryChanged;
+        public static event Action OnToggleInventory;
 
         // Awake instead of Start to make sure its always instantiated when used by other scripts
         private void Awake()
         {
-            ChessBoard.InitializeBoard(this.chessBoard);
-
-            // Singleton pattern - ensure only one instance exists
             if (Instance == null)
             {
+                Debug.Log("InventoryManager: Created and marked as DontDestroyOnLoad");
                 Instance = this;
                 DontDestroyOnLoad(this.gameObject);
-                Debug.Log("InventoryManager: Created and marked as DontDestroyOnLoad");
+            }
+            else
+            {
+                Destroy(this.gameObject);
+            }
 
-                this.MaxChessPieceSlots = this.Rows * this.Columns;
+            this.MaxChessPieceSlots = this.Rows * this.Columns;
 
-                // Try to create chessboard with all chess pieces
-                if (ChessBoard.Instance != null)
-                {
-                    this.chessPieces = ChessBoard.Instance.GetAllPiecesArray(true);
-                }
-                else
-                {
-                    Debug.LogError("ChessBoard for InventoryManager is null!");
-                    this.chessPieces = new ChessPiece[this.MaxChessPieceSlots];
-                }
+            // Try to create chessboard with all chess pieces
+            if (ChessBoard.Instance != null && this.chessPieces == null)
+            {
+                this.chessPieces = ChessBoard.Instance.GetAllPiecesArray(true);
             }
         }
 
@@ -423,36 +417,9 @@ namespace Assets.Scripts.Game.Player
             return this.GetChessPieceCount() == 0 && this.consumables.Count == 0;
         }
 
-        public string GetInventoryInfo()
+        public static void ToggleInventory()
         {
-            return $"Chess Pieces: {this.GetChessPieceCount()}/{this.MaxChessPieceSlots}, "
-                + $"Consumables: {this.consumables.Count}/{this.MaxConsumableSlots}, "
-                + $"Gold: {this.Gold}";
-        }
-
-        [ContextMenu("Debug Print Inventory")]
-        public void DebugPrintInventory()
-        {
-            var chessPieceCount = this.GetChessPieceCount();
-            Debug.Log("=== INVENTORY DEBUG ===");
-            Debug.Log($"Gold: {this.Gold}");
-            Debug.Log($"Chess Pieces ({chessPieceCount}/{this.MaxChessPieceSlots}):");
-
-            for (int i = 0; i < this.MaxChessPieceSlots; i++)
-            {
-                var chessPiece = this.chessPieces[i];
-                if (chessPiece != null)
-                {
-                    Debug.Log($"  [{i}] {chessPiece.PieceType}");
-                }
-            }
-
-            Debug.Log($"Consumables ({this.consumables.Count}/{this.MaxConsumableSlots}):");
-            for (int i = 0; i < this.consumables.Count; i++)
-            {
-                Debug.Log($"  [{i}] {this.consumables[i].BuffName}");
-            }
-            Debug.Log("======================");
+            OnToggleInventory?.Invoke();
         }
     }
 }

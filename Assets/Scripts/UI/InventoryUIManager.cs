@@ -7,6 +7,7 @@ namespace Assets.Scripts.UI
     using TMPro;
     using UnityEngine;
     using UnityEngine.InputSystem;
+    using UnityEngine.SceneManagement;
     using UnityEngine.UI;
 
     public class InventoryUIManager : MonoBehaviour
@@ -16,17 +17,11 @@ namespace Assets.Scripts.UI
         private GameObject inventoryPanel;
 
         [SerializeField]
-        private Button inventoryToggleButton;
-
-        [SerializeField]
         private Button closeInventoryButton;
 
         [Header("Gold Display")]
         [SerializeField]
-        private TextMeshProUGUI goldTextInventory;
-
-        [SerializeField]
-        private TextMeshProUGUI goldTextMenu;
+        private TextMeshProUGUI goldText;
 
         [Header("Chess Pieces")]
         [SerializeField]
@@ -67,9 +62,13 @@ namespace Assets.Scripts.UI
 
         private void Start()
         {
-            this.InitializeUI();
+            bool draggable = SceneManager.GetActiveScene().name != "Game";
+
+            this.InitializeUI(draggable);
             this.SetupEventListeners();
             this.RefreshInventoryDisplay();
+
+            // Handle scene-specific inventory logic
 
             if (this.startClosed)
             {
@@ -92,27 +91,22 @@ namespace Assets.Scripts.UI
 
         // Initialization
 
-        private void InitializeUI()
+        private void InitializeUI(bool draggable)
         {
             // Setup button listeners
-            if (this.inventoryToggleButton != null)
-            {
-                this.inventoryToggleButton.onClick.AddListener(this.ToggleInventory);
-            }
-
             if (this.closeInventoryButton != null)
             {
                 this.closeInventoryButton.onClick.AddListener(this.CloseInventory);
             }
 
             // Create chess piece slots
-            this.CreateChessPieceSlots();
+            this.CreateChessPieceSlots(draggable);
 
             // Create consumable slots
             this.CreateConsumableSlots();
         }
 
-        private void CreateChessPieceSlots()
+        private void CreateChessPieceSlots(bool draggable)
         {
             if (this.chessPieceContainer == null || this.chessPieceSlotPrefab == null)
             {
@@ -133,7 +127,7 @@ namespace Assets.Scripts.UI
                 {
                     slot = slotObj.AddComponent<InventorySlot>();
                 }
-                slot.Initialize(i, InventorySlot.SlotType.ChessPiece);
+                slot.Initialize(i, InventorySlot.SlotType.ChessPiece, draggable);
                 slot.OnSlotClicked += this.OnChessPieceSlotClicked;
 
                 // Chess board pattern
@@ -181,7 +175,7 @@ namespace Assets.Scripts.UI
                     slot = slotObj.AddComponent<InventorySlot>();
                 }
 
-                slot.Initialize(i, InventorySlot.SlotType.Consumable);
+                slot.Initialize(i, InventorySlot.SlotType.Consumable, false);
                 slot.OnSlotClicked += this.OnConsumableSlotClicked;
                 this.consumableSlots.Add(slot);
             }
@@ -197,6 +191,7 @@ namespace Assets.Scripts.UI
             InventoryManager.OnConsumableRemoved += this.OnConsumableRemoved;
             InventoryManager.OnGoldChanged += this.OnGoldChanged;
             InventoryManager.OnInventoryChanged += this.OnInventoryChanged;
+            InventoryManager.OnToggleInventory += this.ToggleInventory;
         }
 
         private void RemoveEventListeners()
@@ -207,6 +202,7 @@ namespace Assets.Scripts.UI
             InventoryManager.OnConsumableRemoved -= this.OnConsumableRemoved;
             InventoryManager.OnGoldChanged -= this.OnGoldChanged;
             InventoryManager.OnInventoryChanged -= this.OnInventoryChanged;
+            InventoryManager.OnToggleInventory -= this.ToggleInventory;
         }
 
         // Event Handlers
@@ -273,13 +269,9 @@ namespace Assets.Scripts.UI
 
         private void UpdateGoldDisplay()
         {
-            if (this.goldTextInventory != null)
+            if (this.goldText != null)
             {
-                this.goldTextInventory.text = InventoryManager.Instance.Gold.ToString();
-            }
-            if (this.goldTextMenu != null)
-            {
-                this.goldTextMenu.text = InventoryManager.Instance.Gold.ToString();
+                this.goldText.text = InventoryManager.Instance.Gold.ToString();
             }
         }
 
