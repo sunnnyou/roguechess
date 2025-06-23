@@ -16,9 +16,11 @@ namespace Assets.Scripts.Game.Player
         public int Columns = 8;
         public int MaxConsumableSlots = 5;
         public int Gold;
+        public int Income = 3;
 
         [SerializeField]
         private List<BuffBase> consumables = new();
+        public List<BuffBase> PlayerBuffs;
 
         [SerializeField]
         private ChessBoard chessBoard;
@@ -60,7 +62,6 @@ namespace Assets.Scripts.Game.Player
             // Try to create chessboard with all chess pieces
             if (this.chessBoard != null)
             {
-                this.chessBoard.StartGame();
                 this.chessPieces = this.chessBoard.GetAllPiecesArray(true);
             }
             else

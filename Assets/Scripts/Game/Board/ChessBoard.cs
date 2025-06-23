@@ -4,6 +4,7 @@ namespace Assets.Scripts.Game.Board
     using Assets.Scripts.Game.Buffs.Pieces.Update;
     using Assets.Scripts.Game.Enemy;
     using Assets.Scripts.Game.MoveRules;
+    using Assets.Scripts.Game.Player;
     using Assets.Scripts.UI;
     using UnityEngine;
     using UnityEngine.InputSystem;
@@ -23,7 +24,7 @@ namespace Assets.Scripts.Game.Board
         // TODO: add function to add material to pieces or tiles when specific buffs are applied
         public ChessBoardData BoardData; // New ScriptableObject for complete board configuration
 
-        // Board dimensions and scaling
+        [Header("Board dimensions and scaling")]
         public int Width = 8;
         public int Height = 8;
         public float TileSize = 1.0f;
@@ -32,10 +33,11 @@ namespace Assets.Scripts.Game.Board
         private RectTransform parentRectTransform;
         private float calculatedTileSize;
 
-        // Sprites, fonts and materials
+        [Header("Sprites, fonts and materials")]
         public SelectionUIManager SelectionManager;
         public NotificationManager NotificationManager;
         public EnemySpriteManager EnemySpriteManager;
+        public RoundEndUIManager RoundEndManager;
         public Font MainFont;
 
         [Header("Sprites for Tiles and Pieces")]
@@ -67,6 +69,20 @@ namespace Assets.Scripts.Game.Board
 
         public int CurrentTurn { get; internal set; }
         public int CurrentRound { get; internal set; }
+
+        private void Awake()
+        {
+            // Make this object persist across scene changes
+            DontDestroyOnLoad(this.gameObject);
+
+            // Optional: Implement singleton pattern to prevent duplicates
+            if (FindObjectsByType<ChessBoard>(FindObjectsSortMode.None).Length > 1)
+            {
+                Destroy(this.gameObject);
+                return;
+            }
+            this.StartGame();
+        }
 
         public void StartGame()
         {
@@ -722,18 +738,8 @@ namespace Assets.Scripts.Game.Board
         }
 
         // Check if the king of a specific color is in check
-        public bool? IsInCheck(bool isWhiteKing)
+        public bool IsInCheck(bool isWhiteKing, ChessPiece king)
         {
-            // Find the king
-            List<ChessPiece> kings = this.GetPiecesOfType(ChessPieceType.King, isWhiteKing);
-            if (kings.Count == 0)
-            {
-                return null; // No king found
-            }
-
-            ChessPiece king = kings[0];
-            Vector2Int kingPosition = king.CurrentTile.Position;
-
             // Check if any enemy piece can attack the king's position
             List<ChessPiece> enemyPieces = this.GetAllPieces(!isWhiteKing);
             foreach (var enemyPiece in enemyPieces)
@@ -741,7 +747,7 @@ namespace Assets.Scripts.Game.Board
                 var validMoves = enemyPiece.GetValidMoves();
                 foreach (var move in validMoves)
                 {
-                    if (move.TargetPosition == kingPosition)
+                    if (move.TargetPosition == king.CurrentTile.Position)
                     {
                         return true; // King is in check
                     }
@@ -752,7 +758,7 @@ namespace Assets.Scripts.Game.Board
         }
 
         // Evaluate if the current position is checkmate or stalemate
-        public GameState CheckGameState(bool isWhiteTurn)
+        public void CheckGameState(bool isWhiteTurn)
         {
             List<ChessPiece> currentPlayerPieces = this.GetAllPieces(isWhiteTurn);
             bool hasValidMoves = false;
@@ -769,45 +775,35 @@ namespace Assets.Scripts.Game.Board
             }
 
             // TODO: add event for check (Highlight king, show check icon, etc.)
-
+            // TODO: instead of returning GameState, add a GameOver event that can be handled by the UI
             if (!hasValidMoves)
             {
-                // TODO: instead of returning GameState, add a GameOver event that can be handled by the UI
-
-                // No valid moves available
-                if (this.IsInCheck(isWhiteTurn) is true or null)
-                {
-                    return isWhiteTurn ? GameState.BlackWins : GameState.WhiteWins; // Checkmate
-                }
-                else
-                {
-                    return GameState.Stalemate; // Stalemate
-                }
+                this.EndGame(isWhiteTurn); // Checkmate
+                return;
             }
 
-            return GameState.Ongoing; // Game continues
-        }
-
-        public static void HandleGameEnd(GameState state)
-        {
-            // Handle game end logic here
-            switch (state)
+            // Find the king
+            List<ChessPiece> kings = this.GetPiecesOfType(ChessPieceType.King, isWhiteTurn);
+            if (kings.Count == 0)
             {
-                case GameState.WhiteWins:
-                    Debug.Log("White wins!");
-                    break;
-                case GameState.BlackWins:
-                    Debug.Log("Black wins!");
-                    break;
-                case GameState.Stalemate:
-                    Debug.Log("Stalemate!");
-                    break;
-                default:
-                    Debug.Log("Game continues.");
-                    break;
+                this.EndGame(isWhiteTurn); // No king found
+                return;
             }
 
-            // TODO:
+            // Check for check
+            bool checkAnimation = false;
+            foreach (ChessPiece king in kings)
+            {
+                bool inCheck = this.IsInCheck(isWhiteTurn, king);
+                king.CurrentTile.InCheck(inCheck);
+                if (inCheck && !isWhiteTurn && !checkAnimation)
+                {
+                    // TODO: add animation for enemy (sweating or blinking exclamation mark)
+                    checkAnimation = true;
+                }
+            }
+
+            // Game continues
         }
 
         public static bool IsWhite(int x, int y)
@@ -879,6 +875,33 @@ namespace Assets.Scripts.Game.Board
                 var fromPiece = fromTile.CurrentPiece;
                 fromTile.UpdatePiece(toTile.CurrentPiece, true, true);
                 toTile.UpdatePiece(fromPiece, true, true);
+            }
+        }
+
+        private void EndGame(bool isWhiteTurn)
+        {
+            int countPiecesWhite = this.GetAllPieces(true).Count;
+            if (isWhiteTurn)
+            {
+                Debug.Log("Round lost");
+
+                // TODO: add other function for round end
+                this.RoundEndManager.ShowRoundEndPanel(
+                    false,
+                    countPiecesWhite,
+                    InventoryManager.Instance.Income,
+                    InventoryManager.Instance.PlayerBuffs
+                );
+            }
+            else
+            {
+                Debug.Log("Round won");
+                this.RoundEndManager.ShowRoundEndPanel(
+                    true,
+                    countPiecesWhite,
+                    InventoryManager.Instance.Income,
+                    InventoryManager.Instance.PlayerBuffs
+                );
             }
         }
     }

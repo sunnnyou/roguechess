@@ -6,30 +6,30 @@ namespace Assets.Scripts.UI
     public class TimerScript : MonoBehaviour
     {
         // Reference to the TextMeshPro text component
-        public TextMeshProUGUI timerText;
+        public TextMeshProUGUI TimerText;
 
         // Timer variables
-        private float timeElapsed = 0f;
+        public float TimeElapsed;
         private int minutes;
         private int seconds;
 
-        void Update()
+        public void Update()
         {
             // Update timer only if the game is running or timer is active
-            timeElapsed += Time.deltaTime;
-            
+            this.TimeElapsed += Time.deltaTime;
+
             // Calculate minutes and seconds
-            minutes = Mathf.FloorToInt(timeElapsed / 60);
-            seconds = Mathf.FloorToInt(timeElapsed % 60);
+            this.minutes = Mathf.FloorToInt(this.TimeElapsed / 60);
+            this.seconds = Mathf.FloorToInt(this.TimeElapsed % 60);
 
             // Format the time as MM:SS
-            timerText.text = string.Format("{0:D2}:{1:D2}", minutes, seconds);
+            this.TimerText.text = string.Format("{0:D2}:{1:D2}", this.minutes, this.seconds);
         }
 
         // Optionally, reset the timer
         public void ResetTimer()
         {
-            timeElapsed = 0f;
+            this.TimeElapsed = 0f;
         }
     }
 }

@@ -1,6 +1,7 @@
 // Represents a single chess tile on the board
 namespace Assets.Scripts.Game.Board
 {
+    using System;
     using System.Collections.Generic;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.MoveRules;
@@ -20,6 +21,7 @@ namespace Assets.Scripts.Game.Board
         public ChessPiece CurrentPiece;
 
         private Color highlightColor = new(0.0f, 0.4f, 0.0f); // green
+        private Color checkColor = new(0.4f, 0.0f, 0.0f); // red
 
         // Initialize from ScriptableObject data
         public void Initialize(
@@ -252,6 +254,18 @@ namespace Assets.Scripts.Game.Board
         public bool ShouldSpawnPiece()
         {
             return this.tileData != null && this.tileData.SpawnPieceOnInitialize;
+        }
+
+        public void InCheck(bool inCheck)
+        {
+            if (inCheck)
+            {
+                this.SpriteRenderer.color = this.checkColor;
+            }
+            else
+            {
+                this.SpriteRenderer.color = this.OriginalColor;
+            }
         }
     }
 }
