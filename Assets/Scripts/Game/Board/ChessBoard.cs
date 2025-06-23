@@ -869,6 +869,7 @@ namespace Assets.Scripts.Game.Board
         private void EndGame(bool isWhiteTurn)
         {
             int countPiecesWhite = this.GetAllPieces(true).Count;
+            PromoteAtEndPieceBuff.SelectionUIManager.HideSelectionUI();
             if (isWhiteTurn)
             {
                 Debug.Log("Round lost");

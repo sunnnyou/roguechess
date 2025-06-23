@@ -347,7 +347,7 @@ namespace Assets.Scripts.UI
             this.HideSelectionUI();
         }
 
-        private void HideSelectionUI()
+        public void HideSelectionUI()
         {
             if (this.selectionPanel != null)
             {

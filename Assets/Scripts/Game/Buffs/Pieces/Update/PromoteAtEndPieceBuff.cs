@@ -26,7 +26,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
         private readonly int? promoteAtY;
 
         // Reference to the generic selection UI manager
-        private static SelectionUIManager selectionUIManager;
+        public static SelectionUIManager SelectionUIManager { get; private set; }
 
         // Promotion configuration - can be set statically or per instance
         public static List<IChessObject> PromotionPieces { get; private set; } = new();
@@ -49,7 +49,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
         // Initialize the promotion system with the UI manager
         public static void InitializePromotionSystem(SelectionUIManager uiManager)
         {
-            selectionUIManager = uiManager;
+            SelectionUIManager = uiManager;
         }
 
         // Set up promotion pieces and their display information
@@ -119,7 +119,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
         // Requests promotion using the generic selection UI
         private static void RequestPromotion(ChessPiece piece)
         {
-            if (selectionUIManager == null)
+            if (SelectionUIManager == null)
             {
                 Debug.LogError(
                     "GenericSelectionUIManager not initialized! Call InitializePromotionSystem() first."
@@ -136,7 +136,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
             }
 
             // Show the generic selection UI for promotion
-            selectionUIManager.ShowSelectionUI(
+            SelectionUIManager.ShowSelectionUI(
                 PromotionPieces,
                 (selectedPiece) => OnPromotionSelected(piece, selectedPiece),
                 PromotionTitle,
@@ -171,7 +171,6 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
         // Completes the promotion by replacing the piece on the board
         private static void CompletePromotion(ChessPiece oldPiece, ChessPiece newPiece)
         {
-            // TODO: add to move list of ChessBoard for Undo
             if (oldPiece == null || oldPiece.CurrentTile == null || newPiece == null)
             {
                 Debug.LogError("Cannot complete promotion: invalid pieces or tile.");
