@@ -52,14 +52,14 @@ namespace Assets.Scripts.UI.Buffs
             // Display new buff content
             this.DisplayRandomBuff();
 
-            // Open scroll and wait for it to complete
-            this.OpenScrollAsync(false);
+            // Open scroll
+            _ = this.OpenScrollAsync(false);
 
             this.enoughGold = InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost);
             this.enoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
             this.changed = true;
-
             this.EnableBuying();
+            this.DisableBuying();
         }
 
         private void OnDestroy()

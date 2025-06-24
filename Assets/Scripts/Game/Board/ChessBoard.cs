@@ -1,6 +1,8 @@
 namespace Assets.Scripts.Game.Board
 {
+    using System;
     using System.Collections.Generic;
+    using Assets.Scripts.Game.AI;
     using Assets.Scripts.Game.Buffs.Pieces.Update;
     using Assets.Scripts.Game.Enemy;
     using Assets.Scripts.Game.MoveRules;
@@ -68,6 +70,7 @@ namespace Assets.Scripts.Game.Board
         private NotificationManager notificationManager;
         private EnemySpriteManager enemySpriteManager;
         private RoundEndUIManager roundEndManager;
+        private ChessEngine chessEngine;
 
         protected override void Awake()
         {
@@ -86,7 +89,7 @@ namespace Assets.Scripts.Game.Board
 
         public override void Initialize()
         {
-            if (IsInitialized)
+            if (this.IsInitialized)
             {
                 return; // Prevent multiple initialization
             }
@@ -114,7 +117,16 @@ namespace Assets.Scripts.Game.Board
 
         public void Update()
         {
-            this.HandleInput();
+            if (this.chessEngine != null && !this.IsWhiteTurn)
+            {
+                // Make AI move for black pieces
+                this.chessEngine.MakeBestMove(false);
+                this.IsWhiteTurn = true;
+            }
+            else
+            {
+                this.HandleInput();
+            }
         }
 
         public void GenerateBoard()
@@ -869,9 +881,11 @@ namespace Assets.Scripts.Game.Board
         private void EndGame(bool isWhiteTurn)
         {
             int countPiecesWhite = this.GetAllPieces(true).Count;
-            if (PromoteAtEndPieceBuff.SelectionUIManager != null) {
+            if (PromoteAtEndPieceBuff.SelectionUIManager != null)
+            {
                 PromoteAtEndPieceBuff.SelectionUIManager.HideSelectionUI();
             }
+
             if (isWhiteTurn)
             {
                 Debug.Log("Round lost");
@@ -936,12 +950,18 @@ namespace Assets.Scripts.Game.Board
                 this.enemySpriteManager = FindFirstObjectByType<EnemySpriteManager>();
                 this.notificationManager = FindFirstObjectByType<NotificationManager>();
                 this.roundEndManager = FindFirstObjectByType<RoundEndUIManager>();
+                this.chessEngine = FindFirstObjectByType<ChessEngine>();
                 Instance.IsWhiteTurn = true;
             }
             else
             {
                 SetActiveAll(false);
             }
+        }
+
+        internal IEnumerable<ChessTile> GetAllTiles()
+        {
+            return this.tiles.Values;
         }
     }
 }
