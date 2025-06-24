@@ -35,89 +35,91 @@ namespace Assets.Scripts.Game.AI
             { ChessPieceType.King, 20000 },
         };
 
+        public bool Thinking { get; private set; }
+
         // Position bonus tables for piece placement
-        private readonly int[,] pawnTable = new int[8, 8]
+        private readonly int[][] pawnTable = new int[][]
         {
-            { 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 50, 50, 50, 50, 50, 50, 50, 50 },
-            { 10, 10, 20, 30, 30, 20, 10, 10 },
-            { 5, 5, 10, 25, 25, 10, 5, 5 },
-            { 0, 0, 0, 20, 20, 0, 0, 0 },
-            { 5, -5, -10, 0, 0, -10, -5, 5 },
-            { 5, 10, 10, -20, -20, 10, 10, 5 },
-            { 0, 0, 0, 0, 0, 0, 0, 0 },
+            new int[] { 0, 0, 0, 0, 0, 0, 0, 0 },
+            new int[] { 50, 50, 50, 50, 50, 50, 50, 50 },
+            new int[] { 10, 10, 20, 30, 30, 20, 10, 10 },
+            new int[] { 5, 5, 10, 25, 25, 10, 5, 5 },
+            new int[] { 0, 0, 0, 20, 20, 0, 0, 0 },
+            new int[] { 5, -5, -10, 0, 0, -10, -5, 5 },
+            new int[] { 5, 10, 10, -20, -20, 10, 10, 5 },
+            new int[] { 0, 0, 0, 0, 0, 0, 0, 0 },
         };
 
-        private readonly int[,] knightTable = new int[8, 8]
+        private readonly int[][] knightTable = new int[][]
         {
-            { -50, -40, -30, -30, -30, -30, -40, -50 },
-            { -40, -20, 0, 0, 0, 0, -20, -40 },
-            { -30, 0, 10, 15, 15, 10, 0, -30 },
-            { -30, 5, 15, 20, 20, 15, 5, -30 },
-            { -30, 0, 15, 20, 20, 15, 0, -30 },
-            { -30, 5, 10, 15, 15, 10, 5, -30 },
-            { -40, -20, 0, 5, 5, 0, -20, -40 },
-            { -50, -40, -30, -30, -30, -30, -40, -50 },
+            new int[] { -50, -40, -30, -30, -30, -30, -40, -50 },
+            new int[] { -40, -20, 0, 0, 0, 0, -20, -40 },
+            new int[] { -30, 0, 10, 15, 15, 10, 0, -30 },
+            new int[] { -30, 5, 15, 20, 20, 15, 5, -30 },
+            new int[] { -30, 0, 15, 20, 20, 15, 0, -30 },
+            new int[] { -30, 5, 10, 15, 15, 10, 5, -30 },
+            new int[] { -40, -20, 0, 5, 5, 0, -20, -40 },
+            new int[] { -50, -40, -30, -30, -30, -30, -40, -50 },
         };
 
-        private readonly int[,] bishopTable = new int[8, 8]
+        private readonly int[][] bishopTable = new int[][]
         {
-            { -20, -10, -10, -10, -10, -10, -10, -20 },
-            { -10, 0, 0, 0, 0, 0, 0, -10 },
-            { -10, 0, 5, 10, 10, 5, 0, -10 },
-            { -10, 5, 5, 10, 10, 5, 5, -10 },
-            { -10, 0, 10, 10, 10, 10, 0, -10 },
-            { -10, 10, 10, 10, 10, 10, 10, -10 },
-            { -10, 5, 0, 0, 0, 0, 5, -10 },
-            { -20, -10, -10, -10, -10, -10, -10, -20 },
+            new int[] { -20, -10, -10, -10, -10, -10, -10, -20 },
+            new int[] { -10, 0, 0, 0, 0, 0, 0, -10 },
+            new int[] { -10, 0, 5, 10, 10, 5, 0, -10 },
+            new int[] { -10, 5, 5, 10, 10, 5, 5, -10 },
+            new int[] { -10, 0, 10, 10, 10, 10, 0, -10 },
+            new int[] { -10, 10, 10, 10, 10, 10, 10, -10 },
+            new int[] { -10, 5, 0, 0, 0, 0, 5, -10 },
+            new int[] { -20, -10, -10, -10, -10, -10, -10, -20 },
         };
 
-        private readonly int[,] rookTable = new int[8, 8]
+        private readonly int[][] rookTable = new int[][]
         {
-            { 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 5, 10, 10, 10, 10, 10, 10, 5 },
-            { -5, 0, 0, 0, 0, 0, 0, -5 },
-            { -5, 0, 0, 0, 0, 0, 0, -5 },
-            { -5, 0, 0, 0, 0, 0, 0, -5 },
-            { -5, 0, 0, 0, 0, 0, 0, -5 },
-            { -5, 0, 0, 0, 0, 0, 0, -5 },
-            { 0, 0, 0, 5, 5, 0, 0, 0 },
+            new int[] { 0, 0, 0, 0, 0, 0, 0, 0 },
+            new int[] { 5, 10, 10, 10, 10, 10, 10, 5 },
+            new int[] { -5, 0, 0, 0, 0, 0, 0, -5 },
+            new int[] { -5, 0, 0, 0, 0, 0, 0, -5 },
+            new int[] { -5, 0, 0, 0, 0, 0, 0, -5 },
+            new int[] { -5, 0, 0, 0, 0, 0, 0, -5 },
+            new int[] { -5, 0, 0, 0, 0, 0, 0, -5 },
+            new int[] { 0, 0, 0, 5, 5, 0, 0, 0 },
         };
 
-        private readonly int[,] queenTable = new int[8, 8]
+        private readonly int[][] queenTable = new int[][]
         {
-            { -20, -10, -10, -5, -5, -10, -10, -20 },
-            { -10, 0, 0, 0, 0, 0, 0, -10 },
-            { -10, 0, 5, 5, 5, 5, 0, -10 },
-            { -5, 0, 5, 5, 5, 5, 0, -5 },
-            { 0, 0, 5, 5, 5, 5, 0, -5 },
-            { -10, 5, 5, 5, 5, 5, 0, -10 },
-            { -10, 0, 5, 0, 0, 0, 0, -10 },
-            { -20, -10, -10, -5, -5, -10, -10, -20 },
+            new int[] { -20, -10, -10, -5, -5, -10, -10, -20 },
+            new int[] { -10, 0, 0, 0, 0, 0, 0, -10 },
+            new int[] { -10, 0, 5, 5, 5, 5, 0, -10 },
+            new int[] { -5, 0, 5, 5, 5, 5, 0, -5 },
+            new int[] { 0, 0, 5, 5, 5, 5, 0, -5 },
+            new int[] { -10, 5, 5, 5, 5, 5, 0, -10 },
+            new int[] { -10, 0, 5, 0, 0, 0, 0, -10 },
+            new int[] { -20, -10, -10, -5, -5, -10, -10, -20 },
         };
 
-        private readonly int[,] kingMiddleGameTable = new int[8, 8]
+        private readonly int[][] kingMiddleGameTable = new int[][]
         {
-            { -30, -40, -40, -50, -50, -40, -40, -30 },
-            { -30, -40, -40, -50, -50, -40, -40, -30 },
-            { -30, -40, -40, -50, -50, -40, -40, -30 },
-            { -30, -40, -40, -50, -50, -40, -40, -30 },
-            { -20, -30, -30, -40, -40, -30, -30, -20 },
-            { -10, -20, -20, -20, -20, -20, -20, -10 },
-            { 20, 20, 0, 0, 0, 0, 20, 20 },
-            { 20, 30, 10, 0, 0, 10, 30, 20 },
+            new int[] { -30, -40, -40, -50, -50, -40, -40, -30 },
+            new int[] { -30, -40, -40, -50, -50, -40, -40, -30 },
+            new int[] { -30, -40, -40, -50, -50, -40, -40, -30 },
+            new int[] { -30, -40, -40, -50, -50, -40, -40, -30 },
+            new int[] { -20, -30, -30, -40, -40, -30, -30, -20 },
+            new int[] { -10, -20, -20, -20, -20, -20, -20, -10 },
+            new int[] { 20, 20, 0, 0, 0, 0, 20, 20 },
+            new int[] { 20, 30, 10, 0, 0, 10, 30, 20 },
         };
 
-        private readonly int[,] kingEndGameTable = new int[8, 8]
+        private readonly int[][] kingEndGameTable = new int[][]
         {
-            { -50, -40, -30, -20, -20, -30, -40, -50 },
-            { -30, -20, -10, 0, 0, -10, -20, -30 },
-            { -30, -10, 20, 30, 30, 20, -10, -30 },
-            { -30, -10, 30, 40, 40, 30, -10, -30 },
-            { -30, -10, 30, 40, 40, 30, -10, -30 },
-            { -30, -10, 20, 30, 30, 20, -10, -30 },
-            { -30, -30, 0, 0, 0, 0, -30, -30 },
-            { -50, -30, -30, -30, -30, -30, -30, -50 },
+            new int[] { -50, -40, -30, -20, -20, -30, -40, -50 },
+            new int[] { -30, -20, -10, 0, 0, -10, -20, -30 },
+            new int[] { -30, -10, 20, 30, 30, 20, -10, -30 },
+            new int[] { -30, -10, 30, 40, 40, 30, -10, -30 },
+            new int[] { -30, -10, 30, 40, 40, 30, -10, -30 },
+            new int[] { -30, -10, 20, 30, 30, 20, -10, -30 },
+            new int[] { -30, -30, 0, 0, 0, 0, -30, -30 },
+            new int[] { -50, -30, -30, -30, -30, -30, -30, -50 },
         };
 
         private System.Random random;
@@ -134,9 +136,16 @@ namespace Assets.Scripts.Game.AI
 
         private System.Collections.IEnumerator ThinkAndMove(bool isWhite)
         {
-            // Add some thinking time for realism
-            float thinkTime = Random.Range(this.thinkingTimeMin, this.thinkingTimeMax);
-            yield return new WaitForSeconds(thinkTime);
+            if (this.Thinking)
+            {
+                yield break;
+            }
+
+            this.Thinking = true;
+
+            // // Add some thinking time for realism
+            // float thinkTime = Random.Range(this.thinkingTimeMin, this.thinkingTimeMax);
+            // yield return new WaitForSeconds(thinkTime);
 
             ChessMove bestMove = this.GetBestMove(isWhite);
 
@@ -148,6 +157,7 @@ namespace Assets.Scripts.Game.AI
             {
                 Debug.LogWarning("No valid moves found for AI");
             }
+            this.Thinking = false;
         }
 
         public ChessMove GetBestMove(bool isWhite)
@@ -165,7 +175,7 @@ namespace Assets.Scripts.Game.AI
             foreach (var move in allMoves)
             {
                 // Make the move temporarily
-                var capturedPiece = MakeMove(move);
+                var moveHistory = MakeMove(move);
 
                 // Evaluate the position
                 int score = this.Minimax(
@@ -183,7 +193,7 @@ namespace Assets.Scripts.Game.AI
                 }
 
                 // Undo the move
-                UndoMove(move, capturedPiece);
+                ChessBoard.Instance.UndoMove(moveHistory);
 
                 // Check if this is the best move
                 if ((isWhite && score > bestScore) || (!isWhite && score < bestScore))
@@ -222,9 +232,9 @@ namespace Assets.Scripts.Game.AI
                 int maxEval = int.MinValue;
                 foreach (var move in moves)
                 {
-                    var capturedPiece = MakeMove(move);
+                    var moveHistory = MakeMove(move);
                     int eval = this.Minimax(depth - 1, false, alpha, beta);
-                    UndoMove(move, capturedPiece);
+                    ChessBoard.Instance.UndoMove(moveHistory);
 
                     maxEval = Mathf.Max(maxEval, eval);
                     alpha = Mathf.Max(alpha, eval);
@@ -241,9 +251,9 @@ namespace Assets.Scripts.Game.AI
                 int minEval = int.MaxValue;
                 foreach (var move in moves)
                 {
-                    var capturedPiece = MakeMove(move);
+                    var moveHistory = MakeMove(move);
                     int eval = this.Minimax(depth - 1, true, alpha, beta);
-                    UndoMove(move, capturedPiece);
+                    ChessBoard.Instance.UndoMove(moveHistory);
 
                     minEval = Mathf.Min(minEval, eval);
                     beta = Mathf.Min(beta, eval);
@@ -307,14 +317,14 @@ namespace Assets.Scripts.Game.AI
 
             return piece.PieceType switch
             {
-                ChessPieceType.Pawn => this.pawnTable[y, x],
-                ChessPieceType.Knight => this.knightTable[y, x],
-                ChessPieceType.Bishop => this.bishopTable[y, x],
-                ChessPieceType.Rook => this.rookTable[y, x],
-                ChessPieceType.Queen => this.queenTable[y, x],
+                ChessPieceType.Pawn => this.pawnTable[y][x],
+                ChessPieceType.Knight => this.knightTable[y][x],
+                ChessPieceType.Bishop => this.bishopTable[y][x],
+                ChessPieceType.Rook => this.rookTable[y][x],
+                ChessPieceType.Queen => this.queenTable[y][x],
                 ChessPieceType.King => IsEndGame()
-                    ? this.kingEndGameTable[y, x]
-                    : this.kingMiddleGameTable[y, x],
+                    ? this.kingEndGameTable[y][x]
+                    : this.kingMiddleGameTable[y][x],
                 _ => 0,
             };
         }
@@ -362,7 +372,7 @@ namespace Assets.Scripts.Game.AI
             return false;
         }
 
-        private static ChessPiece MakeMove(ChessMove move)
+        private static ChessMoveHistory MakeMove(ChessMove move)
         {
             if (
                 !ChessBoard.Instance.GetTile(move.StartPosition, out ChessTile fromTile)
@@ -373,31 +383,10 @@ namespace Assets.Scripts.Game.AI
             }
 
             var piece = fromTile.CurrentPiece;
-            var capturedPiece = toTile.CurrentPiece;
 
-            // Move the piece
-            toTile.UpdatePiece(piece, false, false);
+            var moveHistory = toTile.UpdatePiece(piece, true, false);
 
-            return capturedPiece;
-        }
-
-        private static void UndoMove(ChessMove move, ChessPiece capturedPiece)
-        {
-            if (
-                !ChessBoard.Instance.GetTile(move.StartPosition, out ChessTile fromTile)
-                || !ChessBoard.Instance.GetTile(move.TargetPosition, out ChessTile toTile)
-            )
-            {
-                return;
-            }
-
-            var piece = toTile.CurrentPiece;
-
-            // Move piece back
-            fromTile.UpdatePiece(piece, false, false);
-
-            // Restore captured piece
-            toTile.UpdatePiece(capturedPiece, false, false);
+            return moveHistory;
         }
 
         private static void ExecuteMove(ChessMove move)

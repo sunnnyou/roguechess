@@ -107,13 +107,20 @@ namespace Assets.Scripts.Game.Board
             this.SpriteRenderer.color = highlight ? this.highlightColor : this.OriginalColor;
         }
 
-        public void UpdatePiece(ChessPiece newPiece, bool ignoreMoveHistory, bool ignoreFight)
+        public ChessMoveHistory UpdatePiece(
+            ChessPiece newPiece,
+            bool ignoreMoveHistory,
+            bool ignoreFight
+        )
         {
             // Fight current piece with new piece and set winner as this tiles current piece
             if (!ignoreFight && !ChessPiece.FightPiece(this.CurrentPiece, newPiece))
             {
-                return;
+                // TODO: add move history for fighting and loosing hp
+                return null;
             }
+
+            ChessMoveHistory move = null;
 
             if (newPiece != null)
             {
@@ -137,33 +144,45 @@ namespace Assets.Scripts.Game.Board
                 // process buffs at end to get updated piece position and tile
                 var additionalCapturedPieces = this.ApplyBuffs(newPiece);
 
+                Vector2Int? enemyTargetPos;
+                if (this.CurrentPiece == null || this.CurrentPiece.Lives <= 0)
+                {
+                    enemyTargetPos = this.Position;
+                }
+                else
+                {
+                    enemyTargetPos = enemyPos;
+                }
+
+                move = new ChessMoveHistory(
+                    newPiece,
+                    enemyPos,
+                    enemyTargetPos,
+                    this.CurrentPiece,
+                    additionalCapturedPieces,
+                    ChessBoard.Instance.IsWhiteTurn
+                );
+
                 if (!ignoreMoveHistory)
                 {
-                    Vector2Int? enemyTargetPos;
-                    if (this.CurrentPiece == null || this.CurrentPiece.Lives <= 0)
-                    {
-                        enemyTargetPos = this.Position;
-                    }
-                    else
-                    {
-                        enemyTargetPos = enemyPos;
-                    }
-
-                    ChessBoard.Instance.AddMove(
-                        newPiece,
-                        enemyPos,
-                        enemyTargetPos,
-                        this.CurrentPiece,
-                        additionalCapturedPieces
-                    );
+                    ChessBoard.Instance.AddMove(move);
                 }
             }
             else if (this.CurrentPiece != null && !ignoreMoveHistory)
             {
-                ChessBoard.Instance.AddMove(null, null, this.Position, this.CurrentPiece, null);
+                move = new ChessMoveHistory(
+                    null,
+                    null,
+                    this.Position,
+                    this.CurrentPiece,
+                    null,
+                    ChessBoard.Instance.IsWhiteTurn
+                );
+                ChessBoard.Instance.AddMove(move);
             }
 
             this.CurrentPiece = newPiece;
+            return move;
         }
 
         public void Destroy()

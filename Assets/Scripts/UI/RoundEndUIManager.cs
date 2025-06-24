@@ -3,6 +3,7 @@ namespace Assets.Scripts.UI
     using System.Collections;
     using System.Collections.Generic;
     using Assets.Scripts.Game;
+    using Assets.Scripts.Game.Board;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.Player;
     using TMPro;
@@ -143,6 +144,10 @@ namespace Assets.Scripts.UI
                 this.goldIconNext.gameObject.SetActive(false);
                 this.nextButton.onClick.AddListener(() =>
                 {
+                    Destroy(GameManager.Instance);
+                    Destroy(InventoryManager.Instance.gameObject);
+                    Destroy(ChessBoard.Instance.gameObject);
+
                     GameManager.LoadScene("MainMenu");
                 });
             }
@@ -157,6 +162,8 @@ namespace Assets.Scripts.UI
 
         private IEnumerator AnimateIncomeValues()
         {
+            // TODO: // Hidden until animation completes of before
+
             if (this.isAnimating)
             {
                 yield break;

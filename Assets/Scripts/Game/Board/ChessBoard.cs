@@ -121,7 +121,6 @@ namespace Assets.Scripts.Game.Board
             {
                 // Make AI move for black pieces
                 this.chessEngine.MakeBestMove(false);
-                this.IsWhiteTurn = true;
             }
             else
             {
@@ -506,6 +505,10 @@ namespace Assets.Scripts.Game.Board
             }
 
             this.ClearHighlights();
+            if (this.selectedPiece == null)
+            {
+                this.selectedPiece = piece;
+            }
             this.selectedPiece.UseUpdateBuffs(); // Apply buffs after move
             this.selectedPiece = null;
 
@@ -514,32 +517,21 @@ namespace Assets.Scripts.Game.Board
             this.IsWhiteTurn = !this.IsWhiteTurn; // Switch turns after move
         }
 
-        public void AddMove(
-            ChessPiece piece,
-            Vector2Int? currentPos,
-            Vector2Int? targetPos,
-            ChessPiece mainCapturedPiece,
-            List<ChessPiece> additionalCapturedPieces,
-            bool? isWhiteTurn = null
-        )
+        public void AddMove(ChessMoveHistory moveToAdd)
         {
-            this.MoveHistory.Add(
-                new ChessMoveHistory(
-                    piece,
-                    currentPos,
-                    targetPos,
-                    mainCapturedPiece,
-                    additionalCapturedPieces,
-                    isWhiteTurn ?? this.IsWhiteTurn
-                )
-            );
+            if (moveToAdd == null)
+            {
+                return;
+            }
 
-            if (currentPos != null && targetPos != null)
+            this.MoveHistory.Add(moveToAdd);
+
+            if (moveToAdd.FromPosition != null && moveToAdd.ToPosition != null)
             {
                 var notification =
-                    CoordinateHelper.VectorToString((Vector2Int)currentPos)
+                    CoordinateHelper.VectorToString((Vector2Int)moveToAdd.FromPosition)
                     + " to "
-                    + CoordinateHelper.VectorToString((Vector2Int)targetPos);
+                    + CoordinateHelper.VectorToString((Vector2Int)moveToAdd.ToPosition);
                 this.notificationManager.CreateSlideUpUI(notification);
             }
         }
@@ -551,8 +543,6 @@ namespace Assets.Scripts.Game.Board
 
         public void UndoLastMove()
         {
-            // TODO: reset buffs of pieces in move history
-            // TODO: add change to previous piece on updatebuff (e.g. PromoteAtEndPieceBuff)
             if (!this.CanUndo())
             {
                 return;
@@ -562,71 +552,7 @@ namespace Assets.Scripts.Game.Board
             var lastMove = this.MoveHistory[this.MoveHistory.Count - 1];
             this.MoveHistory.RemoveAt(this.MoveHistory.Count - 1);
 
-            // Get the tiles involved
-            if (
-                lastMove.FromPosition is not Vector2Int fromPos
-                || !this.GetTile(fromPos, out ChessTile fromTile)
-            )
-            {
-                return;
-            }
-
-            if (
-                lastMove.ToPosition is not Vector2Int toPos
-                || !this.GetTile(toPos, out ChessTile toTile)
-            )
-            {
-                return;
-            }
-
-            ChessPiece pieceToMove = lastMove.MovedPiece;
-
-            // ChessPiece was updated. Deactivate update piece and activate previous piece
-            // TODO: add chess piece properties to ChessMoveHistory and restore them if they were changed, instead of this
-            var toTilePiece = toTile.CurrentPiece;
-            if (
-                toTilePiece != null
-                && toTilePiece.gameObject != null
-                && toTilePiece.gameObject.GetInstanceID() != pieceToMove.gameObject.GetInstanceID()
-                && toTilePiece.IsWhite == pieceToMove.IsWhite
-            )
-            {
-                toTilePiece.gameObject.SetActive(false);
-            }
-
-            // Move the piece back
-            fromTile.UpdatePiece(pieceToMove, true, true);
-
-            // Restore captured pieces if there was one
-            if (
-                lastMove.AdditionalCapturedPieces != null
-                && lastMove.AdditionalCapturedPieces.Count > 0
-            )
-            {
-                foreach (ChessPiece capturePiece in lastMove.AdditionalCapturedPieces)
-                {
-                    if (capturePiece == null)
-                    {
-                        continue;
-                    }
-
-                    // Reactivate the captured piece
-                    capturePiece.gameObject.SetActive(true);
-                }
-            }
-
-            if (lastMove.MainCapturedPiece != null)
-            {
-                // Reactivate the captured piece
-                lastMove.MainCapturedPiece.gameObject.SetActive(true);
-                toTile.UpdatePiece(lastMove.MainCapturedPiece, true, true);
-            }
-            else
-            {
-                toTile.UpdatePiece(null, true, true);
-            }
-
-            pieceToMove.gameObject.SetActive(true);
+            this.UndoMove(lastMove);
 
             // Restore the turn
             this.IsWhiteTurn = lastMove.WasWhiteTurn;
@@ -645,6 +571,82 @@ namespace Assets.Scripts.Game.Board
             {
                 this.UndoLastMove();
             }
+        }
+
+        public void UndoMove(ChessMoveHistory moveToUndo)
+        {
+            // ChessPiece was updated. Deactivate update piece and activate previous piece
+            // TODO: add chess piece properties to ChessMoveHistory and restore them if they were changed, instead of this
+            // TODO: reset buffs of pieces in move history
+            // TODO: add change to previous piece on updatebuff (e.g. PromoteAtEndPieceBuff)
+
+            if (moveToUndo == null)
+            {
+                return;
+            }
+
+            // Get the tiles involved
+            if (
+                moveToUndo.FromPosition is not Vector2Int fromPos
+                || !this.GetTile(fromPos, out ChessTile fromTile)
+            )
+            {
+                return;
+            }
+
+            if (
+                moveToUndo.ToPosition is not Vector2Int toPos
+                || !this.GetTile(toPos, out ChessTile toTile)
+            )
+            {
+                return;
+            }
+
+            ChessPiece pieceToMove = moveToUndo.MovedPiece;
+            var toTilePiece = toTile.CurrentPiece;
+            if (
+                toTilePiece != null
+                && toTilePiece.gameObject != null
+                && toTilePiece.gameObject.GetInstanceID() != pieceToMove.gameObject.GetInstanceID()
+                && toTilePiece.IsWhite == pieceToMove.IsWhite
+            )
+            {
+                toTilePiece.gameObject.SetActive(false);
+            }
+
+            // Move the piece back
+            fromTile.UpdatePiece(pieceToMove, true, true);
+
+            // Restore captured pieces if there was one
+            if (
+                moveToUndo.AdditionalCapturedPieces != null
+                && moveToUndo.AdditionalCapturedPieces.Count > 0
+            )
+            {
+                foreach (ChessPiece capturePiece in moveToUndo.AdditionalCapturedPieces)
+                {
+                    if (capturePiece == null)
+                    {
+                        continue;
+                    }
+
+                    // Reactivate the captured piece
+                    capturePiece.gameObject.SetActive(true);
+                }
+            }
+
+            if (moveToUndo.MainCapturedPiece != null)
+            {
+                // Reactivate the captured piece
+                moveToUndo.MainCapturedPiece.gameObject.SetActive(true);
+                toTile.UpdatePiece(moveToUndo.MainCapturedPiece, true, true);
+            }
+            else
+            {
+                toTile.UpdatePiece(null, true, true);
+            }
+
+            pieceToMove.gameObject.SetActive(true);
         }
 
         // Highlights all valid moves for a piece
@@ -774,8 +776,12 @@ namespace Assets.Scripts.Game.Board
                 }
             }
 
-            // TODO: add event for check (Highlight king, show check icon, etc.)
-            // TODO: instead of returning GameState, add a GameOver event that can be handled by the UI
+            // Return default color for tiles
+            foreach (ChessTile tile in this.tiles.Values)
+            {
+                tile.InCheck(false);
+            }
+
             if (!hasValidMoves)
             {
                 this.EndGame(isWhiteTurn); // Checkmate
@@ -783,8 +789,8 @@ namespace Assets.Scripts.Game.Board
             }
 
             // Find the king
-            List<ChessPiece> kings = this.GetPiecesOfType(ChessPieceType.King, isWhiteTurn);
-            if (kings.Count == 0)
+            List<ChessPiece> kingsWhite = this.GetPiecesOfType(ChessPieceType.King, isWhiteTurn);
+            if (kingsWhite.Count == 0)
             {
                 this.EndGame(isWhiteTurn); // No king found
                 return;
@@ -792,7 +798,7 @@ namespace Assets.Scripts.Game.Board
 
             // Check for check
             bool checkAnimation = false;
-            foreach (ChessPiece king in kings)
+            foreach (ChessPiece king in kingsWhite)
             {
                 bool inCheck = this.IsInCheck(isWhiteTurn, king);
                 king.CurrentTile.InCheck(inCheck);
@@ -803,7 +809,26 @@ namespace Assets.Scripts.Game.Board
                 }
             }
 
-            // Game continues
+            // Find the king
+            List<ChessPiece> kingsBlack = this.GetPiecesOfType(ChessPieceType.King, isWhiteTurn);
+            if (kingsBlack.Count == 0)
+            {
+                this.EndGame(!isWhiteTurn); // No king found
+                return;
+            }
+
+            // Check for check
+            checkAnimation = false;
+            foreach (ChessPiece king in kingsBlack)
+            {
+                bool inCheck = this.IsInCheck(!isWhiteTurn, king);
+                king.CurrentTile.InCheck(inCheck);
+                if (inCheck && isWhiteTurn && !checkAnimation)
+                {
+                    // TODO: add animation for player
+                    checkAnimation = true;
+                }
+            }
         }
 
         public static bool IsWhite(int x, int y)
@@ -889,7 +914,6 @@ namespace Assets.Scripts.Game.Board
             if (isWhiteTurn)
             {
                 Debug.Log("Round lost");
-                RefreshBoard(true);
                 this.roundEndManager.ShowRoundEndPanel(
                     false,
                     countPiecesWhite,

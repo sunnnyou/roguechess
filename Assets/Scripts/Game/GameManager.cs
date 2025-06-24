@@ -17,7 +17,7 @@ namespace Assets.Scripts.Game
         public bool IsPaused = false;
         public float GameTime;
 
-        private void Awake()
+        public void Awake()
         {
             // Singleton pattern - ensure only one GameManager exists
             if (Instance == null)
