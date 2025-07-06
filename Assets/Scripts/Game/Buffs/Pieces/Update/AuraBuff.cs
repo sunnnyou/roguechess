@@ -1,5 +1,6 @@
 namespace Assets.Scripts.Game.Buffs.Player
 {
+    using System.Collections.Generic;
     using Assets.Scripts.Game.Board;
     using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace Assets.Scripts.Game.Buffs.Player
         public new Sprite Icon { get; set; }
         public new int Cost { get; set; }
         public new bool WasUsed { get; set; }
+        private readonly int healAmount = 1;
 
         public AuraBuff()
         {
@@ -22,11 +24,34 @@ namespace Assets.Scripts.Game.Buffs.Player
             if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for Aura buff.");
-                return null;
+                return chessObject;
             }
 
-            // TODO:
-            return null;
+            var surroundingPos = CoordinateHelper.GetSurroundingCoordinatesWithBounds(
+                piece.CurrentTile.Position.x,
+                piece.CurrentTile.Position.y,
+                0,
+                0,
+                ChessBoard.Instance.Height - 1,
+                ChessBoard.Instance.Height - 1
+            );
+
+            foreach (var (x, y) in surroundingPos)
+            {
+                if (
+                    ChessBoard.Instance.GetTile(
+                        CoordinateHelper.XYToString(x, y),
+                        out ChessTile tile
+                    )
+                    && tile.CurrentPiece.gameObject.activeSelf
+                    && piece.IsWhite == tile.CurrentPiece.IsWhite
+                )
+                {
+                    tile.CurrentPiece.Lives += this.healAmount;
+                }
+            }
+            piece.Lives += this.healAmount;
+            return piece;
         }
     }
 }

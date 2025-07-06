@@ -15,6 +15,8 @@ namespace Assets.Scripts.Game.Buffs.Player
         public new int Cost { get; set; }
         public new bool WasUsed { get; set; }
 
+        private readonly int healAmount = 1;
+
         public BlessingInDisguiseBuff()
         {
             this.UpdateFunction = this.BlessingInDisguiseFnc;
@@ -28,8 +30,34 @@ namespace Assets.Scripts.Game.Buffs.Player
                 return null;
             }
 
-            // TODO:
-            return null;
+            var surroundingPos = CoordinateHelper.GetSurroundingCoordinatesWithBounds(
+                piece.CurrentTile.Position.x,
+                piece.CurrentTile.Position.y,
+                0,
+                0,
+                ChessBoard.Instance.Height - 1,
+                ChessBoard.Instance.Height - 1
+            );
+
+            var healthHealed = 0;
+
+            foreach (var (x, y) in surroundingPos)
+            {
+                if (
+                    ChessBoard.Instance.GetTile(
+                        CoordinateHelper.XYToString(x, y),
+                        out ChessTile tile
+                    )
+                    && piece.IsWhite == tile.CurrentPiece.IsWhite
+                )
+                {
+                    tile.CurrentPiece.Lives += this.healAmount;
+                    healthHealed += this.healAmount;
+                }
+            }
+            piece.Lives -= healthHealed;
+
+            return piece;
         }
     }
 }

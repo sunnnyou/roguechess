@@ -19,7 +19,7 @@ MonoBehaviour:
   Position: {x: 1, y: 7}
   HighlightColor: {r: 0, g: 0.4, b: 0, a: 1}
   SortingOrder: 2
-  StartingPiece: {fileID: 11400000, guid: a33fb2f33dbb7a64f833e489c95f587b, type: 2}
+  StartingPiece: {fileID: 0}
   SpawnPieceOnInitialize: 1
   HasSpecialProperties: 0
   Description: 

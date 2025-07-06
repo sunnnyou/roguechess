@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BuffName: Aura
   Description: Improve a selected pieces aura, which protects itself and all surrounding
-    pieces in 1 distance in all directions for 1 damage.
+    pieces in 1 distance in all directions for 1 damage. Will only trigger once at
+    the start of the round.
   Icon: {fileID: 2141188580037841102, guid: d2900ca20197dce4192bec434f946198, type: 3}
   IsActive: 1
   Cost: 9

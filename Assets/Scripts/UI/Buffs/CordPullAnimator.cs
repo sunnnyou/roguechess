@@ -1,5 +1,6 @@
 namespace Assets.Scripts.UI.Buffs
 {
+    using Assets.Scripts.Game;
     using Assets.Scripts.Game.Player;
     using DG.Tweening;
     using TMPro;
@@ -49,6 +50,8 @@ namespace Assets.Scripts.UI.Buffs
             // Store original transform values
             this.originalPosition = this.CordRect.anchoredPosition;
 
+            MusicManager.Instance.PlayScrollSoundOpen();
+
             this.CordButton.onClick.AddListener(this.PaperScrollAnimator1.Reroll);
             this.CordButton.onClick.AddListener(this.PaperScrollAnimator2.Reroll);
             this.CordButton.onClick.AddListener(this.PaperScrollAnimator3.Reroll);
@@ -75,7 +78,6 @@ namespace Assets.Scripts.UI.Buffs
             InventoryManager.OnGoldChanged -= this.OnGoldChanged;
         }
 
-        // Simple one-liner for quick use
         public void QuickCordPull()
         {
             if (this.isAnimating)
@@ -88,6 +90,11 @@ namespace Assets.Scripts.UI.Buffs
             this.CordButton.interactable = false;
 
             this.UpdateCost();
+
+            if (!this.inactive)
+            {
+                MusicManager.Instance.PlayScrollSoundOpen();
+            }
 
             this.CordRect.DOAnchorPosY(
                     this.originalPosition.y - this.PullDistance,

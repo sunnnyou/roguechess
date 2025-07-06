@@ -1,6 +1,7 @@
 namespace Assets.Scripts.UI.Buffs
 {
     using System.Threading.Tasks;
+    using Assets.Scripts.Game;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.Player;
     using DG.Tweening;
@@ -11,8 +12,6 @@ namespace Assets.Scripts.UI.Buffs
     public class PaperScrollAnimator : MonoBehaviour
     {
         public RectTransform ScrollPanel;
-        public AudioSource ScrollSoundOpen;
-        public AudioSource ScrollSoundClose;
 
         public TextMeshProUGUI TitleText;
         public TextMeshProUGUI DescriptionText;
@@ -59,6 +58,7 @@ namespace Assets.Scripts.UI.Buffs
             this.enoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
             this.changed = true;
             this.EnableBuying();
+            this.changed = true;
             this.DisableBuying();
         }
 
@@ -100,9 +100,9 @@ namespace Assets.Scripts.UI.Buffs
                 .SetEase(Ease.OutBack)
                 .AsyncWaitForCompletion();
 
-            if (this.ScrollSoundOpen != null && playSound)
+            if (playSound)
             {
-                this.ScrollSoundOpen.Play();
+                MusicManager.Instance.PlayScrollSoundOpen();
             }
 
             this.isAnimating = false;
@@ -121,9 +121,9 @@ namespace Assets.Scripts.UI.Buffs
             this.ScrollPanel.rotation = Quaternion.identity;
 
             // Play closing sound
-            if (this.ScrollSoundClose != null && playSound)
+            if (playSound)
             {
-                this.ScrollSoundClose.Play();
+                MusicManager.Instance.PlayScrollSoundClose();
             }
 
             // Shrink Y scale to simulate closing and await completion
@@ -156,10 +156,10 @@ namespace Assets.Scripts.UI.Buffs
             Button button = this.GetComponent<Button>();
             button.interactable = true;
 
-            if (this.ScrollSoundOpen)
-            {
-                this.ScrollSoundOpen.Play();
-            }
+            this.changed = true;
+            this.EnableBuying();
+            this.changed = true;
+            this.DisableBuying();
 
             // Close scroll and wait for it to complete
             await this.CloseScrollAsync(false);
@@ -237,19 +237,17 @@ namespace Assets.Scripts.UI.Buffs
             }
         }
 
-        // Public method to get the current buff (useful for other systems)
         public BuffBase GetCurrentBuff()
         {
             return this.currentBuff;
         }
 
-        // Method to apply the buff (you can expand this based on your game logic)
         public void ApplyCurrentBuff()
         {
             if (this.currentBuff != null)
             {
                 Debug.Log($"Applied buff: {this.currentBuff.BuffName}");
-                // Add your buff application logic here
+                // TODO: add apply logic
             }
         }
 

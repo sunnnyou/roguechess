@@ -131,6 +131,10 @@ namespace Assets.Scripts.Game.AI
 
         public void MakeBestMove(bool isWhite)
         {
+            if (this.Thinking)
+            {
+                return;
+            }
             this.StartCoroutine(this.ThinkAndMove(isWhite));
         }
 
@@ -143,9 +147,9 @@ namespace Assets.Scripts.Game.AI
 
             this.Thinking = true;
 
-            // // Add some thinking time for realism
-            // float thinkTime = Random.Range(this.thinkingTimeMin, this.thinkingTimeMax);
-            // yield return new WaitForSeconds(thinkTime);
+            // Add some thinking time for realism
+            float thinkTime = Random.Range(this.thinkingTimeMin, this.thinkingTimeMax);
+            yield return new WaitForSeconds(thinkTime);
 
             ChessMove bestMove = this.GetBestMove(isWhite);
 

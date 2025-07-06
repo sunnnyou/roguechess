@@ -11,6 +11,7 @@ namespace Assets.Scripts.UI
 
         public void Start()
         {
+            this.goldText.text = InventoryManager.Instance.Gold.ToString();
             this.SetupEventListeners();
         }
 

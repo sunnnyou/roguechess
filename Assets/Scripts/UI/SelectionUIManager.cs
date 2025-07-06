@@ -337,13 +337,22 @@ namespace Assets.Scripts.UI
 
         private void ConfirmSelection()
         {
-            if (this.selectedObject == null || this.selectionCallback == null)
+            if (this.selectedObject == null)
             {
-                Debug.LogError("No object selected or callback is null.");
+                Debug.LogError("No object selected.");
                 return;
             }
 
-            this.selectionCallback(this.selectedObject);
+            if (this.selectionCallback != null)
+            {
+                this.selectionCallback(this.selectedObject);
+            }
+            else
+            {
+                Debug.LogError("Callback is null.");
+            }
+
+            MusicManager.Instance.PlayClickSound();
             this.HideSelectionUI();
         }
 

@@ -1,6 +1,7 @@
 namespace Assets.Scripts.UI
 {
     using System.Collections.Generic;
+    using Assets.Scripts.Game;
     using Assets.Scripts.Game.Board;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.Player;
@@ -96,7 +97,11 @@ namespace Assets.Scripts.UI
             // Setup button listeners
             if (this.closeInventoryButton != null)
             {
-                this.closeInventoryButton.onClick.AddListener(this.CloseInventory);
+                this.closeInventoryButton.onClick.AddListener(() =>
+                {
+                    MusicManager.Instance.PlayPickUpSound();
+                    this.CloseInventory();
+                });
             }
 
             // Create chess piece slots
@@ -243,7 +248,6 @@ namespace Assets.Scripts.UI
             if (piece != null)
             {
                 Debug.Log($"Clicked on chess piece: {piece.PieceType} at slot {slotIndex}");
-                // TODO: add drag and drop feature
             }
         }
 
@@ -325,10 +329,12 @@ namespace Assets.Scripts.UI
         {
             if (this.isInventoryOpen)
             {
+                MusicManager.Instance.PlayPickUpSound();
                 this.CloseInventory();
             }
             else
             {
+                MusicManager.Instance.PlayClickSound();
                 this.OpenInventory();
             }
         }

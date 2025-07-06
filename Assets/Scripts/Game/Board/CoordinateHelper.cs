@@ -1,5 +1,6 @@
 namespace Assets.Scripts.Game.Board
 {
+    using System.Collections.Generic;
     using UnityEngine;
 
     // Helper class for position-related calculations
@@ -51,6 +52,41 @@ namespace Assets.Scripts.Game.Board
         public static Vector2Int XYToVector(int x, int y)
         {
             return new Vector2Int(x, y);
+        }
+
+        public static List<(int x, int y)> GetSurroundingCoordinatesWithBounds(
+            int x,
+            int y,
+            int minX,
+            int minY,
+            int maxX,
+            int maxY
+        )
+        {
+            var coordinates = new List<(int, int)>();
+
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    // Skip the center point
+                    if (dx == 0 && dy == 0)
+                    {
+                        continue;
+                    }
+
+                    int newX = x + dx;
+                    int newY = y + dy;
+
+                    // Check bounds
+                    if (newX >= minX && newX <= maxX && newY >= minY && newY <= maxY)
+                    {
+                        coordinates.Add((newX, newY));
+                    }
+                }
+            }
+
+            return coordinates;
         }
     }
 }

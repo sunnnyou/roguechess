@@ -1,4 +1,5 @@
 using System.Collections;
+using Assets.Scripts.Game;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -10,6 +11,10 @@ public class SceneChange : MonoBehaviour
 
     public void Start()
     {
-        this.Button.onClick.AddListener(() => SceneManager.LoadScene(this.SceneName));
+        this.Button.onClick.AddListener(() =>
+        {
+            MusicManager.Instance.PlayClickSound();
+            SceneManager.LoadScene(this.SceneName);
+        });
     }
 }

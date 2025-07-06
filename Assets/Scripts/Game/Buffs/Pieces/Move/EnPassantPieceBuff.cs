@@ -25,9 +25,17 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
             this.MoveFunction = GetEnPassantTiles;
         }
 
-        public static List<ChessTile> GetEnPassantTiles(Vector2Int currentPos, bool isWhite)
+        public static List<ChessTile> GetEnPassantTiles(ChessPiece piece)
         {
             var validTiles = new List<ChessTile>();
+
+            if (piece == null)
+            {
+                return validTiles;
+            }
+
+            var isWhite = piece.IsWhite;
+            var currentPos = piece.CurrentTile.Position;
 
             // Check if there are any moves in history
             if (

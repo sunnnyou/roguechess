@@ -15,7 +15,8 @@ MonoBehaviour:
   BuffName: Blessing in disguise
   Description: Select any of your pieces to heal 1 health for all pieces 1 distance
     away in any direction. The selected pieces health will be reduced by the total
-    health healed.
+    health healed. Can also revive previously downed pieces, if no piece is currently
+    occupying the tile space.
   Icon: {fileID: 484371766450027097, guid: 3fdb88101b0cefc4cb10369d0f91ccb0, type: 3}
   IsActive: 1
   Cost: 9

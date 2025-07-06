@@ -48,6 +48,13 @@ namespace Assets.Scripts.UI
         [SerializeField]
         private TextMeshProUGUI roundIncomeTotal;
 
+        [Header("Display Items")]
+        [SerializeField]
+        private TextMeshProUGUI roundTime;
+
+        [SerializeField]
+        private TextMeshProUGUI roundPieces;
+
         [Header("Gold Icons")]
         [SerializeField]
         private Image goldIconTime;
@@ -144,6 +151,8 @@ namespace Assets.Scripts.UI
                 this.goldIconNext.gameObject.SetActive(false);
                 this.nextButton.onClick.AddListener(() =>
                 {
+                    MusicManager.Instance.PlayClickSound();
+
                     Destroy(GameManager.Instance);
                     Destroy(InventoryManager.Instance.gameObject);
                     Destroy(ChessBoard.Instance.gameObject);
@@ -242,8 +251,20 @@ namespace Assets.Scripts.UI
             List<BuffBase> buffs = null
         )
         {
-            int incomeTime = this.timer != null ? CalculateIncomeTime(this.timer.TimeElapsed) : 0;
-            int incomeBuffs = buffs != null ? CalculateIncomeBuffs(buffs) : 0;
+            int incomeTime = 0;
+            int incomeBuffs = 0;
+
+            if (this.timer != null)
+            {
+                incomeTime = CalculateIncomeTime(this.timer.TimeElapsed);
+                this.roundTime.text = this.timer.TimerText.text;
+            }
+
+            if (buffs != null)
+            {
+                incomeBuffs = CalculateIncomeBuffs(buffs);
+                this.roundPieces.text = incomePieces.ToString();
+            }
 
             this.ShowRoundEndPanel(
                 roundWon,

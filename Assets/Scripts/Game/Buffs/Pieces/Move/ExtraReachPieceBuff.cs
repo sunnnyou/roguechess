@@ -35,9 +35,18 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
             this.MoveFunction = DoubleMove;
         }
 
-        public static List<ChessTile> DoubleMove(Vector2Int currentPos, bool isWhite)
+        public static List<ChessTile> DoubleMove(ChessPiece piece)
         {
             var validMoves = new List<ChessTile>();
+
+            if (piece == null)
+            {
+                return validMoves;
+            }
+
+            var isWhite = piece.IsWhite;
+            var currentPos = piece.CurrentTile.Position;
+
             if (
                 (!isWhite || currentPos.y != 1)
                 && (isWhite || currentPos.y != ChessBoard.Instance.Height - 2)

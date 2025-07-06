@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74b9027511a39234a9a8eea85934093c, type: 3}
   m_Name: Tilea 1
   m_EditorClassIdentifier: 
-  Sprite: {fileID: 0}
+  Sprite: {fileID: 8149051649407981845, guid: 44a133846dc76274493b43b6124ce2b5, type: 3}
   WhiteColor: {r: 1, g: 1, b: 1, a: 1}
   BlackColor: {r: 1, g: 1, b: 1, a: 1}
   InitialBuffs: []

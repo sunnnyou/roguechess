@@ -1,5 +1,7 @@
 namespace Assets.Scripts.Game.Buffs.Player
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using Assets.Scripts.Game.Board;
     using UnityEngine;
 
@@ -14,19 +16,32 @@ namespace Assets.Scripts.Game.Buffs.Player
 
         public AdolescenceBuff()
         {
-            this.UpdateFunction = this.AdolescenceBuffFnc;
+            this.UpdateFunction = AdolescenceBuffFnc;
         }
 
-        public IChessObject AdolescenceBuffFnc(IChessObject chessObject)
+        public static IChessObject AdolescenceBuffFnc(IChessObject chessObject)
         {
             if (chessObject is not ChessPiece piece || piece == null)
             {
                 Debug.LogError("Invalid arguments for Adolescence buff.");
-                return null;
+                return chessObject;
             }
 
-            // TODO:
-            return null;
+            var queenSprite = piece.IsWhite
+                ? ChessBoard.Instance.WhiteQueenSprite
+                : ChessBoard.Instance.BlackQueenSprite;
+
+            var queen = new ChessPiece();
+            queen.Initialize(
+                ChessPieceType.Queen,
+                piece.IsWhite,
+                queenSprite,
+                new List<Material>(piece.SpriteRenderer.materials),
+                piece.MoveRules,
+                piece.Buffs
+            );
+
+            return queen;
         }
     }
 }

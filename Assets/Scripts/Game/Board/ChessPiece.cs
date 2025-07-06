@@ -20,8 +20,8 @@ namespace Assets.Scripts.Game.Board
         public bool IsWhite { get; set; }
         public ChessTile CurrentTile { get; set; }
         public List<MoveRule> MoveRules { get; private set; } = new();
-        public int Strength { get; private set; } = 1;
-        public int Lives { get; private set; } = 1;
+        public int Strength { get; set; } = 1;
+        public int Lives { get; set; } = 1;
         public bool HasMoved;
 
         // Initialize from ScriptableObject data
@@ -219,13 +219,18 @@ namespace Assets.Scripts.Game.Board
         private void DestroyPiece()
         {
             // TODO: add capture animation and add to captured pieces list for ui
+            ChessBoard.Instance.DownedPieces.Add(
+                this.gameObject.GetInstanceID(),
+                this.CurrentTile.Position
+            );
             this.gameObject.SetActive(false);
         }
 
-        private void RevivePiece(int lives = 1)
+        public void RevivePiece(int lives = 1)
         {
             this.gameObject.SetActive(true);
             this.Lives = lives;
+            ChessBoard.Instance.DownedPieces.Remove(this.gameObject.GetInstanceID());
         }
 
         public void UseUpdateBuffs()
@@ -270,6 +275,11 @@ namespace Assets.Scripts.Game.Board
             if (this.SpriteRenderer != null)
             {
                 this.SpriteRenderer.sprite = updatedPiece.SpriteRenderer.sprite;
+            }
+
+            if (this.Lives <= 0)
+            {
+                this.DestroyPiece();
             }
 
             // TODO: maybe add function for updating tile if position has not changed

@@ -1,6 +1,7 @@
 namespace Assets.Scripts.UI
 {
     using System;
+    using Assets.Scripts.Game;
     using Assets.Scripts.Game.Board;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.Player;
@@ -261,6 +262,8 @@ namespace Assets.Scripts.UI
                 return;
             }
 
+            MusicManager.Instance.PlayPickUpSound();
+
             // Set the source slot
             sourceSlot = this;
 
@@ -330,6 +333,7 @@ namespace Assets.Scripts.UI
             }
 
             InventoryManager.Instance.SwapChessPiece(this, targetSlot);
+            MusicManager.Instance.PlayClickSound();
         }
 
         // Event Handlers

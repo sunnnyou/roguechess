@@ -8,6 +8,7 @@ namespace Assets.Scripts.Game.Board
     using Assets.Scripts.Game.MoveRules;
     using Assets.Scripts.Game.Player;
     using Assets.Scripts.UI;
+    using TMPro;
     using UnityEngine;
     using UnityEngine.InputSystem;
 
@@ -66,11 +67,16 @@ namespace Assets.Scripts.Game.Board
 
         public int CurrentTurn { get; internal set; }
         public int CurrentRound { get; internal set; }
+        public Dictionary<int, Vector2Int> DownedPieces { get; internal set; } = new();
 
         private NotificationManager notificationManager;
         private EnemySpriteManager enemySpriteManager;
         private RoundEndUIManager roundEndManager;
         private ChessEngine chessEngine;
+        private TextMeshProUGUI roundNumber;
+        private TextMeshProUGUI roundText;
+        private bool gameEnd;
+        private EnemyRound enemyRoundData;
 
         protected override void Awake()
         {
@@ -117,14 +123,27 @@ namespace Assets.Scripts.Game.Board
 
         public void Update()
         {
-            if (this.chessEngine != null && !this.IsWhiteTurn)
+            if (this.gameEnd)
             {
-                // Make AI move for black pieces
-                this.chessEngine.MakeBestMove(false);
+                return;
             }
-            else
+
+            try
             {
-                this.HandleInput();
+                if (this.chessEngine != null && !this.IsWhiteTurn)
+                {
+                    // Make AI move for black pieces
+                    this.chessEngine.MakeBestMove(false);
+                }
+                else
+                {
+                    this.HandleInput();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex.Message);
+                this.IsWhiteTurn = !this.IsWhiteTurn;
             }
         }
 
@@ -142,6 +161,7 @@ namespace Assets.Scripts.Game.Board
             }
             this.tiles.Clear();
             this.MoveHistory.Clear();
+            this.DownedPieces.Clear();
             this.ClearHighlights();
 
             // Use board dimensions from setup
@@ -459,6 +479,7 @@ namespace Assets.Scripts.Game.Board
             // If we have a piece selected and clicked on a valid move tile
             if (this.selectedPiece != null && this.highlightedTiles.Contains(clickedTile))
             {
+                MusicManager.Instance.PlayPickUpSound();
                 // Move the piece
                 this.MovePiece(this.selectedPiece, clickedTile);
             }
@@ -467,6 +488,7 @@ namespace Assets.Scripts.Game.Board
                 bool isPlayersPiece = clickedTile.CurrentPiece.IsWhite == this.IsWhiteTurn;
                 if (!isPlayersPiece)
                 {
+                    this.ClearHighlights();
                     return; // Can't select opponent's pieces
                 }
 
@@ -478,7 +500,11 @@ namespace Assets.Scripts.Game.Board
 
                 // Select new piece
                 this.selectedPiece = clickedTile.CurrentPiece;
-                this.HighlightValidMoves(this.selectedPiece);
+                var validMoves = this.HighlightValidMoves(this.selectedPiece);
+                if (validMoves.Count > 0)
+                {
+                    MusicManager.Instance.PlayClickSound();
+                }
             }
             else // If we clicked on an empty tile
             {
@@ -611,13 +637,14 @@ namespace Assets.Scripts.Game.Board
                 && toTilePiece.IsWhite == pieceToMove.IsWhite
             )
             {
+                // TODO: is this needed?
                 toTilePiece.gameObject.SetActive(false);
             }
 
             // Move the piece back
             fromTile.UpdatePiece(pieceToMove, true, true);
 
-            // Restore captured pieces if there was one
+            // Restore additional captured pieces if there was one
             if (
                 moveToUndo.AdditionalCapturedPieces != null
                 && moveToUndo.AdditionalCapturedPieces.Count > 0
@@ -631,14 +658,14 @@ namespace Assets.Scripts.Game.Board
                     }
 
                     // Reactivate the captured piece
-                    capturePiece.gameObject.SetActive(true);
+                    capturePiece.RevivePiece(pieceToMove.Strength);
                 }
             }
 
             if (moveToUndo.MainCapturedPiece != null)
             {
                 // Reactivate the captured piece
-                moveToUndo.MainCapturedPiece.gameObject.SetActive(true);
+                moveToUndo.MainCapturedPiece.RevivePiece(pieceToMove.Strength);
                 toTile.UpdatePiece(moveToUndo.MainCapturedPiece, true, true);
             }
             else
@@ -650,11 +677,11 @@ namespace Assets.Scripts.Game.Board
         }
 
         // Highlights all valid moves for a piece
-        public void HighlightValidMoves(ChessPiece piece)
+        public List<ChessTile> HighlightValidMoves(ChessPiece piece)
         {
             if (piece == null)
             {
-                return;
+                return new List<ChessTile>();
             }
 
             List<ChessTile> validTiles = piece.GetValidTiles();
@@ -664,6 +691,8 @@ namespace Assets.Scripts.Game.Board
                 tile.Highlight(true);
                 this.highlightedTiles.Add(tile);
             }
+
+            return validTiles;
         }
 
         // Clears all highlighted tiles
@@ -905,6 +934,7 @@ namespace Assets.Scripts.Game.Board
 
         private void EndGame(bool isWhiteTurn)
         {
+            this.gameEnd = true;
             int countPiecesWhite = this.GetAllPieces(true).Count;
             if (PromoteAtEndPieceBuff.SelectionUIManager != null)
             {
@@ -946,12 +976,26 @@ namespace Assets.Scripts.Game.Board
                 {
                     Instance.UndoLastMove();
                 }
+                Instance.DownedPieces.Clear();
                 Instance.MoveHistory.Clear();
                 Instance.ClearHighlights();
+
+                // Remove Enemy pieces
+                if (Instance.enemyRoundData != null)
+                {
+                    foreach (EnemyPiece enemyPiece in Instance.enemyRoundData.Pieces)
+                    {
+                        if (Instance.GetTile(enemyPiece.Position, out ChessTile tile))
+                        {
+                            RemoveChessPiece(tile.CurrentPiece);
+                        }
+                    }
+                }
+
+                Instance.CurrentRound++;
                 // TODO: update buffs that end after x rounds
             }
             Instance.IsWhiteTurn = true;
-            // TODO: fix selection manager being triggered on end
         }
 
         public static void SetActiveAll(bool active)
@@ -970,15 +1014,25 @@ namespace Assets.Scripts.Game.Board
         {
             if (sceneName == "Game")
             {
+                this.IsWhiteTurn = true;
+                this.gameEnd = false;
                 SetActiveAll(true);
                 this.enemySpriteManager = FindFirstObjectByType<EnemySpriteManager>();
                 this.notificationManager = FindFirstObjectByType<NotificationManager>();
                 this.roundEndManager = FindFirstObjectByType<RoundEndUIManager>();
                 this.chessEngine = FindFirstObjectByType<ChessEngine>();
-                Instance.IsWhiteTurn = true;
+                this.roundNumber = GameObject
+                    .Find("RoundNumberText")
+                    .GetComponent<TextMeshProUGUI>();
+                this.roundText = GameObject
+                    .Find("RoundNameLabelText")
+                    .GetComponent<TextMeshProUGUI>();
+
+                GetEnemyRoundData();
             }
             else
             {
+                this.IsWhiteTurn = true;
                 SetActiveAll(false);
             }
         }
@@ -986,6 +1040,34 @@ namespace Assets.Scripts.Game.Board
         internal IEnumerable<ChessTile> GetAllTiles()
         {
             return this.tiles.Values;
+        }
+
+        private void GetEnemyRoundData()
+        {
+            // Add enemy pieces
+            this.enemyRoundData = EnemyRoundDatabase.GetRound(this.CurrentRound + 1);
+            if (this.enemyRoundData == null)
+            {
+                return;
+            }
+
+            if (this.roundNumber != null)
+            {
+                this.roundNumber.text = (this.CurrentRound + 1).ToString();
+            }
+
+            if (this.roundText != null)
+            {
+                this.roundText.text = this.enemyRoundData.Name;
+            }
+
+            foreach (EnemyPiece enemyPiece in this.enemyRoundData.Pieces)
+            {
+                if (this.GetTile(enemyPiece.Position, out ChessTile tile))
+                {
+                    this.SpawnPiece(enemyPiece.PieceType, false, enemyPiece.Position, tile);
+                }
+            }
         }
     }
 }
