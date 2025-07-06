@@ -14,14 +14,11 @@ namespace Assets.Scripts.Game.Board
     public class ChessBoard : BaseManager
     {
         // TODO: add tile positions to border of chessboard
-        // TODO: add custom piece with custom movement rules
-        // TODO: add other chess functions (castling, check, checkmate, stalemate)
-        // TODO: add buff for checkmate (can be used on an enemy piece and is always used on the king)
+        // TODO: add castling
+        // TODO: fix check highlighting in ChessTile
         // TODO: buffs (undo action(zaa wardoo), multiple tile destroy, more reach, player second chance, multi-life chess pieces, freeze opponent piece, "invisible" pieces, clone pieces, more gold, more time)
-        // TODO: consumables (one-time use buffs, one-time use pieces, chess pieces management (destroy pieces, clone))
-        // TODO: add shop (buffs, custom pieces, consumables)
+        // TODO: add buying piece pack for selection of pieces and consumable to destroy or change buffs
         // TODO: add function to save and load game state (including board, pieces, move history, etc.)
-        // TODO: add function to never have negative position values, when adding new tiles. The left bottom tile should always be (0, 0) and the top right tile should be (board.Width, board.Height)
         // TODO: add function to display piece buffs, hp, strength and other info when hovering over a piece
         // TODO: add function to add material to pieces or tiles when specific buffs are applied
         public static ChessBoard Instance { get; private set; }
@@ -161,6 +158,8 @@ namespace Assets.Scripts.Game.Board
             this.tiles.Clear();
             this.MoveHistory.Clear();
             this.DownedPieces.Clear();
+            this.CurrentRound = 0;
+            this.CurrentTurn = 0;
             this.ClearHighlights();
 
             // Use board dimensions from setup
@@ -997,6 +996,7 @@ namespace Assets.Scripts.Game.Board
                 }
 
                 Instance.CurrentRound++;
+                Instance.CurrentTurn = 0;
                 // TODO: update buffs that end after x rounds
             }
             Instance.IsWhiteTurn = true;
