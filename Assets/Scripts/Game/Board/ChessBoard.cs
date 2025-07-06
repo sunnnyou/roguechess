@@ -2,7 +2,6 @@ namespace Assets.Scripts.Game.Board
 {
     using System;
     using System.Collections.Generic;
-    using Assets.Scripts.Game.AI;
     using Assets.Scripts.Game.Buffs.Pieces.Update;
     using Assets.Scripts.Game.Enemy;
     using Assets.Scripts.Game.MoveRules;

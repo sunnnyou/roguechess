@@ -1,9 +1,7 @@
-namespace Assets.Scripts.Game.AI
+namespace Assets.Scripts.Game.Board
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Assets.Scripts.Game.Board;
-    using Assets.Scripts.Game.Player;
     using UnityEngine;
 
     public class ChessEngine : MonoBehaviour
@@ -181,7 +179,7 @@ namespace Assets.Scripts.Game.AI
             }
 
             // Sort moves for better alpha-beta pruning
-            allMoves = SortMoves(allMoves, isWhite);
+            allMoves = this.SortMoves(allMoves, isWhite);
 
             ChessMove bestMove = null;
             int bestScore = isWhite ? int.MinValue : int.MaxValue;
@@ -244,7 +242,7 @@ namespace Assets.Scripts.Game.AI
         {
             // Sort moves to improve alpha-beta pruning efficiency
             // Prioritize: captures, checks, then other moves
-            return moves.OrderByDescending(move => EvaluateMoveQuick(move, isWhite)).ToList();
+            return moves.OrderByDescending(move => this.EvaluateMoveQuick(move, isWhite)).ToList();
         }
 
         private int EvaluateMoveQuick(ChessMove move, bool isWhite)
@@ -257,7 +255,7 @@ namespace Assets.Scripts.Game.AI
                 // Prioritize captures
                 if (targetTile.CurrentPiece != null)
                 {
-                    score += pieceValues[targetTile.CurrentPiece.PieceType];
+                    score += this.pieceValues[targetTile.CurrentPiece.PieceType];
                 }
 
                 // Check if this move gives check
@@ -298,7 +296,7 @@ namespace Assets.Scripts.Game.AI
             }
 
             // Sort moves for better alpha-beta pruning
-            moves = SortMoves(moves, isMaximizing);
+            moves = this.SortMoves(moves, isMaximizing);
 
             if (isMaximizing)
             {
