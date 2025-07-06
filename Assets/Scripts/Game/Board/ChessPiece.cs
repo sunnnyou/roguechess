@@ -219,10 +219,14 @@ namespace Assets.Scripts.Game.Board
         private void DestroyPiece()
         {
             // TODO: add capture animation and add to captured pieces list for ui
-            ChessBoard.Instance.DownedPieces.Add(
-                this.gameObject.GetInstanceID(),
-                this.CurrentTile.Position
-            );
+            int key = this.gameObject.GetInstanceID();
+            while (ChessBoard.Instance.DownedPieces.ContainsKey(key))
+            {
+                key++;
+            }
+
+            ChessBoard.Instance.DownedPieces.Add(key, this.CurrentTile.Position);
+
             this.gameObject.SetActive(false);
         }
 

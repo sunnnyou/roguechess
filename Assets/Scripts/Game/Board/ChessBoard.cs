@@ -118,7 +118,6 @@ namespace Assets.Scripts.Game.Board
 
             this.CalculateScaling();
             this.GenerateBoard();
-            this.SetupPromotion();
         }
 
         public void Update()
@@ -134,6 +133,7 @@ namespace Assets.Scripts.Game.Board
                 {
                     // Make AI move for black pieces
                     this.chessEngine.MakeBestMove(false);
+                    this.CurrentTurn++;
                 }
                 else
                 {
@@ -282,7 +282,6 @@ namespace Assets.Scripts.Game.Board
             return piece;
         }
 
-        // Keep existing methods for backward compatibility
         public void SetupPromotion()
         {
             PromoteAtEndPieceBuff.InitializePromotionSystem(SelectionUIManager.Instance);
@@ -771,6 +770,12 @@ namespace Assets.Scripts.Game.Board
         // Check if the king of a specific color is in check
         public bool IsInCheck(bool isWhiteKing, ChessPiece king)
         {
+            if (king == null)
+            {
+                Debug.LogWarning("king is null in IsInCheck");
+                return false;
+            }
+
             // Check if any enemy piece can attack the king's position
             List<ChessPiece> enemyPieces = this.GetAllPieces(!isWhiteKing);
             foreach (var enemyPiece in enemyPieces)
@@ -1028,7 +1033,8 @@ namespace Assets.Scripts.Game.Board
                     .Find("RoundNameLabelText")
                     .GetComponent<TextMeshProUGUI>();
 
-                GetEnemyRoundData();
+                this.SetupPromotion();
+                this.GetEnemyRoundData();
             }
             else
             {

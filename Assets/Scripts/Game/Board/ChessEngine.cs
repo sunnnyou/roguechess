@@ -35,6 +35,13 @@ namespace Assets.Scripts.Game.AI
             { ChessPieceType.King, 20000 },
         };
 
+        // Additional evaluation constants
+        private const int CHECK_BONUS = 50;
+        private const int CHECKMATE_VALUE = 50000;
+        private const int MOBILITY_BONUS = 10;
+        private const int ATTACK_BONUS = 5;
+        private const int DEFENSE_BONUS = 3;
+
         public bool Thinking { get; private set; }
 
         // Position bonus tables for piece placement
@@ -173,11 +180,20 @@ namespace Assets.Scripts.Game.AI
                 return null;
             }
 
+            // Sort moves for better alpha-beta pruning
+            allMoves = SortMoves(allMoves, isWhite);
+
             ChessMove bestMove = null;
             int bestScore = isWhite ? int.MinValue : int.MaxValue;
 
             foreach (var move in allMoves)
             {
+                // Skip moves that would leave the king in check
+                if (WouldLeaveKingInCheck(move, isWhite))
+                {
+                    continue;
+                }
+
                 // Make the move temporarily
                 var moveHistory = MakeMove(move);
 
@@ -210,6 +226,52 @@ namespace Assets.Scripts.Game.AI
             return bestMove;
         }
 
+        private static bool WouldLeaveKingInCheck(ChessMove move, bool isWhite)
+        {
+            // Make the move temporarily
+            var moveHistory = MakeMove(move);
+
+            // Check if the king is in check after the move
+            bool inCheck = IsInCheck(isWhite);
+
+            // Undo the move
+            ChessBoard.Instance.UndoMove(moveHistory);
+
+            return inCheck;
+        }
+
+        private List<ChessMove> SortMoves(List<ChessMove> moves, bool isWhite)
+        {
+            // Sort moves to improve alpha-beta pruning efficiency
+            // Prioritize: captures, checks, then other moves
+            return moves.OrderByDescending(move => EvaluateMoveQuick(move, isWhite)).ToList();
+        }
+
+        private int EvaluateMoveQuick(ChessMove move, bool isWhite)
+        {
+            int score = 0;
+
+            // Get target tile
+            if (ChessBoard.Instance.GetTile(move.TargetPosition, out ChessTile targetTile))
+            {
+                // Prioritize captures
+                if (targetTile.CurrentPiece != null)
+                {
+                    score += pieceValues[targetTile.CurrentPiece.PieceType];
+                }
+
+                // Check if this move gives check
+                var moveHistory = MakeMove(move);
+                if (IsInCheck(!isWhite))
+                {
+                    score += CHECK_BONUS;
+                }
+                ChessBoard.Instance.UndoMove(moveHistory);
+            }
+
+            return score;
+        }
+
         private int Minimax(int depth, bool isMaximizing, int alpha, int beta)
         {
             if (depth == 0)
@@ -219,17 +281,24 @@ namespace Assets.Scripts.Game.AI
 
             var moves = GetAllValidMoves(isMaximizing);
 
+            // Filter out moves that would leave the king in check
+            moves = moves.Where(move => !WouldLeaveKingInCheck(move, isMaximizing)).ToList();
+
             if (moves.Count == 0)
             {
                 // Check if it's checkmate or stalemate
                 if (IsInCheck(isMaximizing))
                 {
+                    // Checkmate - prefer checkmates that happen sooner
                     return isMaximizing
-                        ? -20000 + (this.searchDepth - depth)
-                        : 20000 - (this.searchDepth - depth);
+                        ? -CHECKMATE_VALUE + (this.searchDepth - depth)
+                        : CHECKMATE_VALUE - (this.searchDepth - depth);
                 }
                 return 0; // Stalemate
             }
+
+            // Sort moves for better alpha-beta pruning
+            moves = SortMoves(moves, isMaximizing);
 
             if (isMaximizing)
             {
@@ -275,7 +344,7 @@ namespace Assets.Scripts.Game.AI
         {
             int score = 0;
 
-            // Material evaluation
+            // Material and position evaluation
             foreach (var tile in ChessBoard.Instance.GetAllTiles())
             {
                 if (tile.CurrentPiece != null)
@@ -297,9 +366,89 @@ namespace Assets.Scripts.Game.AI
                 }
             }
 
-            // Add mobility bonus (number of legal moves)
-            score += GetAllValidMoves(true).Count * 10;
-            score -= GetAllValidMoves(false).Count * 10;
+            // Enhanced evaluation factors
+            score += EvaluateMobility();
+            score += EvaluateKingSafety();
+            score += EvaluateAttacksAndDefense();
+
+            return score;
+        }
+
+        private static int EvaluateMobility()
+        {
+            int whiteMobility = GetAllValidMoves(true).Count;
+            int blackMobility = GetAllValidMoves(false).Count;
+
+            return (whiteMobility - blackMobility) * MOBILITY_BONUS;
+        }
+
+        private static int EvaluateKingSafety()
+        {
+            int score = 0;
+
+            // Penalize being in check
+            if (IsInCheck(true))
+            {
+                score -= CHECK_BONUS * 2;
+            }
+
+            if (IsInCheck(false))
+            {
+                score += CHECK_BONUS * 2;
+            }
+
+            return score;
+        }
+
+        private static int EvaluateAttacksAndDefense()
+        {
+            int score = 0;
+
+            // Evaluate attacked and defended squares
+            var whitePieces = ChessBoard.Instance.GetAllPieces(true);
+            var blackPieces = ChessBoard.Instance.GetAllPieces(false);
+
+            foreach (var piece in whitePieces)
+            {
+                var attacks = piece.GetValidMoves();
+                foreach (var attack in attacks)
+                {
+                    if (
+                        ChessBoard.Instance.GetTile(attack.TargetPosition, out ChessTile targetTile)
+                    )
+                    {
+                        if (targetTile.CurrentPiece != null && !targetTile.CurrentPiece.IsWhite)
+                        {
+                            score += ATTACK_BONUS;
+                        }
+                        else
+                        {
+                            score += DEFENSE_BONUS;
+                        }
+                    }
+                }
+            }
+
+            foreach (var piece in blackPieces)
+            {
+                var attacks = piece.GetValidMoves();
+                foreach (var attack in attacks)
+                {
+                    if (
+                        ChessBoard.Instance.GetTile(attack.TargetPosition, out ChessTile targetTile)
+                    )
+                    {
+                        if (targetTile.CurrentPiece != null && targetTile.CurrentPiece.IsWhite)
+                        {
+                            score -= ATTACK_BONUS;
+                        }
+                        else
+                        {
+                            score -= DEFENSE_BONUS;
+                        }
+                    }
+                }
+            }
 
             return score;
         }
@@ -335,16 +484,26 @@ namespace Assets.Scripts.Game.AI
 
         private static bool IsEndGame()
         {
-            // Simple endgame detection: few pieces left on board
+            // Enhanced endgame detection
             int pieceCount = 0;
+            int majorPieceCount = 0;
+
             foreach (var tile in ChessBoard.Instance.GetAllTiles())
             {
                 if (tile.CurrentPiece != null)
                 {
                     pieceCount++;
+                    if (
+                        tile.CurrentPiece.PieceType == ChessPieceType.Queen
+                        || tile.CurrentPiece.PieceType == ChessPieceType.Rook
+                    )
+                    {
+                        majorPieceCount++;
+                    }
                 }
             }
-            return pieceCount <= 10;
+
+            return pieceCount <= 10 || majorPieceCount <= 2;
         }
 
         private static List<ChessMove> GetAllValidMoves(bool isWhite)
