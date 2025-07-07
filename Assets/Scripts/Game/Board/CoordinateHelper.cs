@@ -57,12 +57,15 @@ namespace Assets.Scripts.Game.Board
         public static List<(int x, int y)> GetSurroundingCoordinatesWithBounds(
             int x,
             int y,
-            int minX,
-            int minY,
-            int maxX,
-            int maxY
+            int minX = 0,
+            int minY = 0,
+            int? maxX = null,
+            int? maxY = null
         )
         {
+            maxX ??= ChessBoard.Instance.Height - 1;
+            maxY ??= ChessBoard.Instance.Height - 1;
+
             var coordinates = new List<(int, int)>();
 
             for (int dx = -1; dx <= 1; dx++)

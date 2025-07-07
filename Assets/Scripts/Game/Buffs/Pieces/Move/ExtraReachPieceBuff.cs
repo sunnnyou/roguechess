@@ -8,17 +8,6 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
     [CreateAssetMenu(fileName = "ExtraReachPieceBuff", menuName = "Game/Buffs/ExtraReachPieceBuff")]
     public class ExtraReachPieceBuff : MoveBuff
     {
-        public new string BuffName { get; set; } = "Extra Reach";
-
-        public new string Description { get; set; } =
-            "Allows a piece to move to additional tiles in one turn.";
-
-        public new Sprite Icon { get; set; }
-
-        public new int Cost { get; set; }
-
-        public new bool WasUsed { get; set; }
-
         private readonly int additionalTiles;
 
         private readonly bool forwardOnly;

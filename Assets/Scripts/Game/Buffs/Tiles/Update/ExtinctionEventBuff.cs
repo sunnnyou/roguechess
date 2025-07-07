@@ -1,4 +1,4 @@
-namespace Assets.Scripts.Game.Buffs.Player
+namespace Assets.Scripts.Game.Buffs.Tiles.Update
 {
     using Assets.Scripts.Game.Board;
     using UnityEngine;
@@ -6,11 +6,7 @@ namespace Assets.Scripts.Game.Buffs.Player
     [CreateAssetMenu(fileName = "ExtinctionEventBuff", menuName = "Game/Buffs/ExtinctionEventBuff")]
     public class ExtinctionEventBuff : UpdateBuff
     {
-        public new string BuffName { get; set; }
-        public new string Description { get; set; }
-        public new Sprite Icon { get; set; }
-        public new int Cost { get; set; }
-        public new bool WasUsed { get; set; }
+        private int damageAmount = 1;
 
         public ExtinctionEventBuff()
         {
@@ -19,13 +15,33 @@ namespace Assets.Scripts.Game.Buffs.Player
 
         public IChessObject ExtinctionEventFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null)
+            if (chessObject is not ChessPiece newPiece || newPiece == null)
             {
-                Debug.LogError("Invalid arguments for ExtinctionEvent buff.");
+                Debug.LogError("Invalid arguments for UnoReversTileFnc buff.");
                 return null;
             }
 
-            // TODO:
+            var surroundingPos = CoordinateHelper.GetSurroundingCoordinatesWithBounds(
+                newPiece.CurrentTile.Position.x,
+                newPiece.CurrentTile.Position.y
+            );
+
+            foreach (var (x, y) in surroundingPos)
+            {
+                if (
+                    ChessBoard.Instance.GetTile(
+                        CoordinateHelper.XYToString(x, y),
+                        out ChessTile currentTile
+                    ) && currentTile.CurrentPiece.gameObject.activeSelf
+                )
+                {
+                    currentTile.CurrentPiece.AddReduceLives(-this.damageAmount, true);
+                }
+            }
+            newPiece.AddReduceLives(-this.damageAmount, true);
+
+            this.WasUsed = true;
+
             return null;
         }
     }

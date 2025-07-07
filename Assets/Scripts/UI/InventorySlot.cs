@@ -285,7 +285,7 @@ namespace Assets.Scripts.UI
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (!this.draggable || draggedIcon == null)
+            if (!this.draggable || draggedIcon == null || eventData == null)
             {
                 return;
             }

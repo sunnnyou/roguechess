@@ -2,6 +2,8 @@ namespace Assets.Scripts.Game.Board
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.Buffs.Pieces.Update;
     using Assets.Scripts.Game.Enemy;
     using Assets.Scripts.Game.MoveRules;
@@ -63,7 +65,7 @@ namespace Assets.Scripts.Game.Board
 
         public int CurrentTurn { get; internal set; }
         public int CurrentRound { get; internal set; }
-        public Dictionary<int, Vector2Int> DownedPieces { get; internal set; } = new();
+        public Dictionary<int, ChessPiece> DownedPieces { get; internal set; } = new();
 
         private NotificationManager notificationManager;
         private EnemySpriteManager enemySpriteManager;
@@ -73,6 +75,9 @@ namespace Assets.Scripts.Game.Board
         private TextMeshProUGUI roundText;
         private bool gameEnd;
         private EnemyRound enemyRoundData;
+        private bool skipEnemy;
+
+        public List<BuffBase> Buffs { get; private set; } = new();
 
         protected override void Awake()
         {
@@ -125,15 +130,23 @@ namespace Assets.Scripts.Game.Board
 
             try
             {
-                if (this.chessEngine != null && !this.IsWhiteTurn)
-                {
-                    // Make AI move for black pieces
-                    this.chessEngine.MakeBestMove(false);
-                    this.CurrentTurn++;
-                }
-                else
+                if (this.IsWhiteTurn)
                 {
                     this.HandleInput();
+                }
+                else if (this.chessEngine != null || this.skipEnemy)
+                {
+                    Debug.Log(
+                        $"Skipping next enemy turn. ChessEngine is null: {this.chessEngine == null}"
+                    );
+                    this.skipEnemy = false;
+                    this.IsWhiteTurn = !this.IsWhiteTurn;
+                }
+                // Make AI move for black pieces
+                else if (this.chessEngine.MakeBestMove(false))
+                {
+                    // no more valid moves for enemy
+                    this.EndGame(false);
                 }
             }
             catch (Exception ex)
@@ -145,6 +158,8 @@ namespace Assets.Scripts.Game.Board
 
         public void GenerateBoard()
         {
+            Debug.Log("Generating Board");
+
             // Clear existing tiles
             foreach (var tile in this.tiles.Values)
             {
@@ -152,9 +167,26 @@ namespace Assets.Scripts.Game.Board
                 {
                     continue;
                 }
-
                 tile.Destroy();
             }
+
+            foreach (var downed in this.DownedPieces.Values)
+            {
+                if (downed == null)
+                {
+                    continue;
+                }
+
+                if (Application.isEditor)
+                {
+                    DestroyImmediate(downed);
+                }
+                else
+                {
+                    Destroy(downed);
+                }
+            }
+
             this.tiles.Clear();
             this.MoveHistory.Clear();
             this.DownedPieces.Clear();
@@ -564,7 +596,7 @@ namespace Assets.Scripts.Game.Board
             return this.MoveHistory.Count > 0;
         }
 
-        public void UndoLastMove()
+        public void UndoLastMove(bool ignoreTurn = false)
         {
             if (!this.CanUndo())
             {
@@ -578,7 +610,10 @@ namespace Assets.Scripts.Game.Board
             this.UndoMove(lastMove);
 
             // Restore the turn
-            this.IsWhiteTurn = lastMove.WasWhiteTurn;
+            if (!ignoreTurn)
+            {
+                this.IsWhiteTurn = lastMove.WasWhiteTurn;
+            }
 
             // Clear any highlights
             this.ClearHighlights();
@@ -711,23 +746,6 @@ namespace Assets.Scripts.Game.Board
             }
         }
 
-        public void MovePieceEnemy(ChessPiece piece, ChessMove move)
-        {
-            if (move == null)
-            {
-                Debug.LogError("Enemy Move cannot be null");
-                return;
-            }
-
-            string targetCoord = CoordinateHelper.VectorToString(move.TargetPosition);
-
-            if (this.GetTile(targetCoord, out ChessTile targetTile))
-            {
-                // Use the same MovePiece method so it gets recorded
-                this.MovePiece(piece, targetTile);
-            }
-        }
-
         public bool GetTile(string position, out ChessTile tile)
         {
             tile = null;
@@ -737,16 +755,6 @@ namespace Assets.Scripts.Game.Board
         public bool GetTile(Vector2Int vector, out ChessTile tile)
         {
             return this.GetTile(CoordinateHelper.VectorToString(vector), out tile);
-        }
-
-        public bool IsValidCoordinate(string coordinate)
-        {
-            return this.tiles.ContainsKey(coordinate);
-        }
-
-        public bool IsValidCoordinate(Vector2Int vector)
-        {
-            return this.tiles.ContainsKey(CoordinateHelper.VectorToString(vector));
         }
 
         // Get all pieces of a specific type and color
@@ -1073,6 +1081,32 @@ namespace Assets.Scripts.Game.Board
                     this.SpawnPiece(enemyPiece.PieceType, false, enemyPiece.Position, tile);
                 }
             }
+        }
+
+        public void NewTurn()
+        {
+            this.CurrentTurn++;
+            foreach (BuffBase buff in this.Buffs)
+            {
+                buff.UpdateDuration();
+            }
+        }
+
+        public int? GetTotalEnemyPieceCount()
+        {
+            if (this.enemyRoundData != null && this.enemyRoundData.Pieces != null)
+            {
+                return this.enemyRoundData.Pieces.Length;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public void SkipNextRound()
+        {
+            this.skipEnemy = true;
         }
     }
 }

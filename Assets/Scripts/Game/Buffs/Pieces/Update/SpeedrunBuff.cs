@@ -9,12 +9,6 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
     [CreateAssetMenu(fileName = "SpeedRunBuff", menuName = "Game/Buffs/SpeedRunBuff")]
     public class SpeedRunBuff : UpdateBuff
     {
-        public new string BuffName { get; set; }
-        public new string Description { get; set; }
-        public new Sprite Icon { get; set; }
-        public new int Cost { get; set; }
-        public new bool WasUsed { get; set; }
-
         public SpeedRunBuff()
         {
             this.UpdateFunction = SpeedRunFnc;

@@ -114,7 +114,10 @@ namespace Assets.Scripts.Game.Board
         )
         {
             // Fight current piece with new piece and set winner as this tiles current piece
-            if (!ignoreFight && !ChessPiece.FightPiece(this.CurrentPiece, newPiece))
+            if (
+                !ignoreFight
+                && !ChessPiece.FightPiece(this.CurrentPiece, newPiece, !ignoreMoveHistory)
+            )
             {
                 // TODO: add move history for fighting and loosing hp
                 return null;

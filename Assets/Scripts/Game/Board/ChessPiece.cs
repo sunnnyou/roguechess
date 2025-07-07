@@ -2,6 +2,7 @@ namespace Assets.Scripts.Game.Board
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.Buffs.Pieces.Move;
     using Assets.Scripts.Game.Buffs.Pieces.Update;
@@ -20,9 +21,11 @@ namespace Assets.Scripts.Game.Board
         public bool IsWhite { get; set; }
         public ChessTile CurrentTile { get; set; }
         public List<MoveRule> MoveRules { get; private set; } = new();
-        public int Strength { get; set; } = 1;
-        public int Lives { get; set; } = 1;
+        public int Strength { get; private set; } = 1;
+        public int Lives { get; private set; } = 1;
         public bool HasMoved;
+        private Color originalColor;
+        private float flashDurationSeconds = 0.2f;
 
         // Initialize from ScriptableObject data
         public void Initialize(ChessPieceData data)
@@ -84,6 +87,7 @@ namespace Assets.Scripts.Game.Board
             this.SpriteRenderer.sortingOrder =
                 this.pieceData != null ? this.pieceData.SortingOrder : 10; // render above tiles
             this.SpriteRenderer.sprite = sprite;
+            this.originalColor = this.SpriteRenderer.color;
 
             // Set default move rules based on piece type
             this.SetDefaultMoveRules(customRules);
@@ -189,7 +193,11 @@ namespace Assets.Scripts.Game.Board
             return moves;
         }
 
-        public static bool FightPiece(ChessPiece currentPiece, ChessPiece enemyPiece)
+        public static bool FightPiece(
+            ChessPiece currentPiece,
+            ChessPiece enemyPiece,
+            bool flashColor
+        )
         {
             if (currentPiece == null && enemyPiece != null)
             {
@@ -204,11 +212,10 @@ namespace Assets.Scripts.Game.Board
             {
                 // TODO: fight function (use buffs)
 
-                currentPiece.Lives -= enemyPiece.Strength;
+                currentPiece.AddReduceLives(-enemyPiece.Strength, flashColor);
                 if (currentPiece.Lives <= 0)
                 {
                     // Enemy won and killed this piece
-                    currentPiece.DestroyPiece();
                     return true;
                 }
             }
@@ -225,7 +232,7 @@ namespace Assets.Scripts.Game.Board
                 key++;
             }
 
-            ChessBoard.Instance.DownedPieces.Add(key, this.CurrentTile.Position);
+            ChessBoard.Instance.DownedPieces.Add(key, this);
 
             this.gameObject.SetActive(false);
         }
@@ -265,28 +272,84 @@ namespace Assets.Scripts.Game.Board
             // Update properties from the buffed piece
             this.PieceType = updatedPiece.PieceType;
             this.IsWhite = updatedPiece.IsWhite;
-            this.Lives = updatedPiece.Lives;
+            this.AddReduceLives(updatedPiece.Lives - this.Lives, true);
+            this.AddReduceLives(updatedPiece.Strength - this.Strength, true);
 
             // Update move rules
             this.MoveRules = new List<MoveRule>(updatedPiece.MoveRules);
 
             // Update buffs
-            this.Buffs.Clear();
             this.Buffs.AddRange(updatedPiece.Buffs);
 
             // Update sprite renderer
             // TODO: Maybe add function to check if white or black
-            if (this.SpriteRenderer != null)
+            if (this.SpriteRenderer != null && updatedPiece.SpriteRenderer != null)
             {
                 this.SpriteRenderer.sprite = updatedPiece.SpriteRenderer.sprite;
             }
+
+            // TODO: maybe add function for updating tile if position has not changed
+        }
+
+        public void AddReduceLives(int changedAmount, bool flashColor)
+        {
+            if (flashColor)
+            {
+                if (changedAmount >= 0)
+                {
+                    this.FlashSprite(Color.green).ConfigureAwait(true);
+                }
+                else
+                {
+                    this.FlashSprite(Color.red).ConfigureAwait(true);
+                }
+            }
+
+            this.Lives += changedAmount;
 
             if (this.Lives <= 0)
             {
                 this.DestroyPiece();
             }
+        }
 
-            // TODO: maybe add function for updating tile if position has not changed
+        public void AddReduceStrength(int changedAmount, bool flashColor)
+        {
+            if (flashColor)
+            {
+                if (changedAmount >= 0)
+                {
+                    this.FlashSprite(Color.yellow).ConfigureAwait(true);
+                }
+                else
+                {
+                    this.FlashSprite(Color.purple).ConfigureAwait(true);
+                }
+            }
+
+            this.Strength += changedAmount;
+        }
+
+        public async Task FlashSprite(Color flashColor)
+        {
+            await this.FlashCoroutineAsync(flashColor).ConfigureAwait(true);
+        }
+
+        private async Task FlashCoroutineAsync(Color flashColor)
+        {
+            // Change to flash color
+            this.SpriteRenderer.color = flashColor;
+
+            // Wait for the flash duration
+            await Task.Delay((int)(this.flashDurationSeconds * 1000)).ConfigureAwait(true);
+
+            // Return to original color
+            this.SpriteRenderer.color = this.originalColor;
+        }
+
+        public void SetPieceType(ChessPieceType newType)
+        {
+            this.PieceType = newType;
         }
     }
 }

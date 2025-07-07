@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: AIShieldBuff
   m_EditorClassIdentifier: 
   BuffName: AI Shield
-  Description: Shields a selected piece from the evil AI and blocks all damage from
+  Description: Shields all your pieces from the evil AI and blocks all damage from
     the enemy's next attack.
   Icon: {fileID: -7198497989327922717, guid: db27f010ee2b9db49889ec325c0a27e7, type: 3}
   IsActive: 1
-  Cost: 4
-  DurationMoves: -1
+  Cost: 38
   DurationTurns: -1
   DurationRounds: 1
+  UsableInGame: 1
+  SelectionType: 2
+  UsableOnce: 1
   WasUsed: 0
   Turn: 0
   Round: 0

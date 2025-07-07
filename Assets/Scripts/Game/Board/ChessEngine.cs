@@ -22,6 +22,8 @@ namespace Assets.Scripts.Game.Board
         [SerializeField]
         private float randomnessFactor = 0.1f;
 
+        private bool noValidMovesAvailable;
+
         // Piece values for evaluation
         private readonly Dictionary<ChessPieceType, int> pieceValues = new()
         {
@@ -134,13 +136,24 @@ namespace Assets.Scripts.Game.Board
             this.random = new System.Random();
         }
 
-        public void MakeBestMove(bool isWhite)
+        public bool MakeBestMove(bool isWhite)
         {
             if (this.Thinking)
             {
-                return;
+                return false;
             }
+
             this.StartCoroutine(this.ThinkAndMove(isWhite));
+
+            if (this.noValidMovesAvailable)
+            {
+                this.noValidMovesAvailable = false;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private System.Collections.IEnumerator ThinkAndMove(bool isWhite)
@@ -165,7 +178,10 @@ namespace Assets.Scripts.Game.Board
             else
             {
                 Debug.LogWarning("No valid moves found for AI");
+                this.noValidMovesAvailable = true;
             }
+            ChessBoard.Instance.NewTurn();
+
             this.Thinking = false;
         }
 

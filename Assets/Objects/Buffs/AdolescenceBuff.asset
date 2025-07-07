@@ -16,10 +16,12 @@ MonoBehaviour:
   Description: Permanently upgrade a selected pawn to a queen.
   Icon: {fileID: 2952564868547622667, guid: 0a6f116246cfbd946915cb1411308b02, type: 3}
   IsActive: 1
-  Cost: 15
-  DurationMoves: -1
+  Cost: 108
   DurationTurns: -1
   DurationRounds: -1
+  UsableInGame: 0
+  SelectionType: 0
+  UsableOnce: 0
   WasUsed: 0
   Turn: 0
   Round: 0

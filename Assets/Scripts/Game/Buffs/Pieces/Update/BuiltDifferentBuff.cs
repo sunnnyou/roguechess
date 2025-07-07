@@ -6,12 +6,6 @@ namespace Assets.Scripts.Game.Buffs.Player
     [CreateAssetMenu(fileName = "BuiltDifferentBuff", menuName = "Game/Buffs/BuiltDifferentBuff")]
     public class BuiltDifferentBuff : UpdateBuff
     {
-        public new string BuffName { get; set; }
-        public new string Description { get; set; }
-        public new Sprite Icon { get; set; }
-        public new int Cost { get; set; }
-        public new bool WasUsed { get; set; }
-
         public BuiltDifferentBuff()
         {
             this.UpdateFunction = this.BuiltDifferentFnc;
@@ -25,8 +19,11 @@ namespace Assets.Scripts.Game.Buffs.Player
                 return null;
             }
 
-            // TODO:
-            return null;
+            piece.AddReduceLives(piece.Lives, true); // double hp
+
+            this.IsActive = false;
+
+            return piece;
         }
     }
 }

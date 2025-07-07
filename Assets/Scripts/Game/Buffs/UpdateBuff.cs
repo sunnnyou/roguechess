@@ -9,15 +9,9 @@ namespace Assets.Scripts.Game.Buffs
     {
         public Func<IChessObject, IChessObject> UpdateFunction { get; set; } // Function that is applied when a condition is met
 
-        public new bool IsActive { get; set; } = true;
+        public new SelectionType SelectionType { get; set; }
 
-        public new int DurationMoves { get; set; } = -1;
-
-        public new int DurationTurns { get; set; } = -1;
-
-        public new int DurationRounds { get; set; } = -1;
-
-        public override object BuffFunction(IChessObject buffReceiver)
+        internal override object BuffFunction(IChessObject buffReceiver)
         {
             return this.UpdateFunction(buffReceiver);
         }

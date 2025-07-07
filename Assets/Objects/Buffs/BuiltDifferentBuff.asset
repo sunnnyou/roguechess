@@ -20,6 +20,8 @@ MonoBehaviour:
   DurationMoves: -1
   DurationTurns: -1
   DurationRounds: -1
+  UsableInGame: 0
+  SelectionType: 0
   WasUsed: 0
   Turn: 0
   Round: 0

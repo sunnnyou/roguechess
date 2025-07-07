@@ -6,11 +6,7 @@ namespace Assets.Scripts.Game.Buffs.Player
     [CreateAssetMenu(fileName = "ThrowingHandsBuff", menuName = "Game/Buffs/ThrowingHandsBuff")]
     public class ThrowingHandsBuff : UpdateBuff
     {
-        public new string BuffName { get; set; }
-        public new string Description { get; set; }
-        public new Sprite Icon { get; set; }
-        public new int Cost { get; set; }
-        public new bool WasUsed { get; set; }
+        private readonly int addedStrengthAmount = 1;
 
         public ThrowingHandsBuff()
         {
@@ -25,8 +21,11 @@ namespace Assets.Scripts.Game.Buffs.Player
                 return null;
             }
 
-            // TODO:
-            return null;
+            piece.AddReduceStrength(this.addedStrengthAmount, true);
+
+            this.IsActive = false;
+
+            return piece;
         }
     }
 }

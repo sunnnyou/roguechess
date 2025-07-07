@@ -13,15 +13,17 @@ MonoBehaviour:
   m_Name: ExtinctionEventBuff
   m_EditorClassIdentifier: 
   BuffName: Extinction Event
-  Description: Select any tile on the map to cause an asteroid to come down. Any      
+  Description: Select any tile on the map to cause an asteroid to come down. Any
     pieces on the selected tile and 1 distance away from it in any direction will
-    have their health reduced to 1.
+    have their health reduced by 1.
   Icon: {fileID: 7029301469737702658, guid: fe261fcdaf29a9242bab340ff8bd49de, type: 3}
   IsActive: 1
   Cost: 9
-  DurationMoves: -1
   DurationTurns: -1
   DurationRounds: -1
+  UsableInGame: 1
+  SelectionType: 1
+  UsableOnce: 1
   WasUsed: 0
   Turn: 0
   Round: 0

@@ -246,7 +246,7 @@ namespace Assets.Scripts.UI
         // Utility method to show panel with time-based income calculation
         public void ShowRoundEndPanel(
             bool roundWon,
-            int incomePieces,
+            int countPiecesPlayer,
             int incomeBase,
             List<BuffBase> buffs = null
         )
@@ -263,13 +263,13 @@ namespace Assets.Scripts.UI
             if (buffs != null)
             {
                 incomeBuffs = CalculateIncomeBuffs(buffs);
-                this.roundPieces.text = incomePieces.ToString();
+                this.roundPieces.text = countPiecesPlayer.ToString();
             }
 
             this.ShowRoundEndPanel(
                 roundWon,
                 incomeTime,
-                incomePieces,
+                countPiecesPlayer,
                 incomeBase,
                 incomeBuffs,
                 buffs

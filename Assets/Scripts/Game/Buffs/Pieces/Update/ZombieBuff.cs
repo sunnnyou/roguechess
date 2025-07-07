@@ -1,16 +1,14 @@
 namespace Assets.Scripts.Game.Buffs.Player
 {
     using Assets.Scripts.Game.Board;
+    using Assets.Scripts.Game.Player;
     using UnityEngine;
 
     [CreateAssetMenu(fileName = "ZombieBuff", menuName = "Game/Buffs/ZombieBuff")]
     public class ZombieBuff : UpdateBuff
     {
-        public new string BuffName { get; set; }
-        public new string Description { get; set; }
-        public new Sprite Icon { get; set; }
-        public new int Cost { get; set; }
-        public new bool WasUsed { get; set; }
+        private int roundUsed = -1;
+        private readonly int healAmount = 1;
 
         public ZombieBuff()
         {
@@ -24,9 +22,13 @@ namespace Assets.Scripts.Game.Buffs.Player
                 Debug.LogError("Invalid arguments for Zombie buff.");
                 return null;
             }
+            if (this.roundUsed != ChessBoard.Instance.CurrentRound && piece.Lives == 0)
+            {
+                piece.AddReduceStrength(this.healAmount, true);
+                this.roundUsed = ChessBoard.Instance.CurrentRound;
+            }
 
-            // TODO:
-            return null;
+            return piece;
         }
     }
 }

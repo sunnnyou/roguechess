@@ -10,15 +10,7 @@ namespace Assets.Scripts.Game.Buffs
     {
         public Func<ChessPiece, List<ChessTile>> MoveFunction { get; set; } // Function that is applied when a condition is met
 
-        public new bool IsActive { get; set; } = true;
-
-        public new int DurationMoves { get; set; } = -1;
-
-        public new int DurationTurns { get; set; } = -1;
-
-        public new int DurationRounds { get; set; } = -1;
-
-        public override object BuffFunction(IChessObject buffReceiver)
+        internal override object BuffFunction(IChessObject buffReceiver)
         {
             if (buffReceiver is not ChessPiece piece)
             {

@@ -1,4 +1,4 @@
-namespace Assets.Scripts.Game.Buffs.Player
+namespace Assets.Scripts.Game.Buffs.Tiles.Update
 {
     using Assets.Scripts.Game.Board;
     using UnityEngine;
@@ -6,30 +6,25 @@ namespace Assets.Scripts.Game.Buffs.Player
     [CreateAssetMenu(fileName = "AbracadabraBuff", menuName = "Game/Buffs/AbracadabraBuff")]
     public class AbracadabraBuff : UpdateBuff
     {
-        public new string BuffName { get; set; }
-
-        public new string Description { get; set; }
-
-        public new Sprite Icon { get; set; }
-
-        public new int Cost { get; set; }
-
-        public new bool WasUsed { get; set; }
-
         public AbracadabraBuff()
         {
-            this.UpdateFunction = this.AbracadabraFnc;
+            this.UpdateFunction = AbracadabraFnc;
         }
 
-        public IChessObject AbracadabraFnc(IChessObject chessObject)
+        public static IChessObject AbracadabraFnc(IChessObject chessObject)
         {
             if (chessObject is not ChessPiece piece || piece == null)
             {
-                Debug.LogError("Invalid arguments for Abracadabra buff.");
+                Debug.LogError("Invalid arguments for EnPassantDebuff buff.");
                 return null;
             }
 
-            // TODO:
+            if (piece.Lives == 0)
+            {
+                return null;
+            }
+
+            piece.AddReduceLives(-piece.Lives, true);
             return null;
         }
     }

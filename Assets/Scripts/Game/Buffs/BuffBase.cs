@@ -13,9 +13,13 @@ namespace Assets.Scripts.Game.Buffs
         [Header("Buff Mechanics")]
         public bool IsActive = true;
         public int Cost = -1;
-        public int DurationMoves = -1;
         public int DurationTurns = -1;
         public int DurationRounds = -1;
+
+        [Header("Usability")]
+        public bool UsableInGame;
+        public SelectionType SelectionType = SelectionType.None;
+        public bool UsableOnce;
 
         [HideInInspector]
         public bool WasUsed = false;
@@ -26,8 +30,20 @@ namespace Assets.Scripts.Game.Buffs
         [HideInInspector]
         public int Round;
 
-        /// <summary> Override this to define what the buff does. </summary>
-        public abstract object BuffFunction(IChessObject buffReceiver);
+        protected BuffBase()
+        {
+            if (ChessBoard.Instance != null && ChessBoard.Instance.Buffs != null)
+            {
+                ChessBoard.Instance.Buffs.Add(this);
+            }
+        }
+
+        internal abstract object BuffFunction(IChessObject buffReceiver);
+
+        public virtual void RemoveBuff()
+        {
+            // Optional implementation
+        }
 
         public object ApplyBuff(IChessObject buffReceiver)
         {
@@ -44,13 +60,12 @@ namespace Assets.Scripts.Game.Buffs
             }
 
             var result = this.BuffFunction(buffReceiver);
-            this.UpdateDuration();
             return result;
         }
 
-        private void UpdateDuration()
+        public void UpdateDuration()
         {
-            if (this.Turn < ChessBoard.Instance.CurrentRound)
+            if (this.DurationTurns != -1 && this.Turn < ChessBoard.Instance.CurrentRound)
             {
                 this.DurationTurns = Mathf.Max(
                     -1,
@@ -59,7 +74,7 @@ namespace Assets.Scripts.Game.Buffs
                 this.Turn = ChessBoard.Instance.CurrentTurn;
             }
 
-            if (this.Round < ChessBoard.Instance.CurrentRound)
+            if (this.DurationRounds != -1 && this.Round < ChessBoard.Instance.CurrentRound)
             {
                 this.DurationRounds = Mathf.Max(
                     -1,
@@ -68,15 +83,16 @@ namespace Assets.Scripts.Game.Buffs
                 this.Round = ChessBoard.Instance.CurrentRound;
             }
 
-            this.DurationMoves = Mathf.Max(-1, this.DurationMoves - 1);
-
-            if (this.DurationMoves == 0 || this.DurationTurns == 0 || this.DurationRounds == 0)
+            if (
+                (this.WasUsed && this.UsableOnce)
+                || this.DurationTurns == 0
+                || this.DurationRounds == 0
+            )
             {
+                this.RemoveBuff();
                 this.IsActive = false;
                 Debug.LogWarning($"Buff '{this.BuffName}' set to inactive.");
             }
-
-            this.WasUsed = true;
         }
     }
 }

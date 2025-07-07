@@ -11,17 +11,6 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
     )]
     public class PromoteAtEndPieceBuff : UpdateBuff
     {
-        public new string BuffName { get; set; } = "Royal Ascension";
-
-        public new string Description { get; set; } =
-            "Allows a piece to be switched to a new piece when it reaches the end of the board.";
-
-        public new Sprite Icon { get; set; }
-
-        public new int Cost { get; set; }
-
-        public new bool WasUsed { get; set; }
-
         private readonly int? promoteAtX;
         private readonly int? promoteAtY;
 

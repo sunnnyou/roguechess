@@ -1,16 +1,14 @@
 namespace Assets.Scripts.Game.Buffs.Player
 {
     using Assets.Scripts.Game.Board;
+    using Assets.Scripts.Game.Player;
     using UnityEngine;
 
     [CreateAssetMenu(fileName = "GoldenGooseBuff", menuName = "Game/Buffs/GoldenGooseBuff")]
     public class GoldenGooseBuff : UpdateBuff
     {
-        public new string BuffName { get; set; }
-        public new string Description { get; set; }
-        public new Sprite Icon { get; set; }
-        public new int Cost { get; set; }
-        public new bool WasUsed { get; set; }
+        private int roundUsed = -1;
+        private int goldGained = 5;
 
         public GoldenGooseBuff()
         {
@@ -25,8 +23,13 @@ namespace Assets.Scripts.Game.Buffs.Player
                 return null;
             }
 
-            // TODO:
-            return null;
+            if (this.roundUsed != ChessBoard.Instance.CurrentRound && piece.Lives == 0)
+            {
+                InventoryManager.Instance.AddGold(this.goldGained);
+                this.roundUsed = ChessBoard.Instance.CurrentRound;
+            }
+
+            return piece;
         }
     }
 }

@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: UnoReverseBuff
   m_EditorClassIdentifier: 
   BuffName: Uno Reverse Card
-  Description: After using this buff, the next time an enemy piece attack, it will
+  Description: After using this buff, the next time an enemy piece attacks, it will
     have its own health reduced by its attack power.
   Icon: {fileID: -1840722404021205925, guid: b64bdb6271377c942ab686a7c682853f, type: 3}
   IsActive: 1
   Cost: 7
-  DurationMoves: -1
   DurationTurns: -1
   DurationRounds: -1
+  UsableInGame: 1
+  SelectionType: 2
+  UsableOnce: 1
   WasUsed: 0
   Turn: 0
   Round: 0

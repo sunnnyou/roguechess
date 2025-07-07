@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: SnapBuff
   m_EditorClassIdentifier: 
   BuffName: Snap
-  Description: Using this buff will reduce the health of all pieces on the board
-    by 50%
+  Description: Using this buff will reduce the health of 50% of all enemy pieces
+    on the board to 0.
   Icon: {fileID: -7575284744764469784, guid: d88383b7bec182a4781cd68a7f737c4f, type: 3}
   IsActive: 1
-  Cost: 12
-  DurationMoves: -1
+  Cost: 93
   DurationTurns: -1
   DurationRounds: -1
+  UsableInGame: 1
+  SelectionType: 2
+  UsableOnce: 1
   WasUsed: 0
   Turn: 0
   Round: 0

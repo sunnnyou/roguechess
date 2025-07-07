@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: AbracadabraBuff
   m_EditorClassIdentifier: 
   BuffName: Abracadabra
-  Description: Select any piece 2 distances away in any direction and deal a fatal
-    blow to it reducing its health to zero.
+  Description: Select any piece and deal a fatal blow to it reducing its health to
+    zero.
   Icon: {fileID: 7494061042037780570, guid: b4b71be8b306b0147899d63e57fd5100, type: 3}
   IsActive: 1
-  Cost: 9
-  DurationMoves: -1
+  Cost: 52
   DurationTurns: -1
   DurationRounds: -1
+  UsableInGame: 1
+  SelectionType: 0
+  UsableOnce: 1
   WasUsed: 0
   Turn: 0
   Round: 0

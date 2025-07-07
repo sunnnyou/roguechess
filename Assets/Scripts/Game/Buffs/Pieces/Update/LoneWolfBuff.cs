@@ -6,11 +6,9 @@ namespace Assets.Scripts.Game.Buffs.Player
     [CreateAssetMenu(fileName = "LoneWolfBuff", menuName = "Game/Buffs/LoneWolfBuff")]
     public class LoneWolfBuff : UpdateBuff
     {
-        public new string BuffName { get; set; }
-        public new string Description { get; set; }
-        public new Sprite Icon { get; set; }
-        public new int Cost { get; set; }
-        public new bool WasUsed { get; set; }
+        private readonly int addedDamageAmount = 2;
+
+        private bool addedDamage;
 
         public LoneWolfBuff()
         {
@@ -25,8 +23,38 @@ namespace Assets.Scripts.Game.Buffs.Player
                 return null;
             }
 
-            // TODO:
-            return null;
+            var surroundingPos = CoordinateHelper.GetSurroundingCoordinatesWithBounds(
+                piece.CurrentTile.Position.x,
+                piece.CurrentTile.Position.y
+            );
+
+            foreach (var (x, y) in surroundingPos)
+            {
+                if (
+                    ChessBoard.Instance.GetTile(
+                        CoordinateHelper.XYToString(x, y),
+                        out ChessTile tile
+                    )
+                    && piece.IsWhite == tile.CurrentPiece.IsWhite
+                )
+                {
+                    if (this.addedDamage)
+                    {
+                        piece.AddReduceStrength(-this.addedDamageAmount, true);
+                        this.addedDamage = false;
+                    }
+
+                    return piece;
+                }
+            }
+
+            if (!this.addedDamage)
+            {
+                piece.AddReduceStrength(this.addedDamageAmount, true);
+                this.addedDamage = true;
+            }
+
+            return piece;
         }
     }
 }
