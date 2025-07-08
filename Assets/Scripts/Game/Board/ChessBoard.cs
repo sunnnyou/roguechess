@@ -134,7 +134,7 @@ namespace Assets.Scripts.Game.Board
                 {
                     this.HandleInput();
                 }
-                else if (this.chessEngine != null || this.skipEnemy)
+                else if (this.chessEngine == null || this.skipEnemy)
                 {
                     Debug.Log(
                         $"Skipping next enemy turn. ChessEngine is null: {this.chessEngine == null}"
