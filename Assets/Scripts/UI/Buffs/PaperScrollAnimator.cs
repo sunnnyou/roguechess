@@ -29,7 +29,7 @@ namespace Assets.Scripts.UI.Buffs
         private Color disabledColor;
         private bool enoughGold;
         private bool enoughSpace;
-        private bool changed;
+        private bool buyingEnabled;
 
         public void Start()
         {
@@ -56,10 +56,7 @@ namespace Assets.Scripts.UI.Buffs
 
             this.enoughGold = InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost);
             this.enoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
-            this.changed = true;
-            this.EnableBuying();
-            this.changed = true;
-            this.DisableBuying();
+            this.UpdateBuying();
         }
 
         private void OnDestroy()
@@ -156,10 +153,9 @@ namespace Assets.Scripts.UI.Buffs
             Button button = this.GetComponent<Button>();
             button.interactable = true;
 
-            this.changed = true;
-            this.EnableBuying();
-            this.changed = true;
-            this.DisableBuying();
+            this.enoughGold = InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost);
+            this.enoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
+            this.UpdateBuying();
 
             // Close scroll and wait for it to complete
             await this.CloseScrollAsync(false);
@@ -260,9 +256,19 @@ namespace Assets.Scripts.UI.Buffs
             button.interactable = false;
         }
 
-        private void DisableBuying()
+        private void UpdateBuying()
         {
-            if ((!this.enoughGold || !this.enoughSpace) && this.changed)
+            var enable = this.enoughGold && this.enoughSpace;
+            if (enable && !this.buyingEnabled)
+            {
+                Button button = this.GetComponent<Button>();
+                button.onClick.AddListener(this.BuyBuff);
+
+                var image = this.GetComponent<Image>();
+                image.color = this.enabledColor;
+                this.buyingEnabled = true;
+            }
+            else if (!enable && this.buyingEnabled)
             {
                 Button button = this.GetComponent<Button>();
                 button.onClick.RemoveAllListeners();
@@ -270,20 +276,7 @@ namespace Assets.Scripts.UI.Buffs
 
                 var image = this.GetComponent<Image>();
                 image.color = this.disabledColor;
-                this.changed = false;
-            }
-        }
-
-        private void EnableBuying()
-        {
-            if (this.enoughGold && this.enoughSpace && this.changed)
-            {
-                Button button = this.GetComponent<Button>();
-                button.onClick.AddListener(this.BuyBuff);
-
-                var image = this.GetComponent<Image>();
-                image.color = this.enabledColor;
-                this.changed = false;
+                this.buyingEnabled = false;
             }
         }
 
@@ -295,32 +288,16 @@ namespace Assets.Scripts.UI.Buffs
             }
 
             var uptEnoughGold = InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost);
-            this.changed = uptEnoughGold != this.enoughGold;
             this.enoughGold = uptEnoughGold;
 
-            if (this.enoughGold)
-            {
-                this.EnableBuying();
-            }
-            else
-            {
-                this.DisableBuying();
-            }
+            this.UpdateBuying();
         }
 
         private void OnInventoryChanged()
         {
             var uptEnoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
-            this.changed = uptEnoughSpace != this.enoughSpace;
             this.enoughSpace = uptEnoughSpace;
-            if (this.enoughSpace)
-            {
-                this.EnableBuying();
-            }
-            else
-            {
-                this.DisableBuying();
-            }
+            this.UpdateBuying();
         }
     }
 }
