@@ -1,5 +1,6 @@
 namespace Assets.Scripts.Game.Board
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Assets.Scripts.Game.Board
         private ChessPieceData pieceData;
 
         // Runtime properties
-        public List<BuffBase> Buffs { get; } = new();
+        private readonly List<BuffBase> buffs = new();
         public SpriteRenderer SpriteRenderer { get; set; }
         public ChessPieceType PieceType { get; private set; }
         public bool IsWhite { get; set; }
@@ -23,9 +24,11 @@ namespace Assets.Scripts.Game.Board
         public List<MoveRule> MoveRules { get; private set; } = new();
         public int Strength { get; private set; } = 1;
         public int Lives { get; private set; } = 1;
+
+        List<BuffBase> IChessObject.Buffs => this.buffs;
         public bool HasMoved;
         private Color originalColor;
-        private float flashDurationSeconds = 0.2f;
+        private readonly float flashDurationSeconds = 0.2f;
 
         // Initialize from ScriptableObject data
         public void Initialize(ChessPieceData data)
@@ -69,6 +72,7 @@ namespace Assets.Scripts.Game.Board
                 this.SpriteRenderer = this.gameObject.AddComponent<SpriteRenderer>();
             }
 
+            // Sprite material
             if (materials != null)
             {
                 int baseRenderQueue = 3000; // default render queue value for sprites
@@ -84,31 +88,44 @@ namespace Assets.Scripts.Game.Board
                 }
             }
 
+            // Sprite other
             this.SpriteRenderer.sortingOrder =
                 this.pieceData != null ? this.pieceData.SortingOrder : 10; // render above tiles
             this.SpriteRenderer.sprite = sprite;
             this.originalColor = this.SpriteRenderer.color;
 
-            // Set default move rules based on piece type
+            // Default move rules
             this.SetDefaultMoveRules(customRules);
 
-            // Add buffs if provided
+            // Custom buffs
             if (buffs != null)
             {
-                this.Buffs.AddRange(buffs);
+                this.buffs.AddRange(buffs);
             }
 
+            // Default buffs
             if (type == ChessPieceType.Pawn)
             {
                 var enPassantBuff = new EnPassantPieceBuff();
-                this.Buffs.Add(enPassantBuff);
+                this.buffs.Add(enPassantBuff);
                 var extraReachBuff = new ExtraReachPieceBuff();
-                this.Buffs.Add(extraReachBuff);
+                this.buffs.Add(extraReachBuff);
                 var promoteAtEndPieceBuff = new PromoteAtEndPieceBuff(
                     null,
                     white ? ChessBoard.Instance.Height - 1 : 0
                 );
-                this.Buffs.Add(promoteAtEndPieceBuff);
+                this.buffs.Add(promoteAtEndPieceBuff);
+            }
+
+            // Tooltip
+            if (this.CurrentTile != null)
+            {
+                this.CurrentTile.Tooltip = this.gameObject.GetComponent<WorldTooltip>();
+                if (this.CurrentTile.Tooltip == null)
+                {
+                    this.CurrentTile.Tooltip = this.gameObject.AddComponent<WorldTooltip>();
+                }
+                this.CurrentTile.Tooltip.SetTooltipText(this.GenerateTooltip());
             }
         }
 
@@ -158,7 +175,7 @@ namespace Assets.Scripts.Game.Board
             );
 
             // Get valid tiles from buffs
-            foreach (var buff in this.Buffs)
+            foreach (var buff in this.buffs)
             {
                 if (buff == null || !buff.IsActive || buff is not MoveBuff)
                 {
@@ -225,14 +242,16 @@ namespace Assets.Scripts.Game.Board
 
         private void DestroyPiece()
         {
-            // TODO: add capture animation and add to captured pieces list for ui
             int key = this.gameObject.GetInstanceID();
-            while (ChessBoard.Instance.DownedPieces.ContainsKey(key))
+            if (!ChessBoard.Instance.DownedPieces.ContainsKey(key))
             {
-                key++;
+                ChessBoard.Instance.DownedPieces.Add(key, this);
             }
 
-            ChessBoard.Instance.DownedPieces.Add(key, this);
+            if (this.CurrentTile != null)
+            {
+                Destroy(this.CurrentTile.Tooltip);
+            }
 
             this.gameObject.SetActive(false);
         }
@@ -246,7 +265,7 @@ namespace Assets.Scripts.Game.Board
 
         public void UseUpdateBuffs()
         {
-            foreach (var buff in this.Buffs)
+            foreach (var buff in this.buffs)
             {
                 if (
                     buff != null
@@ -279,7 +298,7 @@ namespace Assets.Scripts.Game.Board
             this.MoveRules = new List<MoveRule>(updatedPiece.MoveRules);
 
             // Update buffs
-            this.Buffs.AddRange(updatedPiece.Buffs);
+            this.buffs.AddRange(updatedPiece.buffs);
 
             // Update sprite renderer
             // TODO: Maybe add function to check if white or black
@@ -293,6 +312,16 @@ namespace Assets.Scripts.Game.Board
 
         public void AddReduceLives(int changedAmount, bool flashColor)
         {
+            if (this.Lives <= 0 && changedAmount > 0)
+            {
+                this.RevivePiece(changedAmount);
+                if (flashColor)
+                {
+                    this.FlashSprite(Color.green).ConfigureAwait(true);
+                }
+                return;
+            }
+
             if (flashColor)
             {
                 if (changedAmount >= 0)
@@ -311,6 +340,8 @@ namespace Assets.Scripts.Game.Board
             {
                 this.DestroyPiece();
             }
+
+            this.UpdateTooltip();
         }
 
         public void AddReduceStrength(int changedAmount, bool flashColor)
@@ -328,6 +359,8 @@ namespace Assets.Scripts.Game.Board
             }
 
             this.Strength += changedAmount;
+
+            this.UpdateTooltip();
         }
 
         public async Task FlashSprite(Color flashColor)
@@ -350,6 +383,73 @@ namespace Assets.Scripts.Game.Board
         public void SetPieceType(ChessPieceType newType)
         {
             this.PieceType = newType;
+        }
+
+        public string GenerateTooltip()
+        {
+            string buffString = string.Empty;
+
+            if (this.buffs.Count > 0)
+            {
+                var buff = this.buffs.ElementAt(0);
+                if (buff != null && buff.IsActive)
+                {
+                    buffString = buff.BuffName ?? buff.GetType().Name;
+                }
+
+                if (this.buffs.Count > 1)
+                {
+                    int i = 1;
+                    do
+                    {
+                        buff = this.buffs.ElementAt(i);
+                        if (buff != null && buff.IsActive)
+                        {
+                            buffString = buffString + "\n" + (buff.BuffName ?? buff.GetType().Name);
+                        }
+                        i++;
+                    } while (i < this.buffs.Count);
+                }
+            }
+
+            if (string.IsNullOrEmpty(buffString))
+            {
+                return $"HP: {this.Lives}\nStrength: {this.Strength}";
+            }
+            else
+            {
+                return $"HP: {this.Lives}\nStrength: {this.Strength}\nBuffs:\n{buffString}";
+            }
+        }
+
+        internal void AddBuff(BuffBase newBuff)
+        {
+            this.buffs.Add(newBuff);
+
+            this.UpdateTooltip();
+        }
+
+        public void UpdateTooltip()
+        {
+            if (this.CurrentTile == null)
+            {
+                return;
+            }
+
+            if (this.Lives > 0)
+            {
+                this.CurrentTile.Tooltip = this.CurrentTile.gameObject.GetComponent<WorldTooltip>();
+                if (this.CurrentTile.Tooltip == null)
+                {
+                    this.CurrentTile.Tooltip =
+                        this.CurrentTile.gameObject.AddComponent<WorldTooltip>();
+                }
+                this.CurrentTile.Tooltip.SetTooltipText(this.GenerateTooltip());
+            }
+            else
+            {
+                Destroy(this.CurrentTile.Tooltip);
+            }
         }
     }
 }

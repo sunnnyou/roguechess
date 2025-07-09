@@ -7,18 +7,19 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
     using UnityEngine;
 
     [CreateAssetMenu(fileName = "SpeedRunBuff", menuName = "Game/Buffs/SpeedRunBuff")]
-    public class SpeedRunBuff : UpdateBuff
+    public class SpeedRunBuff : MoveBuff
     {
         public SpeedRunBuff()
         {
-            this.UpdateFunction = SpeedRunFnc;
+            this.MoveFunction = SpeedRunFnc;
         }
 
-        public static IChessObject SpeedRunFnc(IChessObject chessObject)
+        public static List<ChessTile> SpeedRunFnc(IChessObject chessObject)
         {
+            var newValidTiles = new List<ChessTile>();
             if (chessObject == null || chessObject is not ChessPiece piece)
             {
-                return chessObject;
+                return newValidTiles;
             }
 
             List<MoveRule> addedMoves = new();
@@ -43,7 +44,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
                 }
             }
 
-            return piece;
+            return MoveRule.GetValidTiles(addedMoves, piece.CurrentTile.Position, piece.IsWhite);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Assets.Scripts.Game.Board
 
     public interface IChessObject
     {
-        public abstract List<BuffBase> Buffs { get; }
+        internal List<BuffBase> Buffs { get; }
 
         public SpriteRenderer SpriteRenderer { get; set; }
     }

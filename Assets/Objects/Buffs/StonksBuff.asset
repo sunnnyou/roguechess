@@ -16,10 +16,12 @@ MonoBehaviour:
   Description: After each round you gain 25% of your held gold additionally.
   Icon: {fileID: -103552792185707809, guid: bafcf14cae80c2d41b8ecf633b068ab3, type: 3}
   IsActive: 1
-  Cost: 10
-  DurationMoves: -1
+  Cost: 59
   DurationTurns: -1
   DurationRounds: -1
+  UsableInGame: 0
+  SelectionType: 2
+  UsableOnce: 0
   WasUsed: 0
   Turn: 0
   Round: 0

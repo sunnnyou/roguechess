@@ -4,6 +4,7 @@ namespace Assets.Scripts.UI.Buffs
     using Assets.Scripts.Game;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.Player;
+    using Assets.Scripts.UI.Tooltip;
     using DG.Tweening;
     using TMPro;
     using UnityEngine;
@@ -30,6 +31,7 @@ namespace Assets.Scripts.UI.Buffs
         private bool enoughGold;
         private bool enoughSpace;
         private bool buyingEnabled;
+        private TooltipHover tooltip;
 
         public void Start()
         {
@@ -53,7 +55,7 @@ namespace Assets.Scripts.UI.Buffs
 
             // Open scroll
             _ = this.OpenScrollAsync(false);
-
+            this.ForceDisableBuying();
             this.enoughGold = InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost);
             this.enoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
             this.UpdateBuying();
@@ -153,15 +155,17 @@ namespace Assets.Scripts.UI.Buffs
             Button button = this.GetComponent<Button>();
             button.interactable = true;
 
-            this.enoughGold = InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost);
-            this.enoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
-            this.UpdateBuying();
+            this.ForceDisableBuying();
 
             // Close scroll and wait for it to complete
             await this.CloseScrollAsync(false);
 
             // Display new buff content
             this.DisplayRandomBuff();
+
+            this.enoughGold = InventoryManager.Instance.HasEnoughGold(this.currentBuff.Cost);
+            this.enoughSpace = !InventoryManager.Instance.IsConsumableInventoryFull();
+            this.UpdateBuying();
 
             // Open scroll and wait for it to complete
             await this.OpenScrollAsync(false);
@@ -231,6 +235,14 @@ namespace Assets.Scripts.UI.Buffs
             {
                 this.BuffImage.sprite = this.currentBuff.Icon;
             }
+
+            // Tooltip
+            this.tooltip = this.gameObject.AddComponent<TooltipHover>();
+            if (this.tooltip == null)
+            {
+                this.tooltip = this.gameObject.AddComponent<TooltipHover>();
+            }
+            this.tooltip.TipToShow = this.currentBuff.GenerateTooltip();
         }
 
         public BuffBase GetCurrentBuff()
@@ -249,7 +261,10 @@ namespace Assets.Scripts.UI.Buffs
 
         private void BuyBuff()
         {
-            InventoryManager.Instance.SpendGold(this.currentBuff.Cost);
+            if (!InventoryManager.Instance.SpendGold(this.currentBuff.Cost))
+            {
+                this.ForceDisableBuying();
+            }
             InventoryManager.Instance.AddConsumable(this.currentBuff);
             this.CloseScroll();
             Button button = this.GetComponent<Button>();
@@ -261,23 +276,34 @@ namespace Assets.Scripts.UI.Buffs
             var enable = this.enoughGold && this.enoughSpace;
             if (enable && !this.buyingEnabled)
             {
-                Button button = this.GetComponent<Button>();
-                button.onClick.AddListener(this.BuyBuff);
-
-                var image = this.GetComponent<Image>();
-                image.color = this.enabledColor;
-                this.buyingEnabled = true;
+                this.ForceEnableBuying();
             }
             else if (!enable && this.buyingEnabled)
             {
-                Button button = this.GetComponent<Button>();
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(this.Wiggle);
-
-                var image = this.GetComponent<Image>();
-                image.color = this.disabledColor;
-                this.buyingEnabled = false;
+                this.ForceDisableBuying();
             }
+        }
+
+        private void ForceDisableBuying()
+        {
+            Button button = this.GetComponent<Button>();
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(this.Wiggle);
+
+            var image = this.GetComponent<Image>();
+            image.color = this.disabledColor;
+            this.buyingEnabled = false;
+        }
+
+        private void ForceEnableBuying()
+        {
+            Button button = this.GetComponent<Button>();
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(this.BuyBuff);
+
+            var image = this.GetComponent<Image>();
+            image.color = this.enabledColor;
+            this.buyingEnabled = true;
         }
 
         private void OnGoldChanged(int newGoldAmount)

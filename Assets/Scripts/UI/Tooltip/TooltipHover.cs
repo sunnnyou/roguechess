@@ -5,14 +5,10 @@ namespace Assets.Scripts.UI.Tooltip
     using UnityEngine.EventSystems;
     using UnityEngine.InputSystem;
 
-    public class TooltipHover
-        : MonoBehaviour,
-            IPointerEnterHandler,
-            IPointerExitHandler,
-            IPointerMoveHandler
+    public class TooltipHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public string TipToShow;
-        private float timeToWait = 0.5f;
+        private readonly float timeToWait = 0.5f;
 
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -46,13 +42,7 @@ namespace Assets.Scripts.UI.Tooltip
 
         private static Vector2 GetMousePosition()
         {
-            // if (Mouse.current != null)
-            // {
             return Mouse.current.position.ReadValue();
-            // }
-
-            // // Fallback to legacy input system
-            // return Input.mousePosition;
         }
     }
 }

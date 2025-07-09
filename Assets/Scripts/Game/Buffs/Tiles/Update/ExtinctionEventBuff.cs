@@ -15,15 +15,15 @@ namespace Assets.Scripts.Game.Buffs.Tiles.Update
 
         public IChessObject ExtinctionEventFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece newPiece || newPiece == null)
+            if (chessObject is not ChessTile tile || tile == null)
             {
                 Debug.LogError("Invalid arguments for UnoReversTileFnc buff.");
                 return null;
             }
 
             var surroundingPos = CoordinateHelper.GetSurroundingCoordinatesWithBounds(
-                newPiece.CurrentTile.Position.x,
-                newPiece.CurrentTile.Position.y
+                tile.Position.x,
+                tile.Position.y
             );
 
             foreach (var (x, y) in surroundingPos)
@@ -38,7 +38,7 @@ namespace Assets.Scripts.Game.Buffs.Tiles.Update
                     currentTile.CurrentPiece.AddReduceLives(-this.damageAmount, true);
                 }
             }
-            newPiece.AddReduceLives(-this.damageAmount, true);
+            tile.CurrentPiece.AddReduceLives(-this.damageAmount, true);
 
             this.WasUsed = true;
 

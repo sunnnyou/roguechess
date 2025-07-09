@@ -6,6 +6,8 @@ namespace Assets.Scripts.Game.Buffs.Tiles.Update
     [CreateAssetMenu(fileName = "EnPassantTileBuff", menuName = "Game/Buffs/EnPassantTileBuff")]
     public class EnPassantTileBuff : UpdateBuff
     {
+        public new string BuffName = "EnPassantTileBuff";
+
         public EnPassantTileBuff()
         {
             this.UpdateFunction = this.EnPassantDebuff;

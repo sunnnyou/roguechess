@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: PawnBrokerBuff
   m_EditorClassIdentifier: 
   BuffName: Pawn Broker
-  Description: Gain an extra 3 gold at the end of every round.
+  Description: Gain an extra 8 gold at the end of every round.
   Icon: {fileID: -1691934006974469841, guid: 9e3e0b83f01bcdc43badaf2ac7db08a9, type: 3}
   IsActive: 1
-  Cost: 8
-  DurationMoves: -1
+  Cost: 45
   DurationTurns: -1
   DurationRounds: -1
+  UsableInGame: 0
+  SelectionType: 2
+  UsableOnce: 0
   WasUsed: 0
   Turn: 0
   Round: 0

@@ -16,12 +16,12 @@ MonoBehaviour:
   Description: Permanently increase a pieces' attack power by 1.
   Icon: {fileID: -5844357905139420229, guid: f3534e30df75b4a4299c9368798fd92f, type: 3}
   IsActive: 1
-  Cost: 8
-  DurationMoves: -1
+  Cost: 50
   DurationTurns: -1
   DurationRounds: -1
   UsableInGame: 0
   SelectionType: 0
+  UsableOnce: 0
   WasUsed: 0
   Turn: 0
   Round: 0

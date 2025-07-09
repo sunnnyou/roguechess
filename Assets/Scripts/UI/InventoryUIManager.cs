@@ -7,6 +7,7 @@ namespace Assets.Scripts.UI
     using Assets.Scripts.Game.Player;
     using TMPro;
     using UnityEngine;
+    using UnityEngine.EventSystems;
     using UnityEngine.InputSystem;
     using UnityEngine.SceneManagement;
     using UnityEngine.UI;
@@ -275,11 +276,11 @@ namespace Assets.Scripts.UI
 
         private void OnChessPieceSlotClicked(int slotIndex)
         {
-            if (this.isConsumableSelectionMode)
-            {
-                this.HandleConsumableTargetSelection(slotIndex, true);
-                return;
-            }
+            // if (this.isConsumableSelectionMode)
+            // {
+            //     this.HandleConsumableTargetSelection(slotIndex, true);
+            //     return;
+            // }
 
             ChessPiece piece = InventoryManager.Instance.GetChessPieceAt(slotIndex);
             if (piece != null)
@@ -297,7 +298,7 @@ namespace Assets.Scripts.UI
 
                 // Check if consumable is usable in current scene
                 string currentScene = SceneManager.GetActiveScene().name;
-                bool isGameScene = (currentScene == "Game");
+                bool isGameScene = currentScene == "Game";
 
                 if (isGameScene && !consumable.UsableInGame)
                 {
@@ -347,10 +348,18 @@ namespace Assets.Scripts.UI
                 if (consumable.SelectionType == SelectionType.Tile)
                 {
                     this.HighlightGameTiles();
+                    if (this.isInventoryOpen)
+                    {
+                        this.ToggleInventory();
+                    }
                 }
                 else if (consumable.SelectionType == SelectionType.Piece)
                 {
                     this.HighlightGamePieces();
+                    if (this.isInventoryOpen)
+                    {
+                        this.ToggleInventory();
+                    }
                 }
             }
             else if (currentScene == "Shop")
@@ -395,7 +404,7 @@ namespace Assets.Scripts.UI
         private void HighlightGameTiles()
         {
             // Find all tiles in the game scene
-            var tiles = FindObjectsOfType<ChessTile>();
+            var tiles = FindObjectsByType<ChessTile>(FindObjectsSortMode.None);
             foreach (var tile in tiles)
             {
                 if (tile.TryGetComponent<Image>(out var image))
@@ -416,7 +425,8 @@ namespace Assets.Scripts.UI
         private void HighlightGamePieces()
         {
             // Find all chess pieces in the game scene
-            var chessPieces = FindObjectsOfType<ChessPiece>();
+            var chessPieces = FindObjectsByType<ChessPiece>(FindObjectsSortMode.None);
+
             foreach (var piece in chessPieces)
             {
                 if (piece.TryGetComponent<Image>(out var image))
@@ -438,7 +448,9 @@ namespace Assets.Scripts.UI
         {
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
-                Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 mousePos = Camera.main.ScreenToWorldPoint(
+                    Mouse.current.position.ReadValue()
+                );
                 bool targetFound = false;
 
                 string currentScene = SceneManager.GetActiveScene().name;
@@ -448,16 +460,22 @@ namespace Assets.Scripts.UI
                     // Check selection type and find appropriate target
                     if (this.selectedConsumable.SelectionType == SelectionType.Tile)
                     {
-                        var hit = Physics2D.OverlapPoint(mousePos);
-                        if (hit != null && hit.TryGetComponent<ChessTile>(out var tile))
+                        var hit = Physics2D.Raycast(mousePos, Vector2.zero);
+                        if (
+                            hit.collider != null
+                            && hit.collider.TryGetComponent<ChessTile>(out var tile)
+                        )
                         {
                             targetFound = this.ApplyConsumableToTile(tile);
                         }
                     }
                     else if (this.selectedConsumable.SelectionType == SelectionType.Piece)
                     {
-                        var hit = Physics2D.OverlapPoint(mousePos);
-                        if (hit != null && hit.TryGetComponent<ChessPiece>(out var piece))
+                        var hit = Physics2D.Raycast(mousePos, Vector2.zero);
+                        if (
+                            hit.collider != null
+                            && hit.collider.TryGetComponent<ChessPiece>(out var piece)
+                        )
                         {
                             targetFound = this.ApplyConsumableToGamePiece(piece);
                         }
@@ -468,20 +486,32 @@ namespace Assets.Scripts.UI
                     // In shop, only pieces can be selected
                     if (this.selectedConsumable.SelectionType == SelectionType.Piece)
                     {
-                        // Check if clicked on a chess piece slot
-                        for (int i = 0; i < this.chessPieceSlots.Count; i++)
+                        Vector2 mousePosition = Mouse.current.position.ReadValue();
+
+                        PointerEventData pointerData = new PointerEventData(EventSystem.current)
                         {
-                            var slot = this.chessPieceSlots[i];
-                            if (
-                                RectTransformUtility.RectangleContainsScreenPoint(
-                                    slot.GetComponent<RectTransform>(),
-                                    Input.mousePosition,
-                                    Camera.main
-                                )
-                            )
+                            position = mousePosition,
+                        };
+
+                        List<RaycastResult> results = new List<RaycastResult>();
+                        EventSystem.current.RaycastAll(pointerData, results);
+
+                        foreach (RaycastResult result in results)
+                        {
+                            // First check the hit object itself
+                            InventorySlot slot = result.gameObject.GetComponent<InventorySlot>();
+                            if (slot != null && slot.GetItem() is ChessPiece piece)
                             {
-                                targetFound = this.HandleConsumableTargetSelection(i, false);
-                                break;
+                                targetFound = this.ApplyConsumableToGamePiece(piece);
+                            }
+                            else
+                            {
+                                // Check if parent was hit
+                                slot = result.gameObject.GetComponentInParent<InventorySlot>();
+                                if (slot != null && slot.GetItem() is ChessPiece pieceParent)
+                                {
+                                    targetFound = this.ApplyConsumableToGamePiece(pieceParent);
+                                }
                             }
                         }
                     }
@@ -501,10 +531,14 @@ namespace Assets.Scripts.UI
 
         private bool ApplyConsumableToTile(ChessTile tile)
         {
+            if (this.selectedConsumable == null)
+            {
+                return false;
+            }
             try
             {
                 tile.AddBuff(this.selectedConsumable);
-                this.ConsumeSelectedConsumable();
+                this.ConsumeSelectedConsumable(tile);
                 Debug.Log($"Applied consumable {this.selectedConsumable.name} to tile");
                 return true;
             }
@@ -520,47 +554,41 @@ namespace Assets.Scripts.UI
             ChessPiece piece = InventoryManager.Instance.GetChessPieceAt(slotIndex);
             if (piece != null)
             {
-                try
-                {
-                    piece.Buffs.Add(this.selectedConsumable);
-                    Debug.Log(
-                        $"Applied consumable {this.selectedConsumable.name} to chess piece {piece.PieceType}"
-                    );
-                    this.ConsumeSelectedConsumable();
-                    return true;
-                }
-                catch (System.Exception e)
-                {
-                    Debug.LogError($"Failed to apply consumable to chess piece: {e.Message}");
-                    return false;
-                }
+                this.ApplyConsumableToGamePiece(piece);
             }
             return false;
         }
 
         private bool ApplyConsumableToGamePiece(ChessPiece piece)
         {
+            if (this.selectedConsumable == null)
+            {
+                return false;
+            }
             try
             {
-                piece.Buffs.Add(this.selectedConsumable);
-                this.ConsumeSelectedConsumable();
+                piece.AddBuff(this.selectedConsumable);
                 Debug.Log(
-                    $"Applied consumable {this.selectedConsumable.name} to game piece {piece.PieceType}"
+                    $"Applied consumable {this.selectedConsumable.name} to chess piece {piece.PieceType}"
                 );
+                this.ConsumeSelectedConsumable(piece);
                 return true;
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"Failed to apply consumable to game piece: {e.Message}");
+                Debug.LogError($"Failed to apply consumable to chess piece: {e.Message}");
                 return false;
             }
         }
 
-        private void ConsumeSelectedConsumable()
+        private void ConsumeSelectedConsumable(IChessObject chessObject = null)
         {
             if (this.selectedConsumableSlotIndex >= 0)
             {
-                InventoryManager.Instance.UseConsumable(this.selectedConsumableSlotIndex);
+                InventoryManager.Instance.UseConsumable(
+                    this.selectedConsumableSlotIndex,
+                    chessObject
+                );
                 this.EndConsumableSelection();
             }
         }
@@ -696,6 +724,13 @@ namespace Assets.Scripts.UI
             {
                 this.inventoryPanel.SetActive(true);
                 this.isInventoryOpen = true;
+
+                // Cancel any active consumable selection
+                if (this.isConsumableSelectionMode)
+                {
+                    this.CancelConsumableSelection();
+                }
+
                 this.RefreshInventoryDisplay();
                 Debug.Log("Inventory opened");
             }
@@ -707,12 +742,6 @@ namespace Assets.Scripts.UI
             {
                 this.inventoryPanel.SetActive(false);
                 this.isInventoryOpen = false;
-
-                // Cancel any active consumable selection when closing inventory
-                if (this.isConsumableSelectionMode)
-                {
-                    this.CancelConsumableSelection();
-                }
 
                 Debug.Log("Inventory closed");
             }

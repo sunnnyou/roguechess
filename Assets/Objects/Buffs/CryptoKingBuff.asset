@@ -17,10 +17,12 @@ MonoBehaviour:
     friendly piece defeated.
   Icon: {fileID: -7510014920548875093, guid: 2d5d599a6a814cc4ab63840d72deab92, type: 3}
   IsActive: 1
-  Cost: 15
-  DurationMoves: -1
+  Cost: 18
   DurationTurns: -1
   DurationRounds: -1
+  UsableInGame: 0
+  SelectionType: 2
+  UsableOnce: 0
   WasUsed: 0
   Turn: 0
   Round: 0

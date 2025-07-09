@@ -18,7 +18,7 @@ MonoBehaviour:
     have their health reduced by 1.
   Icon: {fileID: 7029301469737702658, guid: fe261fcdaf29a9242bab340ff8bd49de, type: 3}
   IsActive: 1
-  Cost: 9
+  Cost: 47
   DurationTurns: -1
   DurationRounds: -1
   UsableInGame: 1

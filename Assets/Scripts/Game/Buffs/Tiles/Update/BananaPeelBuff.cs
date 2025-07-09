@@ -11,26 +11,26 @@ namespace Assets.Scripts.Game.Buffs.Tiles.Update
 
         private readonly int damageAmount = 2;
 
-        public BananaPeelBuff(ChessTile tile)
+        public BananaPeelBuff()
         {
-            if (this.topSpriteRenderer == null)
-            {
-                this.AddTopSpriteRenderer(tile);
-            }
             this.UpdateFunction = this.BananaPeelFnc;
         }
 
         public IChessObject BananaPeelFnc(IChessObject chessObject)
         {
-            if (chessObject is not ChessPiece piece || piece == null)
+            if (chessObject is not ChessTile tile || tile == null)
             {
                 Debug.LogError("Invalid arguments for EnPassantDebuff buff.");
                 return null;
             }
+            this.AddTopSpriteRenderer(tile);
 
-            this.WasUsed = true;
-            piece.AddReduceLives(-this.damageAmount, true);
-            this.RemoveTopSpriteRenderer();
+            if (tile.CurrentPiece != null)
+            {
+                this.WasUsed = true;
+                tile.CurrentPiece.AddReduceLives(-this.damageAmount, true);
+                this.RemoveTopSpriteRenderer();
+            }
 
             return null;
         }
@@ -50,7 +50,8 @@ namespace Assets.Scripts.Game.Buffs.Tiles.Update
             // Remove existing top sprite if it exists
             if (this.topSpriteRenderer != null)
             {
-                this.RemoveTopSpriteRenderer();
+                return;
+                //this.RemoveTopSpriteRenderer();
             }
 
             // Create new GameObject for the top sprite

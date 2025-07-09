@@ -17,7 +17,7 @@ MonoBehaviour:
     Attack power cannot be lower to zero by this buff.
   Icon: {fileID: -3632091375616087102, guid: afa2c4a71d83d004581e061dca9fcfad, type: 3}
   IsActive: 1
-  Cost: 10
+  Cost: 29
   DurationTurns: -1
   DurationRounds: -1
   UsableInGame: 1

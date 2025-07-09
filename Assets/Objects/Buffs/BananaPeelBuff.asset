@@ -17,7 +17,7 @@ MonoBehaviour:
     tile will take 2 damage.
   Icon: {fileID: -6539845494953745017, guid: 3a900c813aceacf489777a8612b0c024, type: 3}
   IsActive: 1
-  Cost: 4
+  Cost: 9
   DurationTurns: -1
   DurationRounds: -1
   UsableInGame: 1

@@ -17,12 +17,12 @@ MonoBehaviour:
     in all directions.
   Icon: {fileID: -4554211191458919363, guid: d349bb440e8cea1468372a06f81ad132, type: 3}
   IsActive: 1
-  Cost: 6
-  DurationMoves: -1
+  Cost: 38
   DurationTurns: -1
   DurationRounds: -1
   UsableInGame: 0
   SelectionType: 0
+  UsableOnce: 0
   WasUsed: 0
   Turn: 0
   Round: 0

@@ -18,12 +18,12 @@ MonoBehaviour:
     the start of the round.
   Icon: {fileID: 2141188580037841102, guid: d2900ca20197dce4192bec434f946198, type: 3}
   IsActive: 1
-  Cost: 9
-  DurationMoves: -1
+  Cost: 36
   DurationTurns: -1
   DurationRounds: -1
   UsableInGame: 0
   SelectionType: 0
+  UsableOnce: 0
   WasUsed: 0
   Turn: 0
   Round: 0

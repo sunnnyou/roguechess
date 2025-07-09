@@ -17,7 +17,7 @@ MonoBehaviour:
     round.
   Icon: {fileID: 6984038022374861424, guid: 9c8e9c6248bd5fb42b09baebd6509699, type: 3}
   IsActive: 1
-  Cost: 6
+  Cost: 19
   DurationTurns: -1
   DurationRounds: -1
   UsableInGame: 1

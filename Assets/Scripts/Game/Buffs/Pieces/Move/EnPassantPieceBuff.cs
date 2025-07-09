@@ -9,6 +9,8 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Move
     [CreateAssetMenu(fileName = "EnPassantPieceBuff", menuName = "Game/Buffs/EnPassantPieceBuff")]
     public class EnPassantPieceBuff : MoveBuff
     {
+        public new string BuffName = "EnPassantPieceBuff";
+
         public EnPassantPieceBuff()
         {
             this.MoveFunction = GetEnPassantTiles;

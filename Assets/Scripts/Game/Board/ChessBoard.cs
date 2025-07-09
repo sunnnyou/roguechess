@@ -23,6 +23,7 @@ namespace Assets.Scripts.Game.Board
         // TODO: add function to save and load game state (including board, pieces, move history, etc.)
         // TODO: add function to display piece buffs, hp, strength and other info when hovering over a piece
         // TODO: add function to add material to pieces or tiles when specific buffs are applied
+        // TODO: make ReachEndOfBoard buff replace pieces' sprite and move rules
         public static ChessBoard Instance { get; private set; }
         public ChessBoardData BoardData;
 
@@ -308,6 +309,8 @@ namespace Assets.Scripts.Game.Board
                 // Place the piece on the tile
                 tile.UpdatePiece(piece, true, true);
             }
+
+            piece.UpdateTooltip();
 
             return piece;
         }

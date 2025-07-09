@@ -47,17 +47,19 @@ namespace Assets.Scripts.Game.Buffs
 
         public object ApplyBuff(IChessObject buffReceiver)
         {
-            if (buffReceiver == null)
-            {
-                Debug.LogError($"Invalid arguments for buff '{this.BuffName}'.");
-                return null;
-            }
+            // if (buffReceiver == null)
+            // {
+            //     Debug.LogError($"Invalid arguments for buff '{this.BuffName}'.");
+            //     return null;
+            // }
 
             if (!this.IsActive)
             {
                 Debug.LogWarning($"Buff '{this.BuffName}' is not active.");
                 return null;
             }
+
+            Debug.Log($"Used consumable {this.BuffName}");
 
             var result = this.BuffFunction(buffReceiver);
             return result;
@@ -93,6 +95,21 @@ namespace Assets.Scripts.Game.Buffs
                 this.IsActive = false;
                 Debug.LogWarning($"Buff '{this.BuffName}' set to inactive.");
             }
+        }
+
+        public string GenerateTooltip()
+        {
+            string tooltip = $"{this.BuffName ?? this.GetType().Name}";
+
+            if (!string.IsNullOrEmpty(this.Description))
+            {
+                tooltip += $"\n{this.Description}";
+            }
+
+            tooltip += this.UsableInGame ? "\nOnly usable in game" : "\nOnly usable in the shop";
+            tooltip += this.UsableOnce ? "\nConsumable buff" : "\nPassive buff";
+
+            return tooltip;
         }
     }
 }

@@ -1,7 +1,6 @@
 // Represents a single chess tile on the board
 namespace Assets.Scripts.Game.Board
 {
-    using System;
     using System.Collections.Generic;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.MoveRules;
@@ -13,12 +12,15 @@ namespace Assets.Scripts.Game.Board
         [SerializeField]
         private ChessTileData tileData;
 
-        public List<BuffBase> Buffs { get; } = new List<BuffBase>();
+        private readonly List<BuffBase> buffs = new();
+        List<BuffBase> IChessObject.Buffs => this.buffs;
+
         public SpriteRenderer SpriteRenderer { get; set; }
         public Vector2Int Position;
         public Color OriginalColor;
         public bool IsWhite;
         public ChessPiece CurrentPiece;
+        public WorldTooltip Tooltip;
 
         private Color highlightColor = new(0.0f, 0.4f, 0.0f); // green
         private Color checkColor = new(0.4f, 0.0f, 0.0f); // red
@@ -53,7 +55,7 @@ namespace Assets.Scripts.Game.Board
                 // Add initial buffs
                 if (data.InitialBuffs != null)
                 {
-                    this.Buffs.AddRange(data.InitialBuffs);
+                    this.buffs.AddRange(data.InitialBuffs);
                 }
 
                 // Spawn starting piece if configured
@@ -184,7 +186,16 @@ namespace Assets.Scripts.Game.Board
                 ChessBoard.Instance.AddMove(move);
             }
 
+            if (this.Tooltip != null && !ignoreMoveHistory)
+            {
+                Destroy(this.Tooltip);
+            }
+
             this.CurrentPiece = newPiece;
+            if (!ignoreMoveHistory)
+            {
+                this.CurrentPiece.UpdateTooltip();
+            }
             return move;
         }
 
@@ -204,13 +215,13 @@ namespace Assets.Scripts.Game.Board
 
         public void AddBuff(BuffBase buff)
         {
-            this.Buffs.Add(buff);
+            this.buffs.Add(buff);
         }
 
         private List<ChessPiece> ApplyBuffs(ChessPiece piece)
         {
             List<ChessPiece> destroyedPieces = new();
-            foreach (var buff in this.Buffs)
+            foreach (var buff in this.buffs)
             {
                 if (buff == null || !buff.IsActive)
                 {

@@ -11,6 +11,7 @@ namespace Assets.Scripts.Game.Buffs.Pieces.Update
     )]
     public class PromoteAtEndPieceBuff : UpdateBuff
     {
+        public new string BuffName = "PromoteAtEndPieceBuff";
         private readonly int? promoteAtX;
         private readonly int? promoteAtY;
 

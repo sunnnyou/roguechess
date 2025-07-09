@@ -300,7 +300,7 @@ namespace Assets.Scripts.Game.Player
             return true;
         }
 
-        public bool UseConsumable(int index)
+        public bool UseConsumable(int index, IChessObject chessObject = null)
         {
             if (index < 0 || index >= this.consumables.Count)
             {
@@ -310,8 +310,12 @@ namespace Assets.Scripts.Game.Player
 
             var consumable = this.consumables[index];
 
-            // TODO: use consumable function
-            Debug.Log($"Used consumable at index {index}");
+            if (consumable.IsActive && consumable.UsableOnce)
+            {
+                consumable.ApplyBuff(chessObject);
+            }
+
+            Debug.Log($"Used consumable {consumable.name} at index {index}");
 
             // Remove the consumable after use
             return this.RemoveConsumableAt(index);

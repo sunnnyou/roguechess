@@ -17,7 +17,7 @@ MonoBehaviour:
     have its own health reduced by its attack power.
   Icon: {fileID: -1840722404021205925, guid: b64bdb6271377c942ab686a7c682853f, type: 3}
   IsActive: 1
-  Cost: 7
+  Cost: 14
   DurationTurns: -1
   DurationRounds: -1
   UsableInGame: 1

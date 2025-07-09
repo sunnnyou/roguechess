@@ -16,7 +16,7 @@ MonoBehaviour:
   Description: Use this buff to skip the next turn of your enemy.
   Icon: {fileID: 4703672058491577280, guid: 4a440401bea148d4195cd159294b658d, type: 3}
   IsActive: 1
-  Cost: 6
+  Cost: 8
   DurationTurns: -1
   DurationRounds: -1
   UsableInGame: 1

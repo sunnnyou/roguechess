@@ -23,19 +23,9 @@ namespace Assets.Scripts.UI.Tooltip
             OnMouseLoseFocus -= this.HideTip;
         }
 
-        public void Start()
-        {
-            this.HideTip();
-        }
-
         private void ShowTip(string tip, Vector2 mousePos)
         {
             this.TipText.text = tip;
-            this.TipWindow.sizeDelta = new Vector2(
-                this.TipText.preferredWidth > 200 ? 200 : this.TipText.preferredWidth,
-                this.TipText.preferredHeight
-            );
-
             this.TipWindow.gameObject.SetActive(true);
             this.TipWindow.transform.position = new Vector2(mousePos.x, mousePos.y);
         }

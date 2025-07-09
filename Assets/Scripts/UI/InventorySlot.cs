@@ -5,6 +5,7 @@ namespace Assets.Scripts.UI
     using Assets.Scripts.Game.Board;
     using Assets.Scripts.Game.Buffs;
     using Assets.Scripts.Game.Player;
+    using Assets.Scripts.UI.Tooltip;
     using TMPro;
     using UnityEngine;
     using UnityEngine.EventSystems;
@@ -44,6 +45,7 @@ namespace Assets.Scripts.UI
         private static InventorySlot sourceSlot;
         private Canvas canvas;
         private bool draggable;
+        private TooltipHover tooltip;
 
         public enum SlotType
         {
@@ -178,6 +180,14 @@ namespace Assets.Scripts.UI
             {
                 this.quantityPanel.SetActive(false);
             }
+
+            // Tooltip
+            this.tooltip = this.gameObject.AddComponent<TooltipHover>();
+            if (this.tooltip == null)
+            {
+                this.tooltip = this.gameObject.AddComponent<TooltipHover>();
+            }
+            this.tooltip.TipToShow = chessPiece.GenerateTooltip();
         }
 
         private void SetConsumableItem(BuffBase consumable)
@@ -206,6 +216,14 @@ namespace Assets.Scripts.UI
                 // TODO: add quantity panel function
                 this.quantityPanel.SetActive(false);
             }
+
+            // Tooltip
+            this.tooltip = this.gameObject.AddComponent<TooltipHover>();
+            if (this.tooltip == null)
+            {
+                this.tooltip = this.gameObject.AddComponent<TooltipHover>();
+            }
+            this.tooltip.TipToShow = consumable.GenerateTooltip();
         }
 
         public void ClearItem()
@@ -246,6 +264,28 @@ namespace Assets.Scripts.UI
             }
 
             this.backgroundImage.color = targetColor;
+
+            // Tooltip
+            if (this.currentItem != null)
+            {
+                this.tooltip = this.gameObject.AddComponent<TooltipHover>();
+                if (this.tooltip == null)
+                {
+                    this.tooltip = this.gameObject.AddComponent<TooltipHover>();
+                }
+                if (this.currentItem is ChessPiece piece)
+                {
+                    this.tooltip.TipToShow = piece.GenerateTooltip();
+                }
+                else if (this.currentItem is BuffBase buff)
+                {
+                    this.tooltip.TipToShow = buff.GenerateTooltip();
+                }
+            }
+            else
+            {
+                Destroy(this.tooltip);
+            }
         }
 
         public void SetSelected(bool selected)
@@ -338,11 +378,6 @@ namespace Assets.Scripts.UI
 
         // Event Handlers
 
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            // maybe add something
-        }
-
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (this.backgroundImage != null && !this.IsSelected)
@@ -365,10 +400,9 @@ namespace Assets.Scripts.UI
 
         // Public Utility Methods
 
-        public T GetItem<T>()
-            where T : class
+        public object GetItem()
         {
-            return this.currentItem as T;
+            return this.currentItem;
         }
 
         public bool HasItem()

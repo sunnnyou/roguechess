@@ -17,12 +17,12 @@ MonoBehaviour:
     pieces 1 distance away in all directions will take 1 damage every turn.
   Icon: {fileID: 3485014977411509234, guid: 223b347e6ec1bd64dad3d474c4357cc4, type: 3}
   IsActive: 1
-  Cost: 4
-  DurationMoves: -1
+  Cost: 28
   DurationTurns: -1
   DurationRounds: -1
   UsableInGame: 0
   SelectionType: 0
+  UsableOnce: 0
   WasUsed: 0
   Turn: 0
   Round: 0
