@@ -20,10 +20,10 @@ namespace Assets.Scripts.Game
 
         [Header("Settings")]
         [Range(0f, 1f)]
-        public float MusicVolume = 0.7f;
+        public float MusicVolume = 0.5f;
 
         [Range(0f, 1f)]
-        public float SfxVolume = 0.7f;
+        public float SfxVolume = 0.5f;
         public bool FadeTransitions = true;
         public float FadeSpeed = 1f;
 
@@ -194,6 +194,12 @@ namespace Assets.Scripts.Game
         {
             this.MusicVolume = Mathf.Clamp01(volume);
             this.MusicSource.volume = this.MusicVolume;
+        }
+
+        public void SetSfxVolume(float volume)
+        {
+            this.SfxVolume = Mathf.Clamp01(volume);
+            this.SfxSource.volume = this.SfxVolume;
         }
 
         public System.Collections.IEnumerator FadeToNewMusic(AudioClip newClip)
