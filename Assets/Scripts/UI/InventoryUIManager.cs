@@ -113,7 +113,7 @@ namespace Assets.Scripts.UI
             {
                 this.closeInventoryButton.onClick.AddListener(() =>
                 {
-                    MusicManager.Instance.PlayPickUpSound();
+                    MusicManager.Instance.PlayClickSound();
                     this.CloseInventory();
                 });
             }
@@ -706,14 +706,13 @@ namespace Assets.Scripts.UI
 
         public void ToggleInventory()
         {
+            MusicManager.Instance.PlayClickSound();
             if (this.isInventoryOpen)
             {
-                MusicManager.Instance.PlayPickUpSound();
                 this.CloseInventory();
             }
             else
             {
-                MusicManager.Instance.PlayClickSound();
                 this.OpenInventory();
             }
         }

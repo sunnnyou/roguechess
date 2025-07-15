@@ -1,5 +1,6 @@
-namespace Assets.Scripts.Game
+namespace Assets.Scripts.UI
 {
+    using Assets.Scripts.Game;
     using TMPro;
     using UnityEngine;
     using UnityEngine.UI;
